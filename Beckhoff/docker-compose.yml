@@ -1,0 +1,13 @@
+services:
+  amlparser-modular:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./Input:/input:ro
+      - ./Output:/output
+    command:
+      - /input/GVL_PLC.xml
+      - /output/PlcStatusControl.generated.cs
+      - /output/extracted_variables.txt
+      - /input/plcstatus.properties

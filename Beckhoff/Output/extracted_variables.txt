@@ -1,0 +1,7 @@
+GVL_PLC.AllPartitiantsPresent
+GVL_PLC.AppTimestamp
+GVL_PLC.AppVersion
+GVL_PLC.CANOpenState
+GVL_PLC.iExpectedNumberOfPartitiants
+GVL_PLC.IsReleased
+GVL_PLC.SystemStatus
