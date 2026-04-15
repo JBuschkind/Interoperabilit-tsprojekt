@@ -6,15 +6,42 @@
 // import * as monaco from "monaco-editor";
 // loader.config({ monaco });
 
+import React, { useState, useRef } from "react";
+import MonacoEditor from "react-monaco-editor";
+
 export default function Merger() {
+  const [code, setCode] = useState("// type your code...");
+  const editorRef = useRef(null);
+
+  const handleEditorDidMount = (editor, monaco) => {
+    console.log("editorDidMount", editor);
+    editorRef.current = editor;
+    editor.focus();
+  };
+
+  const handleChange = (newValue, e) => {
+    console.log("onChange", newValue, e);
+    setCode(newValue);
+  };
+
+  const options = {
+    selectOnLineNumbers: true,
+  };
+
   return (
-    // <Editor
-    //   height="300px"
-    //   width="600px"
-    //   defaultLanguage="javascript"
-    //   defaultValue="// write code here"
-    //   theme="vs-dark"
-    // />
-    <div></div>
+    <div style={{ padding: "20px" }}>
+      <h2>Merger Page</h2>
+
+      <MonacoEditor
+        width="600"
+        height="600"
+        language="javascript"
+        theme="vs-dark"
+        value={code}
+        options={options}
+        onChange={handleChange}
+        editorDidMount={handleEditorDidMount}
+      />
+    </div>
   );
 }
