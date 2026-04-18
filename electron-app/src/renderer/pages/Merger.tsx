@@ -1,179 +1,93 @@
-import React, { useState, useRef, useEffect } from "react";
-import { MonacoDiffEditor } from "react-monaco-editor";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Merger() {
-  const [originalCode] = useState(
-    "// your original code...\nfunction a() { return 1; }\n// your original code"
-  );
+import { DefaultDarkColors, DefaultLightColors, MisMerge3 } from '@mismerge/react';
+import { codeToHtml } from 'shiki';
+import '@mismerge/core/styles.css';
+import '@mismerge/core/dark.css';
 
-  const [modifiedCode, setModifiedCode] = useState(
-    "// modified version...\nfunction a() { return 1; }\n// modified version..."
-  );
+export default function NewMerger() {
 
-  const diffEditorRef = useRef(null);
-  const monacoRef = useRef(null);
+  const navigate = useNavigate();
 
-  // ✅ IMPORTANT: separate decoration states
-  const modifiedDecorationsRef = useRef([]);
-  const originalDecorationsRef = useRef([]);
 
-  const handleEditorDidMount = (diffEditor, monaco) => {
-    diffEditorRef.current = diffEditor;
-    monacoRef.current = monaco;
+  const [ctr, setCtr] = useState('');
 
-    const modifiedEditor = diffEditor.getModifiedEditor();
-    const originalEditor = diffEditor.getOriginalEditor();
-
-    // =========================
-    // RIGHT SIDE CLICK
-    // =========================
-    modifiedEditor.onMouseDown((e) => {
-      if (
-        e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
-      ) {
-        const line = e.target.position?.lineNumber;
-        alert(`RIGHT button clicked at line ${line}`);
-      }
-    });
-
-    // =========================
-    // LEFT SIDE CLICK
-    // =========================
-    originalEditor.onMouseDown((e) => {
-      if (
-        e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN
-      ) {
-        const line = e.target.position?.lineNumber;
-        alert(`LEFT button clicked at line ${line}`);
-      }
-    });
-
-    diffEditor.getOriginalEditor().updateOptions({ glyphMargin: true });
-    diffEditor.getModifiedEditor().updateOptions({ glyphMargin: true });
-
-    updateDiffDecorations();
-  };
-
-  const handleChange = (value) => {
-    setModifiedCode(value);
-  };
-
-  const updateDiffDecorations = () => {
-    const diffEditor = diffEditorRef.current;
-    const monaco = monacoRef.current;
-
-    if (!diffEditor || !monaco) return;
-
-    const modifiedEditor = diffEditor.getModifiedEditor();
-    const originalEditor = diffEditor.getOriginalEditor();
-
-    const changes = diffEditor.getLineChanges?.() || [];
-
-    // =========================
-    // RIGHT SIDE (modified)
-    // =========================
-    const modifiedDecorations = changes.map((change) => ({
-      range: new monaco.Range(
-        change.modifiedStartLineNumber,
-        1,
-        change.modifiedStartLineNumber,
-        1
-      ),
-      options: {
-        glyphMarginClassName: "diff-glyph-button",
-        glyphMarginHoverMessage: { value: "Apply / revert change" },
-      },
-    }));
-
-    // =========================
-    // LEFT SIDE (original)
-    // =========================
-    const originalDecorations = changes.map((change) => ({
-      range: new monaco.Range(
-        change.originalStartLineNumber,
-        1,
-        change.originalStartLineNumber,
-        1
-      ),
-      options: {
-        glyphMarginClassName: "diff-glyph-button-left",
-        glyphMarginHoverMessage: { value: "Original side action" },
-      },
-    }));
-
-    // APPLY + PERSIST (this is the key fix)
-    modifiedDecorationsRef.current = modifiedEditor.deltaDecorations(
-      modifiedDecorationsRef.current,
-      modifiedDecorations
-    );
-
-    originalDecorationsRef.current = originalEditor.deltaDecorations(
-      originalDecorationsRef.current,
-      originalDecorations
-    );
-  };
-
-  // Update decorations when code changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      updateDiffDecorations();
-    }, 100);
+    console.log(ctr);
+  }, [ctr]);
 
-    return () => clearTimeout(timer);
-  }, [modifiedCode]);
 
-  const options = {
-    renderSideBySide: true,
-    useInlineViewWhenSpaceIsLimited: false,
-    readOnly: false,
-    glyphMargin: true,
-    renderIndicators: false,
-    lineDecorationsWidth: 20,
-  };
+	const highlight = async (text: string) =>
+		await codeToHtml(text, {
+			lang: "js",
+			theme: 'github-dark'
+		});
+
+  const originalCode = `function greet(name) {
+    console.log("Hello, " + name);
+    return name;
+}
+
+const user = "World";
+greet(user);
+
+//some other code that should not be removed
+
+//hidden`;
+
+  const modifiedCode = `function greet(name) {
+    console.log("Hello, " + name + "!");
+    return \`Greeted: \${name}\`;
+}
+const newVariable = "This is a new variable";
+const newVariable2 = "This is a new variable2";
+
+const user = "World";
+const result = greet(user);
+console.log(result);
+
+//hidden`;
+
+
 
   return (
-    <div style={{ padding: "20px", width: "100%" }}>
-      <h2>Merger Page</h2>
+    <div style={{  width: "95vw" }}>
 
-      <MonacoDiffEditor
-        width="800px"
-        height="400px"
-        language="javascript"
-        original={originalCode}
-        value={modifiedCode}
-        options={options}
-        onChange={handleChange}
-        editorDidMount={handleEditorDidMount}
-      />
+      <style>
+        {`
+          .mismerge {
+            font-family: 'Fira Code', monospace;
+            font-variant-ligatures: normal;
+            min-height: 80vh;
+            margin-top: 1rem;
+          }
 
-      {/* Button styling */}
-      <style>{`
-        .diff-glyph-button {
-          background: #4caf50;
-          width: 12px !important;
-          height: 12px !important;
-          border-radius: 3px;
-          cursor: pointer;
-          margin-left: 3px;
-        }
+          .shiki {
+            background-color: transparent !important;
+          }
+        `}
+      </style>
 
-        .diff-glyph-button:hover {
-          background: #2e7d32;
-        }
+          <div style={{ border: "1px solid #ccc", borderRadius: "4px", width: "100%", height:"30px", display: "flex", alignItems: "center",  justifyContent: "space-around"}}>
+            <div>Original</div>
+            <div>Current</div>
+            <div>New</div>
+          </div>
 
-        .diff-glyph-button-left {
-          background: #ff9800;
-          width: 12px !important;
-          height: 12px !important;
-          border-radius: 3px;
-          cursor: pointer;
-          margin-left: 3px;
-        }
+          <MisMerge3
+            lhs={originalCode}
+            ctr={ctr}
+            rhs={modifiedCode}
+            onCtrChange={setCtr}
+            colors={DefaultDarkColors}
+            wrapLines={true}
+            highlight={highlight}
+          />
 
-        .diff-glyph-button-left:hover {
-          background: #ef6c00;
-        }
-      `}</style>
+        <button style={{ margin: "5px" }} onClick={() => navigate('/')}>
+            Go to Merger
+        </button>
     </div>
   );
 }

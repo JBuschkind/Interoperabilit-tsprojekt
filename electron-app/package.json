@@ -102,13 +102,15 @@
   },
   "dependencies": {
     "@electron/notarize": "^3.0.0",
+    "@mismerge/react": "^1.0.1",
     "electron-debug": "^4.1.0",
     "electron-log": "^5.3.2",
     "electron-updater": "^6.3.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-monaco-editor": "^0.59.0",
-    "react-router-dom": "^7.3.0"
+    "react-router-dom": "^7.3.0",
+    "shiki": "^4.0.2"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.1",
