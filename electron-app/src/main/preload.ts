@@ -34,13 +34,15 @@ const electronHandler = {
       return ipcRenderer.invoke(channel, ...args);
     },
 
-    // ✅ YOUR NEW API METHODS ↓↓↓
     selectAmlFile: () => ipcRenderer.invoke('select-aml-file'),
 
     selectOutputPath: () => ipcRenderer.invoke('select-output-path'),
 
     runCliExport: (payload: { input: string; output: string }) =>
       ipcRenderer.invoke('run-cli-export', payload),
+
+    finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>
+      ipcRenderer.invoke('finalize-merge', payload),
 
   },
 };

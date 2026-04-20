@@ -1,8 +1,7 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Main from './pages/Main';
-import Merger from './pages/Merger';
-
+import 'flowbite';
 
 
 export default function App() {
@@ -10,7 +9,6 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/merger" element={<Merger />} />
       </Routes>
     </Router>
   );

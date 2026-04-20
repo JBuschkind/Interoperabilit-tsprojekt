@@ -15,6 +15,8 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { execFile } from 'child_process';
+import { writeFileSync, existsSync, unlinkSync, readFileSync } from 'fs';
+import { promisify } from 'util';
 
 class AppUpdater {
   constructor() {
@@ -54,24 +56,38 @@ ipcMain.handle('select-output-path', async () => {
 });
 
 
+const execFileAsync = promisify(execFile);
 
 ipcMain.handle('run-cli-export', async (_event, { input, output }) => {
-  return new Promise((resolve, reject) => {
-
     const CLI_PATH = app.isPackaged
-      ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
-      : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
+        ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
+        : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
+
+    // If output file already exists, run CLI with temp output and return both original and modified code for merging
+    if (output && existsSync(output)) {
+        const tempOutput = output + '.temp.cs';
+        await execFileAsync(CLI_PATH, [input, tempOutput]);
+
+        const originalCode = readFileSync(output, 'utf-8');
+        const modifiedCode = readFileSync(tempOutput, 'utf-8');
+
+        return { status: 'file exists', outputPath: tempOutput, originalCode, modifiedCode };
+    }
+
+    const { stdout } = await execFileAsync(CLI_PATH, [input, output]);
+    return { status: 'success'};
+});
 
 
-    execFile(CLI_PATH, [input, output], (error: any, stdout: any, stderr: any) => {
-      if (error) {
-        console.error(stderr);
-        reject(error);
-        return;
-      }
-      resolve(stdout);
-    });
-  });
+ipcMain.handle('finalize-merge', async (_event, { outputPath, mergedCode }) => {
+    writeFileSync(outputPath, mergedCode, 'utf-8');
+
+    const tempOutput = outputPath + '.temp.cs';
+    if (existsSync(tempOutput)) {
+        unlinkSync(tempOutput);
+    }
+
+    return { status: 'success' };
 });
 
 // Changes  End ------------------------------------------------
