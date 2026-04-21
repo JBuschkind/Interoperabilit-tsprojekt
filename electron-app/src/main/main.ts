@@ -55,6 +55,16 @@ ipcMain.handle('select-output-path', async () => {
   return result.filePath;
 });
 
+ipcMain.handle('check-file-exists', async (_event, filePath: string) => {
+  return existsSync(filePath);
+});
+
+ipcMain.handle('read-file', async (_event, filePath: string) => {
+  if (!existsSync(filePath)) {
+    throw new Error('File does not exist');
+  }
+  return readFileSync(filePath, 'utf-8');
+});
 
 const execFileAsync = promisify(execFile);
 
@@ -63,19 +73,9 @@ ipcMain.handle('run-cli-export', async (_event, { input, output }) => {
         ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
         : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
 
-    // If output file already exists, run CLI with temp output and return both original and modified code for merging
-    if (output && existsSync(output)) {
-        const tempOutput = output + '.temp.cs';
-        await execFileAsync(CLI_PATH, [input, tempOutput]);
-
-        const originalCode = readFileSync(output, 'utf-8');
-        const modifiedCode = readFileSync(tempOutput, 'utf-8');
-
-        return { status: 'file exists', outputPath: tempOutput, originalCode, modifiedCode };
-    }
-
     const { stdout } = await execFileAsync(CLI_PATH, [input, output]);
-    return { status: 'success'};
+    const outputCode = readFileSync(output, 'utf-8');
+    return { outputCode: outputCode};
 });
 
 

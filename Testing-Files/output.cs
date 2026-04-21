@@ -49,28 +49,5 @@ namespace Draeger.Plc
             channelNumber: 0,
             channelIoType: "Output");
 
-
-        /// <summary>
-        /// Name: Blablabla
-        /// Kommentar: Blablabla (1-Signal = senken / 0-Signal = heben)
-        /// Datentyp: Bool
-        /// IO-Typ: Output
-        /// Adresse: 0.0
-        /// Modul: DQ 16x24VDC/0.5A HF_1
-        /// Kanal: Channel_DO_0 (0)
-        /// Kanal-IO-Typ: Output
-        /// Kanal-Typ: Digital
-        /// </summary>
-        public static PlcTag<bool> Blablabla => new PlcTag<bool>(
-            name: "Blablabla",
-            dataType: "Bool",
-            ioType: "Output",
-            logicalAddress: "0.0",
-            comment: "Blablabla (1-Signal = senken / 0-Signal = heben)",
-            moduleName: "DQ 16x24VDC/0.5A HF_1",
-            channelName: "Channel_DO_0",
-            channelNumber: 0,
-            channelIoType: "Output");
-
     }
 }

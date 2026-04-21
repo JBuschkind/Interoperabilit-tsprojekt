@@ -6,14 +6,17 @@ import '../App.css';
 import { useNavigate } from 'react-router-dom';
 import { PathSelector } from '../components/PathSelector';
 import {Merger} from '../components/Merger';
+import Modal from '../components/Modal';
 
 export default function Main() {
 
     const navigate = useNavigate();
 
-    // States
-    const [loading, setLoading] = useState(false);
+    const [exportButtonLoading, setExportButtonLoading] = useState(false);
+    const [mergeButtonLoading, setMergeButtonLoading] = useState(false);
+
     const [mergerOpen, setMergerOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
 
     const [originalCode, setOriginalCode] = useState<string | null>(null);
     const [modifiedCode, setModifiedCode] = useState<string | null>(null);
@@ -33,37 +36,53 @@ export default function Main() {
         if (file) setOutputPath(file);
     };
 
-    const exportFile = async () => {
+    const runCLIExport = async (input: string, output: string) => {
+        try {
+            const result = await window.electron.ipcRenderer.runCliExport({ input, output });
+            console.log("CLI Export result:", result);
+            return result;
+        } catch (err) {
+            // TODO: Handle error
+            console.error("CLI Export error:", err);
+            throw err;
+        }
+    }
+
+    const handleExportButton = async () => {
         if (!amlPath || !outputPath) return;
 
-        setLoading(true);
-        try {
-            const result = await window.electron.ipcRenderer.runCliExport({
-                input: amlPath,
-                output: outputPath,
-            });
+        const fileExists = await window.electron.ipcRenderer.checkFileExists(outputPath);
+        if (fileExists) {
+            setModalOpen(true);
+            return;
+        } 
 
-            // If file already exists, open merger with temp output path
-            if (result.status === 'file exists') {
+        setExportButtonLoading(true);
+        await runCLIExport(amlPath, outputPath);
+        setExportButtonLoading(false);
 
-                // Read in files for merger
-                setOriginalCode(result.originalCode);
-                setModifiedCode(result.modifiedCode);
-
-                setMergerOpen(true);
-                return;
-            }
-
-            console.log("Export result:", result);
-            
-            alert('Export completed!');
-        } catch (err) {
-            console.error(err);
-            alert('Export failed');
-        } finally {
-            setLoading(false);
-        }
+        clearState();
+        alert('Export completed successfully!');
     };
+
+    const handleMerge = async () => {
+
+        if (!amlPath || !outputPath) return
+
+        setMergeButtonLoading(true);
+
+        const originalCode = await window.electron.ipcRenderer.readFile(outputPath);
+        setOriginalCode(originalCode);
+
+    
+        const tempOutputPath = outputPath + '.temp.cs';
+        const result = await runCLIExport(amlPath, tempOutputPath);
+        setModifiedCode(result.outputCode);
+
+        setMergeButtonLoading(false);
+        setModalOpen(false);
+        setMergerOpen(true);
+    }
 
     const handleAcceptMerge = async (mergedCode: string) => {
         // Write merged code to output path and clean up temp file
@@ -73,6 +92,8 @@ export default function Main() {
                 outputPath,
                 mergedCode
             })
+            
+            clearState();
             setMergerOpen(false);
             alert('Merge completed and file saved!');
         } else {
@@ -80,9 +101,29 @@ export default function Main() {
         }
     };
 
+    const handleOverwrite = async () => {
+        if (!amlPath || !outputPath) return;
+
+        setModalOpen(false);
+
+        setExportButtonLoading(true);
+        await runCLIExport(amlPath, outputPath);
+        setExportButtonLoading(false);
+
+        clearState();
+        alert('Export completed successfully!');
+    }
+
     const handleCancelMerge = () => {
         // Handle the cancelled merge
         setMergerOpen(false);
+    }
+
+    const clearState = () => {
+        setAmlPath(null);
+        setOutputPath(null);
+        setOriginalCode(null);
+        setModifiedCode(null);
     }
 
     return (
@@ -100,6 +141,14 @@ export default function Main() {
 
       {/* Main Content */}
       <main className="flex-1 px-6 py-8">
+
+        <Modal
+            isOpen={modalOpen}
+            mergeButtonLoading={mergeButtonLoading}
+            onClose={() => setModalOpen(false)}
+            onMerge={handleMerge}
+            onOverwrite={handleOverwrite}
+        />
 
         {/* Open Merger */}
         {mergerOpen && originalCode && modifiedCode ? (
@@ -138,12 +187,12 @@ export default function Main() {
 
             {/* Export Button */}
             <button
-            type="submit"
+            type="button"
             className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-            onClick={exportFile}
-            disabled={!amlPath || !outputPath || loading}
+            onClick={handleExportButton}
+            disabled={!amlPath || !outputPath || exportButtonLoading}
             >
-              {loading ? 'Exporting...' : 'Export'}
+              {exportButtonLoading ? 'Exporting...' : 'Export'}
             </button>
 
         </form>

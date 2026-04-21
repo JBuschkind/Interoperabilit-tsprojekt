@@ -38,6 +38,10 @@ const electronHandler = {
 
     selectOutputPath: () => ipcRenderer.invoke('select-output-path'),
 
+    checkFileExists: (filePath: string) => ipcRenderer.invoke('check-file-exists', filePath),
+
+    readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
+
     runCliExport: (payload: { input: string; output: string }) =>
       ipcRenderer.invoke('run-cli-export', payload),
 
