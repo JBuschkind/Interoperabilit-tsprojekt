@@ -28,6 +28,8 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
+let tempFilesToCleanUp: string[] = [];
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -69,6 +71,12 @@ ipcMain.handle('read-file', async (_event, filePath: string) => {
 const execFileAsync = promisify(execFile);
 
 ipcMain.handle('run-cli-export', async (_event, { input, output }) => {
+
+    // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
+    if (output.endsWith('.temp.cs')) {
+        tempFilesToCleanUp.push(output);
+    }
+
     const CLI_PATH = app.isPackaged
         ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
         : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
@@ -88,6 +96,15 @@ ipcMain.handle('finalize-merge', async (_event, { outputPath, mergedCode }) => {
     }
 
     return { status: 'success' };
+});
+
+ipcMain.handle('delete-temp-file', async (_event, tempFilePath: string) => {
+    if (existsSync(tempFilePath)) {
+        unlinkSync(tempFilePath);
+        return { status: 'deleted' };
+    } else {
+        return { status: 'not_found' };
+    }
 });
 
 // Changes  End ------------------------------------------------
@@ -179,6 +196,15 @@ const createWindow = async () => {
 /**
  * Add event listeners...
  */
+
+app.on('before-quit', () => {
+    // Clean up temp files before quitting
+    tempFilesToCleanUp.forEach((tempFile) => {
+        if (existsSync(tempFile)) {
+            unlinkSync(tempFile);  
+        }
+    });
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even

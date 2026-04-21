@@ -48,6 +48,9 @@ const electronHandler = {
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>
       ipcRenderer.invoke('finalize-merge', payload),
 
+    deleteTempFile: (tempFilePath: string) =>
+      ipcRenderer.invoke('delete-temp-file', tempFilePath)
+
   },
 };
 

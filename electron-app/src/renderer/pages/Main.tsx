@@ -116,6 +116,7 @@ export default function Main() {
 
     const handleCancelMerge = () => {
         // Handle the cancelled merge
+        window.electron.ipcRenderer.deleteTempFile(outputPath + '.temp.cs');
         setMergerOpen(false);
     }
 
