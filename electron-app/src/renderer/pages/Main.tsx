@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { PathSelector } from '../components/PathSelector';
 import {Merger} from '../components/Merger';
 import Modal from '../components/Modal';
+import Dropzone from '../components/Dropzone';
 
 export default function Main() {
 
@@ -169,11 +170,12 @@ export default function Main() {
             </div>
 
             {/* AML File Selection */}
-            <PathSelector
-                label="Select AML file:"
-                value={amlPath}
-                placeholder="No file selected"
-                onSelect={selectAmlFile}
+            <Dropzone
+                label="Select AML file"
+                accept=".aml"
+                onChange={(file) => {
+                    setAmlPath(window.electronApi.getFilePath(file!));
+                }}
             />
 
             {/* Output Path Selection */}

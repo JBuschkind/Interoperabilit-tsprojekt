@@ -1,6 +1,6 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent, webUtils } from 'electron';
 
 
 // allowed IPC channels
@@ -56,5 +56,20 @@ const electronHandler = {
 
 // Creates: window.electron = electronHandler (so React can use it)
 contextBridge.exposeInMainWorld('electron', electronHandler);
+
+
+// For drag and drop file support in renderer process
+// https://www.electronjs.org/docs/latest/api/web-utils
+// 
+contextBridge.exposeInMainWorld('electronApi', {
+  getFilePath (file: File) {
+    const path = webUtils.getPathForFile(file)
+    // Do something with the path, e.g., send it over IPC to the main process.
+    // It's best not to expose the full file path to the web content if possible.
+    return path;
+  }
+})
+
+
 
 export type ElectronHandler = typeof electronHandler;
