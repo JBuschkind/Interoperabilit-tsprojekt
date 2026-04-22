@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type PathSelectorProps = {
     label: string;
@@ -13,7 +13,7 @@ export const PathSelector: React.FC<PathSelectorProps> = ({
     value,
     placeholder,
     onSelect,
-    browseText = "Browse",
+    browseText = 'Browse',
 }) => {
     return (
         <div>
@@ -26,13 +26,11 @@ export const PathSelector: React.FC<PathSelectorProps> = ({
                 onClick={onSelect}
                 className="flex items-center justify-between w-full px-4 py-3 text-sm text-left bg-neutral-secondary-medium border border-default-medium rounded-base shadow-xs hover:bg-neutral-tertiary-medium transition cursor-pointer"
             >
-                <span className={value ? "text-heading" : "text-body"}>
+                <span className={value ? 'text-heading' : 'text-body'}>
                     {value ?? placeholder}
                 </span>
 
-                <span className="text-xs text-body">
-                    {browseText}
-                </span>
+                <span className="text-xs text-body">{browseText}</span>
             </button>
         </div>
     );

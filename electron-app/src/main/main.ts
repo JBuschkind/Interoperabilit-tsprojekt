@@ -37,24 +37,23 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 // Changes ------------------------------------------------
-ipcMain.handle('select-aml-file', async () => {
+ipcMain.handle('select-file-path', async (_event, filetypes: string[]) => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],
-    filters: [{ name: 'AML Files', extensions: ['aml'] }],
+    filters: [{ name: 'Custom File Types', extensions: filetypes }],
   });
 
   if (result.canceled) return null;
   return result.filePaths[0];
 });
 
-ipcMain.handle('select-output-path', async () => {
-  const result = await dialog.showSaveDialog({
-    title: 'Select Output File',
-    defaultPath: 'output.cs',
+ipcMain.handle('select-dir-path', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory', 'createDirectory'],
   });
 
   if (result.canceled) return null;
-  return result.filePath;
+  return result.filePaths[0];
 });
 
 ipcMain.handle('check-file-exists', async (_event, filePath: string) => {
@@ -71,44 +70,41 @@ ipcMain.handle('read-file', async (_event, filePath: string) => {
 const execFileAsync = promisify(execFile);
 
 ipcMain.handle('run-cli-export', async (_event, { input, output }) => {
+  // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
+  if (output.endsWith('.temp.cs')) {
+    tempFilesToCleanUp.push(output);
+  }
 
-    // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
-    if (output.endsWith('.temp.cs')) {
-        tempFilesToCleanUp.push(output);
-    }
+  const CLI_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
+    : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
 
-    const CLI_PATH = app.isPackaged
-        ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
-        : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
-
-    const { stdout } = await execFileAsync(CLI_PATH, [input, output]);
-    const outputCode = readFileSync(output, 'utf-8');
-    return { outputCode: outputCode};
+  const { stdout } = await execFileAsync(CLI_PATH, [input, output]);
+  const outputCode = readFileSync(output, 'utf-8');
+  return { outputCode: outputCode };
 });
 
-
 ipcMain.handle('finalize-merge', async (_event, { outputPath, mergedCode }) => {
-    writeFileSync(outputPath, mergedCode, 'utf-8');
+  writeFileSync(outputPath, mergedCode, 'utf-8');
 
-    const tempOutput = outputPath + '.temp.cs';
-    if (existsSync(tempOutput)) {
-        unlinkSync(tempOutput);
-    }
+  const tempOutput = outputPath + '.temp.cs';
+  if (existsSync(tempOutput)) {
+    unlinkSync(tempOutput);
+  }
 
-    return { status: 'success' };
+  return { status: 'success' };
 });
 
 ipcMain.handle('delete-temp-file', async (_event, tempFilePath: string) => {
-    if (existsSync(tempFilePath)) {
-        unlinkSync(tempFilePath);
-        return { status: 'deleted' };
-    } else {
-        return { status: 'not_found' };
-    }
+  if (existsSync(tempFilePath)) {
+    unlinkSync(tempFilePath);
+    return { status: 'deleted' };
+  } else {
+    return { status: 'not_found' };
+  }
 });
 
 // Changes  End ------------------------------------------------
-
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -187,7 +183,6 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
@@ -198,12 +193,12 @@ const createWindow = async () => {
  */
 
 app.on('before-quit', () => {
-    // Clean up temp files before quitting
-    tempFilesToCleanUp.forEach((tempFile) => {
-        if (existsSync(tempFile)) {
-            unlinkSync(tempFile);  
-        }
-    });
+  // Clean up temp files before quitting
+  tempFilesToCleanUp.forEach((tempFile) => {
+    if (existsSync(tempFile)) {
+      unlinkSync(tempFile);
+    }
+  });
 });
 
 app.on('window-all-closed', () => {

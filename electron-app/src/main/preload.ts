@@ -1,13 +1,18 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer, IpcRendererEvent, webUtils } from 'electron';
-
+import {
+  contextBridge,
+  ipcRenderer,
+  IpcRendererEvent,
+  webUtils,
+} from 'electron';
 
 // allowed IPC channels
 export type Channels = 'ipc-example';
 
 const electronHandler = {
-  ipcRenderer: { // <--- This object is what React will see: window.electron.ipcRenderer
+  ipcRenderer: {
+    // <--- This object is what React will see: window.electron.ipcRenderer
 
     // Send a message to main process (one way)
     // In React: window.electron.ipcRenderer.sendMessage('ipc-example', 'hello');
@@ -34,11 +39,13 @@ const electronHandler = {
       return ipcRenderer.invoke(channel, ...args);
     },
 
-    selectAmlFile: () => ipcRenderer.invoke('select-aml-file'),
+    selectFilePath: (filetypes: string[]) =>
+      ipcRenderer.invoke('select-file-path', filetypes),
 
-    selectOutputPath: () => ipcRenderer.invoke('select-output-path'),
+    selectDirPath: () => ipcRenderer.invoke('select-dir-path'),
 
-    checkFileExists: (filePath: string) => ipcRenderer.invoke('check-file-exists', filePath),
+    checkFileExists: (filePath: string) =>
+      ipcRenderer.invoke('check-file-exists', filePath),
 
     readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
 
@@ -49,27 +56,23 @@ const electronHandler = {
       ipcRenderer.invoke('finalize-merge', payload),
 
     deleteTempFile: (tempFilePath: string) =>
-      ipcRenderer.invoke('delete-temp-file', tempFilePath)
-
+      ipcRenderer.invoke('delete-temp-file', tempFilePath),
   },
 };
 
 // Creates: window.electron = electronHandler (so React can use it)
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
-
 // For drag and drop file support in renderer process
 // https://www.electronjs.org/docs/latest/api/web-utils
-// 
+//
 contextBridge.exposeInMainWorld('electronApi', {
-  getFilePath (file: File) {
-    const path = webUtils.getPathForFile(file)
+  getFilePath(file: File) {
+    const path = webUtils.getPathForFile(file);
     // Do something with the path, e.g., send it over IPC to the main process.
     // It's best not to expose the full file path to the web content if possible.
     return path;
-  }
-})
-
-
+  },
+});
 
 export type ElectronHandler = typeof electronHandler;

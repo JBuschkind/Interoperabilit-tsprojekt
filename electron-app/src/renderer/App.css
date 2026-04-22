@@ -3,7 +3,7 @@
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Flowbite plugin MUST come after Tailwind */
 @plugin "flowbite/plugin";
@@ -13,4 +13,4 @@
 
 /* Theme */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import "flowbite/src/themes/default";
+@import 'flowbite/src/themes/default';

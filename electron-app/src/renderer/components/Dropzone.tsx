@@ -1,7 +1,4 @@
-// Unfortunately, its really hard to get the actual file path in a drag and drop scenario
-// So currently we dont use this dropzone component for file selection
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 
 type DropzoneProps = {
     id?: string;
@@ -14,13 +11,13 @@ type DropzoneProps = {
 };
 
 export default function Dropzone({
-    id = "dropzone",
-    label = "File",
-    accept = "*",
+    id = 'dropzone',
+    label = 'File',
+    accept = '*',
     value = null,
     onChange,
     maxSizeMB,
-    className = "",
+    className = '',
 }: DropzoneProps) {
     const [file, setFile] = useState<File | null>(value);
     const [isDragging, setIsDragging] = useState(false);
@@ -32,7 +29,7 @@ export default function Dropzone({
     }, [value]);
 
     const formatSize = (size?: number) => {
-        if (!size) return "";
+        if (!size) return '';
         return `${(size / 1024).toFixed(1)} KB`;
     };
 
@@ -54,10 +51,9 @@ export default function Dropzone({
         setFile(f);
         onChange?.(f);
 
-        // 🔥 IMPORTANT FIX:
         // allows selecting the same file again after removing it
         if (inputRef.current) {
-            inputRef.current.value = "";
+            inputRef.current.value = '';
         }
     };
 
@@ -80,9 +76,8 @@ export default function Dropzone({
         setFile(null);
         onChange?.(null);
 
-        // 🔥 IMPORTANT FIX:
         if (inputRef.current) {
-            inputRef.current.value = "";
+            inputRef.current.value = '';
         }
     };
 
@@ -105,10 +100,10 @@ export default function Dropzone({
                 className={`flex items-center justify-center w-full h-64 border border-dashed rounded-base transition-all cursor-pointer
                 ${
                     isDragging
-                        ? "bg-neutral-tertiary-medium border-primary"
-                        : "bg-neutral-secondary-medium border-default-strong"
+                        ? 'bg-neutral-tertiary-medium border-primary'
+                        : 'bg-neutral-secondary-medium border-default-strong'
                 }
-                ${file ? "bg-green-50 border-green-400" : ""}`}
+                ${file ? 'bg-green-50 border-green-400' : ''}`}
             >
                 <label
                     htmlFor={`${id}-input`}
@@ -141,10 +136,13 @@ export default function Dropzone({
                             </svg>
 
                             <p className="mb-2 text-sm">
-                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                <span className="font-semibold">
+                                    Click to upload
+                                </span>{' '}
+                                or drag and drop
                             </p>
                             <p className="text-xs">
-                                {accept === "*" ? "Any file" : accept}
+                                {accept === '*' ? 'Any file' : accept}
                             </p>
                         </div>
                     ) : (
