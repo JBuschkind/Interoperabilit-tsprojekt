@@ -23,7 +23,7 @@ namespace MyProject.Hardware
         /// <summary>
         /// SPS ist hochgefahren und Einschaltschütze sind an
         /// </summary>
-        public virtual bool EinschaltschTzeAn { get; set; }
+        public virtual bool EinschaltschuetzeAn { get; set; }
 
         /// <summary>
         /// Not-Halt  Anlage intern =A1+01-30S4 quittiert

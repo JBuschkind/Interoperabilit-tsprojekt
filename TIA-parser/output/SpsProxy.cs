@@ -17,7 +17,7 @@ namespace MyProject.Hardware
         private readonly NodeId _sPSAnNodeId =
             NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "SPS an", 3);
 
-        private readonly NodeId _einschaltschTzeAnNodeId =
+        private readonly NodeId _einschaltschuetzeAnNodeId =
             NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Einschaltschütze an", 3);
 
         private readonly NodeId _nH1A10130S4QuittNodeId =
@@ -160,12 +160,12 @@ namespace MyProject.Hardware
         }
 
         /// <inheritdoc />
-        public override bool EinschaltschTzeAn
+        public override bool EinschaltschuetzeAn
         {
             get
             {
                 ReadValues();
-                return _model.EinschaltschTzeAn;
+                return _model.EinschaltschuetzeAn;
             }
         }
 
@@ -542,20 +542,18 @@ namespace MyProject.Hardware
         /// <inheritdoc />
         public override bool ST16verr
         {
-            get
+            set
             {
-                ReadValues();
-                return _model.ST16verr;
+                _opcValueWriter.Write(_sT16verrNodeId, value);
             }
         }
 
         /// <inheritdoc />
         public override bool ST16entr
         {
-            get
+            set
             {
-                ReadValues();
-                return _model.ST16entr;
+                _opcValueWriter.Write(_sT16entrNodeId, value);
             }
         }
 
@@ -564,7 +562,7 @@ namespace MyProject.Hardware
             if (!IsUpdateRequired()) return;
 
             _model.SPSAn = _opcValueReader.ReadValue<bool>(_sPSAnNodeId);
-            _model.EinschaltschTzeAn = _opcValueReader.ReadValue<bool>(_einschaltschTzeAnNodeId);
+            _model.EinschaltschuetzeAn = _opcValueReader.ReadValue<bool>(_einschaltschuetzeAnNodeId);
             _model.NH1A10130S4Quitt = _opcValueReader.ReadValue<bool>(_nH1A10130S4QuittNodeId);
             _model.NH2A10130S5Quitt = _opcValueReader.ReadValue<bool>(_nH2A10130S5QuittNodeId);
             _model.NH3A20230S2Quitt = _opcValueReader.ReadValue<bool>(_nH3A20230S2QuittNodeId);
@@ -602,8 +600,6 @@ namespace MyProject.Hardware
             _model.UserLevel3Active = _opcValueReader.ReadValue<bool>(_userLevel3ActiveNodeId);
             _model.UserLevel4Active = _opcValueReader.ReadValue<bool>(_userLevel4ActiveNodeId);
             _model.UserLevel = _opcValueReader.ReadValue<short>(_userLevelNodeId);
-            _model.ST16verr = _opcValueReader.ReadValue<bool>(_sT16verrNodeId);
-            _model.ST16entr = _opcValueReader.ReadValue<bool>(_sT16entrNodeId);
 
             _lastRead = DateTime.Now;
         }

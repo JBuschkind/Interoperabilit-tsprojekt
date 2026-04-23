@@ -65,6 +65,8 @@ namespace TiaPortalParser
             if (string.IsNullOrWhiteSpace(name))
                 return "_Unknown";
 
+            name = NormalizeGermanCharacters(name);
+
             string[] parts = Regex.Split(name, @"[^A-Za-z0-9]+");
 
             var sb = new StringBuilder();
@@ -85,16 +87,16 @@ namespace TiaPortalParser
             return result;
         }
 
-        /// <summary>
-        /// Converts PascalCase to camelCase field name (for private fields).
-        /// Example: "MyVariable" → "_myVariableNodeId"
-        /// </summary>
-        public static string ToNodeFieldName(string pascalName)
+        private static string NormalizeGermanCharacters(string input)
         {
-            if (string.IsNullOrEmpty(pascalName))
-                return "_unknownNodeId";
-
-            return "_" + char.ToLowerInvariant(pascalName[0]) + pascalName[1..] + "NodeId";
+            return input
+                .Replace("ä", "ae")
+                .Replace("Ä", "Ae")
+                .Replace("ö", "oe")
+                .Replace("Ö", "Oe")
+                .Replace("ü", "ue")
+                .Replace("Ü", "Ue")
+                .Replace("ß", "ss");
         }
 
         /// <summary>

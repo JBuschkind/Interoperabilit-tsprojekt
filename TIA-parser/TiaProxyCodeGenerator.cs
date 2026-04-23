@@ -31,14 +31,11 @@ namespace TiaPortalParser
         {
             var vars = dataBlock.Variables.ToList();
 
-            var readable = vars.Where(v => v.ExternalWritable != true).ToList();
-            var writable = vars.Where(v => v.ExternalWritable == true).ToList();
-
             var sb = new StringBuilder();
 
             AppendHeader(sb, config);
             AppendNamespaceOpen(sb, config);
-            AppendClass(sb, dataBlock, readable, writable, config);
+            AppendClass(sb, dataBlock, config);
             AppendNamespaceClose(sb);
 
             return sb.ToString();
@@ -75,8 +72,6 @@ namespace TiaPortalParser
         private static void AppendClass(
             StringBuilder sb,
             TiaDataBlock dataBlock,
-            List<TiaVariable> readable,
-            List<TiaVariable> writable,
             CodeGeneratorConfig config)
         {
             string className = config.ClassName + "Proxy";
@@ -88,7 +83,7 @@ namespace TiaPortalParser
             AppendFields(sb, dataBlock.Variables, dataBlock.Name);
             AppendCtor(sb, className, config.ClassName);
             AppendProperties(sb, dataBlock.Variables);
-            AppendReadValues(sb, readable);
+            AppendReadValues(sb, dataBlock.Variables);
             AppendIsUpdateRequired(sb);
 
             sb.AppendLine("    }");
@@ -148,21 +143,19 @@ namespace TiaPortalParser
                 sb.AppendLine($"        public override {csType} {propName}");
                 sb.AppendLine("        {");
 
-                if (v.ExternalWritable == true)
+                if (v.ExternalWritable == false)
                 {
-                    // setter only
-                    sb.AppendLine("            set");
-                    sb.AppendLine("            {");
-                    sb.AppendLine($"                _opcValueWriter.Write({fieldName}, value);");
-                    sb.AppendLine("            }");
-                }
-                else
-                {
-                    // getter only
                     sb.AppendLine("            get");
                     sb.AppendLine("            {");
                     sb.AppendLine("                ReadValues();");
                     sb.AppendLine($"                return _model.{propName};");
+                    sb.AppendLine("            }");
+                }
+                else
+                {
+                    sb.AppendLine("            set");
+                    sb.AppendLine("            {");
+                    sb.AppendLine($"                _opcValueWriter.Write({fieldName}, value);");
                     sb.AppendLine("            }");
                 }
 
@@ -173,20 +166,23 @@ namespace TiaPortalParser
 
         // ─────────────────────────────────────────────────────────────
 
-        private static void AppendReadValues(StringBuilder sb, List<TiaVariable> readable)
+        private static void AppendReadValues(StringBuilder sb, List<TiaVariable> variables)
         {
             sb.AppendLine("        private void ReadValues()");
             sb.AppendLine("        {");
             sb.AppendLine("            if (!IsUpdateRequired()) return;");
             sb.AppendLine();
 
-            foreach (var v in readable)
+            foreach (var v in variables)
             {
-                string csType = TiaCodeHelper.MapType(v.DataType);
-                string propName = TiaCodeHelper.ToPascalCase(v.Name);
-                string fieldName = GetNodeFieldName(propName);
+                if (v.ExternalWritable == false)
+                {
+                    string csType = TiaCodeHelper.MapType(v.DataType);
+                    string propName = TiaCodeHelper.ToPascalCase(v.Name);
+                    string fieldName = GetNodeFieldName(propName);
 
-                sb.AppendLine($"            _model.{propName} = _opcValueReader.ReadValue<{csType}>({fieldName});");
+                    sb.AppendLine($"            _model.{propName} = _opcValueReader.ReadValue<{csType}>({fieldName});");
+                }
             }
 
             sb.AppendLine();
