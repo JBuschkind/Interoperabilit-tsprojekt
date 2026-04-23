@@ -7,45 +7,15 @@ using System.Text.RegularExpressions;
 namespace TiaPortalParser
 {
     /// <summary>
-    /// Represents a single variable parsed from a TIA Portal .db file.
-    /// </summary>
-    public class TiaVariable
-    {
-        /// <summary>The variable name as declared (without surrounding quotes).</summary>
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>The data type (e.g. Bool, Int, Struct).</summary>
-        public string DataType { get; set; } = string.Empty;
-
-        /// <summary>The inline comment (text after //).</summary>
-        public string Comment { get; set; } = string.Empty;
-
-        /// <summary>
-        /// True if the variable carries { ExternalWritable := 'True' },
-        /// false if it carries 'False', and null if the attribute is absent.
-        /// </summary>
-        public bool? ExternalWritable { get; set; }
-
-        /// <summary>
-        /// Dot-separated path of enclosing struct names, e.g. "SPS -> PC" or
-        /// "PC -> SPS". Empty string for top-level variables.
-        /// </summary>
-        public string StructPath { get; set; } = string.Empty;
-
-        /// <summary>Full path including the variable name itself.</summary>
-        public string FullPath => string.IsNullOrEmpty(StructPath)
-            ? Name
-            : $"{StructPath}.{Name}";
-
-        public override string ToString() =>
-            $"[{FullPath}]  Type={DataType}  ExternalWritable={ExternalWritable?.ToString() ?? "n/a"}  Comment={Comment}";
-    }
-
-    /// <summary>
     /// Parses TIA Portal Data Block (.db) files into strongly-typed <see cref="TiaVariable"/> objects.
     /// </summary>
     public static class TiaPortalDbParser
     {
+        // Matches the start of a data block, e.g. 'DATA_BLOCK "Schnittstelle SPS - PC"'
+        private static readonly Regex DataBlockRegex = new Regex(
+            @"^DATA_BLOCK\s+""(?<name>[^""]+)""",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         // Matches the optional attribute block, e.g. { ExternalWritable := 'False' }
         private static readonly Regex AttributeRegex = new Regex(
             @"\{\s*ExternalWritable\s*:=\s*'(?<val>True|False)'\s*\}",
@@ -65,7 +35,7 @@ namespace TiaPortalParser
         /// Parses a .db file from disk and returns every declared variable.
         /// Struct declarations themselves are not returned — only leaf variables.
         /// </summary>
-        public static List<TiaVariable> ParseFile(string filePath)
+        public static TiaDataBlock ParseFile(string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException("DB file not found.", filePath);
@@ -77,9 +47,10 @@ namespace TiaPortalParser
         /// <summary>
         /// Parses the raw text of a .db file and returns every declared variable.
         /// </summary>
-        public static List<TiaVariable> Parse(string content)
+        public static TiaDataBlock Parse(string content)
         {
             var results = new List<TiaVariable>();
+            var dbName = string.Empty;
             var structStack = new Stack<string>(); // tracks current struct nesting path
 
             bool inVarBlock = false;
@@ -87,6 +58,14 @@ namespace TiaPortalParser
             foreach (string rawLine in content.Split('\n'))
             {
                 string line = rawLine.Trim();
+
+                // ── Look for data block declaration ──────────────────────
+                Match dataBlockMatch = DataBlockRegex.Match(line);
+                if (dataBlockMatch.Success)
+                {
+                    dbName = dataBlockMatch.Groups["name"].Value;
+                    continue;
+                }
 
                 // ── Block boundaries ─────────────────────────────────────
                 if (line.StartsWith("VAR", StringComparison.OrdinalIgnoreCase))
@@ -128,7 +107,11 @@ namespace TiaPortalParser
                     results.Add(variable);
             }
 
-            return results;
+            return new TiaDataBlock
+            {
+                Name = dbName,
+                Variables = results
+            };
         }
 
         // ── Helpers ────────────────────────────────────────────────────────

@@ -1,20 +1,13 @@
 ﻿using TiaPortalParser;
 
-List<TiaVariable> variables = TiaPortalDbParser.ParseFile("input/Schnittstelle SPS - PC.db");
+TiaDataBlock dataBlock = TiaPortalDbParser.ParseFile("input/Schnittstelle SPS - PC.db");
 
-foreach (TiaVariable v in variables)
-{
-    Console.WriteLine(v.FullPath);
-    Console.WriteLine($"  Type:             {v.DataType}");
-    Console.WriteLine($"  ExternalWritable: {v.ExternalWritable}");
-    Console.WriteLine($"  Comment:          {v.Comment}");
-    Console.WriteLine();
-}
+Console.WriteLine($"Parsed data block: {dataBlock.Name}");
 
 var config = new CodeGeneratorConfig();
 
 TiaCodeGenerator.GenerateFile(
-    variables,
+    dataBlock.Variables,
     config,
     "output/Sps.cs"
 );
