@@ -48,7 +48,7 @@ namespace TiaPortalParser
             sb.AppendLine("using Opc.Ua;");
             sb.AppendLine("using System;");
             
-            foreach (var u in config.AdditionalUsings)
+            foreach (var u in config.AdditionalProxyUsings)
                 sb.AppendLine($"using {u};");
 
             sb.AppendLine();
