@@ -36,36 +36,6 @@ namespace TiaPortalParser
     /// </summary>
     public static class TiaCodeGenerator
     {
-        // ── TIA Portal → C# type map ──────────────────────────────────────────
-        private static readonly Dictionary<string, string> TypeMap =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Bool"]   = "bool",
-                ["Byte"]   = "byte",
-                ["Word"]   = "ushort",
-                ["DWord"]  = "uint",
-                ["LWord"]  = "ulong",
-                ["SInt"]   = "sbyte",
-                ["USInt"]  = "byte",
-                ["Int"]    = "short",
-                ["UInt"]   = "ushort",
-                ["DInt"]   = "int",
-                ["UDInt"]  = "uint",
-                ["LInt"]   = "long",
-                ["ULInt"]  = "ulong",
-                ["Real"]   = "float",
-                ["LReal"]  = "double",
-                ["String"] = "string",
-                ["WString"]= "string",
-                ["Char"]   = "char",
-                ["Time"]   = "TimeSpan",
-                ["Date"]   = "DateTime",
-                ["TOD"]    = "TimeSpan",
-                ["DTL"]    = "DateTime",
-            };
-
-        // ── Public API ────────────────────────────────────────────────────────
-
         /// <summary>
         /// Generates a C# source file and writes it to <paramref name="outputPath"/>.
         /// </summary>
@@ -97,8 +67,6 @@ namespace TiaPortalParser
 
             return sb.ToString();
         }
-
-        // ── Private helpers ───────────────────────────────────────────────────
 
         private static void AppendHeader(StringBuilder sb, CodeGeneratorConfig config)
         {
@@ -150,15 +118,15 @@ namespace TiaPortalParser
             {
                 TiaVariable v = vars[i];
 
-                string csType = MapType(v.DataType);
-                string propName = ToPascalCase(v.Name);
+                string csType = TiaCodeHelper.MapType(v.DataType);
+                string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string modifier = config.UseVirtualProperties ? "virtual " : string.Empty;
 
                 // XML doc comment
                 if (!string.IsNullOrWhiteSpace(v.Comment))
                 {
                     sb.AppendLine("        /// <summary>");
-                    sb.AppendLine($"        /// {EscapeXmlComment(v.Comment)}");
+                    sb.AppendLine($"        /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
                     sb.AppendLine("        /// </summary>");
                 }
 
@@ -179,66 +147,5 @@ namespace TiaPortalParser
         {
             sb.AppendLine("}");
         }
-
-        // ── Type mapping ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Maps a TIA Portal data type string to the closest C# primitive.
-        /// Unknown types are returned as-is so the user can resolve them manually.
-        /// </summary>
-        private static string MapType(string tiaType)
-        {
-            if (TypeMap.TryGetValue(tiaType, out string? mapped))
-                return mapped;
-
-            // Array types, e.g. "Array[0..9] of Real" — return as comment placeholder
-            if (tiaType.StartsWith("Array", StringComparison.OrdinalIgnoreCase))
-                return "object /* " + tiaType + " */";
-
-            return tiaType; // keep unknown types verbatim
-        }
-
-        // ── Name conversion ───────────────────────────────────────────────────
-
-        /// <summary>
-        /// Converts a TIA Portal variable name to a valid PascalCase C# identifier.
-        /// E.g.  "SPS an"          →  "SpsAn"
-        ///       "N-H 1-4 quitt"   →  "NH14Quitt"
-        ///       "Bus nio Amada"   →  "BusNioAmada"
-        ///       "UserLevel1Active" → "UserLevel1Active"  (already clean)
-        /// </summary>
-        private static string ToPascalCase(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return "_Unknown";
-
-            // Split on any non-alphanumeric character; keep numeric segments
-            string[] parts = Regex.Split(name, @"[^A-Za-z0-9]+");
-
-            var sb = new StringBuilder();
-            foreach (string part in parts)
-            {
-                if (string.IsNullOrEmpty(part)) continue;
-
-                // Capitalise first letter, keep the rest as-is
-                sb.Append(char.ToUpperInvariant(part[0]));
-                if (part.Length > 1)
-                    sb.Append(part[1..]);
-            }
-
-            string result = sb.ToString();
-
-            // Ensure the identifier does not start with a digit
-            if (result.Length > 0 && char.IsDigit(result[0]))
-                result = "_" + result;
-
-            return result;
-        }
-
-        /// <summary>Escapes characters that are invalid inside an XML doc comment.</summary>
-        private static string EscapeXmlComment(string text) =>
-            text.Replace("&", "&amp;")
-                .Replace("<", "&lt;")
-                .Replace(">", "&gt;");
     }
 }
