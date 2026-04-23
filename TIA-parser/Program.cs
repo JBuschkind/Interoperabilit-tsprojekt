@@ -11,3 +11,9 @@ TiaCodeGenerator.GenerateFile(
     config,
     "output/Sps.cs"
 );
+
+TiaProxyGenerator.GenerateFile(
+    dataBlock,
+    config,
+    "output/SpsProxy.cs"
+);
