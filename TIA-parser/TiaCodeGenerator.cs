@@ -70,7 +70,7 @@ namespace TiaPortalParser
         /// Generates a C# source file and writes it to <paramref name="outputPath"/>.
         /// </summary>
         public static void GenerateFile(
-            IEnumerable<TiaVariable> variables,
+            List<TiaVariable> variables,
             CodeGeneratorConfig config,
             string outputPath)
         {
@@ -82,7 +82,7 @@ namespace TiaPortalParser
         /// Generates and returns the C# source as a string.
         /// </summary>
         public static string Generate(
-            IEnumerable<TiaVariable> variables,
+            List<TiaVariable> variables,
             CodeGeneratorConfig config)
         {
             var sb = new StringBuilder();

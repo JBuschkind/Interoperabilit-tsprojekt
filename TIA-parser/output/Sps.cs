@@ -1,5 +1,4 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
-// Alternative: Implementation of an interface. LCE project, therefore it is not implemented
 
 
 namespace MyProject.Hardware
