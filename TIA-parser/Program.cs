@@ -1,6 +1,6 @@
 ﻿using TiaPortalParser;
 
-List<TiaVariable> variables = TiaPortalDbParser.ParseFile("resources/Schnittstelle SPS - PC.db");
+List<TiaVariable> variables = TiaPortalDbParser.ParseFile("input/Schnittstelle SPS - PC.db");
 
 foreach (TiaVariable v in variables)
 {
@@ -10,3 +10,11 @@ foreach (TiaVariable v in variables)
     Console.WriteLine($"  Comment:          {v.Comment}");
     Console.WriteLine();
 }
+
+var config = new CodeGeneratorConfig();
+
+TiaCodeGenerator.GenerateFile(
+    variables,
+    config,
+    "output/Sps.cs"
+);
