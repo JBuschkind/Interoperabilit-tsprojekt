@@ -8,6 +8,8 @@ type DropzoneProps = {
     onChange?: (file: File | null) => void;
     maxSizeMB?: number;
     className?: string;
+    width?: string;
+    height?: string;
 };
 
 export default function Dropzone({
@@ -18,6 +20,8 @@ export default function Dropzone({
     onChange,
     maxSizeMB,
     className = '',
+    width = 'w-92',
+    height = 'h-44',
 }: DropzoneProps) {
     const [file, setFile] = useState<File | null>(value);
     const [isDragging, setIsDragging] = useState(false);
@@ -97,7 +101,7 @@ export default function Dropzone({
                 }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                className={`flex items-center justify-center w-full h-64 border border-dashed rounded-base transition-all cursor-pointer
+                className={`flex items-center justify-center border border-dashed rounded-base transition-all cursor-pointer ${width} ${height}
                 ${
                     isDragging
                         ? 'bg-neutral-tertiary-medium border-primary'

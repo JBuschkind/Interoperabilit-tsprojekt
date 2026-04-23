@@ -6,6 +6,7 @@ import {
   IpcRendererEvent,
   webUtils,
 } from 'electron';
+import path from 'path';
 
 // allowed IPC channels
 export type Channels = 'ipc-example';
@@ -49,14 +50,23 @@ const electronHandler = {
 
     readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
 
-    runCliExport: (payload: { input: string; output: string }) =>
-      ipcRenderer.invoke('run-cli-export', payload),
+    runSiemensParserCLI: (payload: {
+      inputPath: string;
+      spsOutputPath: string;
+      spsProxyOutputPath: string;
+    }) => ipcRenderer.invoke('run-siemens-parser-cli', payload),
 
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>
       ipcRenderer.invoke('finalize-merge', payload),
 
     deleteTempFile: (tempFilePath: string) =>
       ipcRenderer.invoke('delete-temp-file', tempFilePath),
+
+    joinPath: (dir: string, file: string) =>
+      ipcRenderer.invoke('join-path', { dir, file }),
+
+    parseFilePath: (filePath: string) =>
+      ipcRenderer.invoke('parse-file-path', filePath),
   },
 };
 

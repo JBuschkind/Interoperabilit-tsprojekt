@@ -69,20 +69,29 @@ ipcMain.handle('read-file', async (_event, filePath: string) => {
 
 const execFileAsync = promisify(execFile);
 
-ipcMain.handle('run-cli-export', async (_event, { input, output }) => {
-  // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
-  if (output.endsWith('.temp.cs')) {
-    tempFilesToCleanUp.push(output);
-  }
+ipcMain.handle(
+  'run-siemens-parser-cli',
+  async (_event, { inputPath, spsOutputPath, spsProxyOutputPath }) => {
+    // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
+    if (spsOutputPath.endsWith('.temp.cs')) {
+      tempFilesToCleanUp.push(spsOutputPath);
+    }
+    if (spsProxyOutputPath.endsWith('.temp.cs')) {
+      tempFilesToCleanUp.push(spsProxyOutputPath);
+    }
 
-  const CLI_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'CLIs/publish-win/CodeGenerator.exe')
-    : path.join(__dirname, '../../CLIs/publish-win/CodeGenerator.exe');
+    const CLI_PATH = app.isPackaged
+      ? path.join(process.resourcesPath, 'CLIs/publish-win/TIA-parser.exe')
+      : path.join(__dirname, '../../CLIs/publish-win/TIA-parser.exe');
 
-  const { stdout } = await execFileAsync(CLI_PATH, [input, output]);
-  const outputCode = readFileSync(output, 'utf-8');
-  return { outputCode: outputCode };
-});
+    const { stdout } = await execFileAsync(CLI_PATH, [
+      inputPath,
+      spsOutputPath,
+      spsProxyOutputPath,
+    ]);
+    return stdout;
+  },
+);
 
 ipcMain.handle('finalize-merge', async (_event, { outputPath, mergedCode }) => {
   writeFileSync(outputPath, mergedCode, 'utf-8');
@@ -102,6 +111,21 @@ ipcMain.handle('delete-temp-file', async (_event, tempFilePath: string) => {
   } else {
     return { status: 'not_found' };
   }
+});
+
+ipcMain.handle('join-path', (_event, { dir, file }) => {
+  return path.join(dir, file);
+});
+
+ipcMain.handle('parse-file-path', (_event, filePath: string) => {
+  const parsed = path.parse(filePath);
+
+  return {
+    dir: parsed.dir,
+    name: parsed.name,
+    ext: parsed.ext,
+    base: parsed.base,
+  };
 });
 
 // Changes  End ------------------------------------------------

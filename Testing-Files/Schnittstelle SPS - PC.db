@@ -1,0 +1,57 @@
+﻿DATA_BLOCK "Schnittstelle SPS - PC"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+NON_RETAIN
+   VAR 
+      "SPS -> PC" { ExternalWritable := 'False'} : Struct
+         "SPS an" { ExternalWritable := 'False'} : Bool;   // SPS ist eingeschaltet und hochgefahren
+         "Einschaltschütze an" { ExternalWritable := 'False'} : Bool;   // SPS ist hochgefahren und Einschaltschütze sind an
+         "N-H 1 =A1+01-30S4 quitt" { ExternalWritable := 'False'} : Bool;   // Not-Halt  Anlage intern =A1+01-30S4 quittiert
+         "N-H 2 =A1+01-30S5 quitt" { ExternalWritable := 'False'} : Bool;   // Not-Halt  Ecke außerhalb =A1+01-30S5 quittiert
+         "N-H 3 =A2+02-30S2 quitt" { ExternalWritable := 'False'} : Bool;   // Not-Halt Panelgehäuse =A2+02-30S2 quittiert
+         "N-H 4 =A3+03-30S4 quitt" { ExternalWritable := 'False'} : Bool;   // Not-Halt Eingabemodul =A3+03-30S4 quittiert
+         "N-H 1-4 quitt" { ExternalWritable := 'False'} : Bool;   // Not-Halt 1-4 quittiert
+         "ST 1 =A3+03-30S2 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür  Modul 1000 =A3+03-30S2 verriegelt
+         "ST 2 =A3+03-30S1 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür Modul 200 =A3+03-30S1 verriegelt
+         "ST 3 =A2+02-30S2 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür Modul 600 =A2+02-30S2 verriegelt
+         "ST 4 =A2+02-30S1 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür hinten, rechts =A2+02-30S1 verriegelt
+         "ST 5 =A1+01-30S3 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür hinten, links =A1+01-30S3 verriegelt
+         "ST 6 =A1+01-30S2 verr" { ExternalWritable := 'False'} : Bool;   // Schutztür Modul 800 =A1+01-30S2 verriegelt
+         "ST 1-6 verr" { ExternalWritable := 'False'} : Bool;   // Schutztüren 1-6 verriegelt
+         "ST 7 =A3+03-31S5 geschl" { ExternalWritable := 'False'} : Bool;   // Schutztür Modul 100 Eingabe =A3+03-31S5 geschlossen
+         "Bus nio Festo Contr M400" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.30 nicht erreichbar
+         "Bus nio Festo Contr M1000" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.32 nicht erreichbar
+         "Bus nio Linmot Contr M700" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.34 nicht erreichbar
+         "Bus nio Festo Insel1 =A3+03" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.68 nicht erreichbar
+         "Bus nio Festo Insel2 =A1+01" { ExternalWritable := 'False'} : Bool;   // Profibnetteilnehmer 192.168.0.14 nicht erreichbar
+         "Bus nio Switch A1_01_1" { ExternalWritable := 'False'} : Bool;   // Profibnetteilnehmer 192.168.0.10 nicht erreichbar
+         "Bus nio Switch A1_01_2" { ExternalWritable := 'False'} : Bool;   // Profibnetteilnehmer 192.168.0.11 nicht erreichbar
+         "Bus nio Siemens IO A2_02" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.20 nicht erreichbar
+         "Bus nio Switch A2_02_1" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.22 nicht erreichbar
+         "Bus nio Switch A2_02_2" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.23 nicht erreichbar
+         "Bus nio Siemens IO A3_03" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.60 nicht erreichbar
+         "Bus nio Switch A3_03_1" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.62 nicht erreichbar
+         "Bus nio Switch A3_03_2" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.63 nicht erreichbar
+         "Bus nio Switch A3_03_3" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.64 nicht erreichbar
+         "Bus nio Siemens IO A5_05" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.150 nicht erreichbar
+         "Bus nio Switch A5_05_1" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.152 nicht erreichbar
+         "Bus nio Siemens IO A6_06" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.170 nicht erreichbar
+         "Bus nio Switch A8_08_1" { ExternalWritable := 'False'} : Bool;   // Profinetteilnehmer 192.168.0.192 nicht erreichbar
+         "Bus nio Amada" { ExternalWritable := 'False'} : Bool;   // Profinusteilnehmer 10 nicht erreichbar
+         UserLevel1Active { ExternalWritable := 'False'} : Bool;
+         UserLevel2Active { ExternalWritable := 'False'} : Bool;
+         UserLevel3Active { ExternalWritable := 'False'} : Bool;
+         UserLevel4Active { ExternalWritable := 'False'} : Bool;
+         UserLevel { ExternalWritable := 'False'} : Int;
+      END_STRUCT;
+      "PC -> SPS" : Struct
+         "ST1-6verr" : Bool;   // Schutztüren 1-6 verriegeln
+         "ST1-6entr" : Bool;   // Schutztüren 1-6 entriegeln
+      END_STRUCT;
+   END_VAR
+
+
+BEGIN
+
+END_DATA_BLOCK
+

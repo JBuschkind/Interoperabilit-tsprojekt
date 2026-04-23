@@ -22,7 +22,7 @@ export const Merger: React.FC<MergerProps> = ({
     onAcceptMerge,
     onCancelMerge,
 }) => {
-    const [ctr, setCtr] = useState('');
+    const [ctr, setCtr] = useState(originalCode);
 
     const [conflictsResolved, setConflictsResolved] = useState(false);
 
