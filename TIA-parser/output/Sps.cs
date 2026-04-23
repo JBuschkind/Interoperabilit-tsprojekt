@@ -185,14 +185,29 @@ namespace MyProject.Hardware
         /// </summary>
         public virtual bool BusNioAmada { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual bool UserLevel1Active { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual bool UserLevel2Active { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual bool UserLevel3Active { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual bool UserLevel4Active { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public virtual short UserLevel { get; set; }
 
         /// <summary>

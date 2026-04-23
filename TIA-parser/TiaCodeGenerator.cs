@@ -122,13 +122,9 @@ namespace TiaPortalParser
                 string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string modifier = config.UseVirtualProperties ? "virtual " : string.Empty;
 
-                // XML doc comment
-                if (!string.IsNullOrWhiteSpace(v.Comment))
-                {
                     sb.AppendLine("        /// <summary>");
                     sb.AppendLine($"        /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
                     sb.AppendLine("        /// </summary>");
-                }
 
                 sb.AppendLine($"        public {modifier}{csType} {propName} {{ get; set; }}");
 
