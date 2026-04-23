@@ -14,7 +14,7 @@ TiaDataBlock dataBlock = TiaPortalDbParser.ParseFile(inputPath);
 
 Console.WriteLine($"Parsed data block: {dataBlock.Name}");
 
-var config = new CodeGeneratorConfig();
+var config = new TiaCodeGeneratorConfig();
 
 TiaCodeGenerator.GenerateFile(
     dataBlock.Variables,

@@ -1,7 +1,7 @@
 ﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 
-namespace MyProject.Hardware
+namespace OPT.Framework.MyProject.Hardware
 {
     /// <summary>
     /// Variables definition

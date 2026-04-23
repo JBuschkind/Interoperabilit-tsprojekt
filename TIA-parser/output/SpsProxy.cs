@@ -3,7 +3,7 @@ using System;
 
 // ReSharper disable StringLiteralTypo
 
-namespace MyProject.Hardware
+namespace OPT.Framework.MyProject.Hardware
 {
     /// <inheritdoc />
     public class SpsProxy : Sps

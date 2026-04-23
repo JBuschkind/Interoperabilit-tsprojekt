@@ -15,7 +15,7 @@ namespace TiaPortalParser
         /// </summary>
         public static void GenerateFile(
             TiaDataBlock dataBlock,
-            CodeGeneratorConfig config,
+            TiaCodeGeneratorConfig config,
             string outputPath)
         {
             string content = Generate(dataBlock, config);
@@ -27,7 +27,7 @@ namespace TiaPortalParser
         /// </summary>
         public static string Generate(
             TiaDataBlock dataBlock,
-            CodeGeneratorConfig config)
+            TiaCodeGeneratorConfig config)
         {
             var vars = dataBlock.Variables.ToList();
 
@@ -43,7 +43,7 @@ namespace TiaPortalParser
 
         // ─────────────────────────────────────────────────────────────
 
-        private static void AppendHeader(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendHeader(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine("using Opc.Ua;");
             sb.AppendLine("using System;");
@@ -56,7 +56,7 @@ namespace TiaPortalParser
             sb.AppendLine();
         }
 
-        private static void AppendNamespaceOpen(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendNamespaceOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine($"namespace {config.Namespace}");
             sb.AppendLine("{");
@@ -72,16 +72,15 @@ namespace TiaPortalParser
         private static void AppendClass(
             StringBuilder sb,
             TiaDataBlock dataBlock,
-            CodeGeneratorConfig config)
+            TiaCodeGeneratorConfig config)
         {
-            string className = config.ClassName + "Proxy";
 
             sb.AppendLine("    /// <inheritdoc />");
-            sb.AppendLine($"    public class {className} : {config.ClassName}");
+            sb.AppendLine($"    public class {config.ClassName}Proxy : {config.ClassName}");
             sb.AppendLine("    {");
 
-            AppendFields(sb, dataBlock.Variables, dataBlock.Name);
-            AppendCtor(sb, className, config.ClassName);
+            AppendFields(sb, dataBlock.Variables, dataBlock.Name, config);
+            AppendCtor(sb, config);
             AppendProperties(sb, dataBlock.Variables);
             AppendReadValues(sb, dataBlock.Variables);
             AppendIsUpdateRequired(sb);
@@ -91,11 +90,11 @@ namespace TiaPortalParser
 
         // ─────────────────────────────────────────────────────────────
 
-        private static void AppendFields(StringBuilder sb, List<TiaVariable> vars, string dbName)
+        private static void AppendFields(StringBuilder sb, List<TiaVariable> vars, string dbName, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine("        private readonly IOpcValueReader _opcValueReader;");
             sb.AppendLine("        private readonly IOpcValueWriter _opcValueWriter;");
-            sb.AppendLine($"        private readonly {nameof(TiaVariable).Replace(nameof(TiaVariable), "Sps")} _model;");
+            sb.AppendLine($"        private readonly {config.ClassName} _model;");
             sb.AppendLine("        private DateTime _lastRead;");
             sb.AppendLine("        private readonly TimeSpan _updateInterval;");
             sb.AppendLine();
@@ -106,25 +105,25 @@ namespace TiaPortalParser
                 string fieldName = GetNodeFieldName(propName);
 
                 sb.AppendLine($"        private readonly NodeId {fieldName} =");
-                sb.AppendLine($"            NodeIdFactory.Create(\"{dbName}\", \"{v.StructPath}\", \"{v.Name}\", 3);");
+                sb.AppendLine($"            NodeIdFactory.Create(\"{dbName}\", \"{v.StructPath}\", \"{v.Name}\", {config.NamespaceId});");
                 sb.AppendLine();
             }
         }
 
         // ─────────────────────────────────────────────────────────────
 
-        private static void AppendCtor(StringBuilder sb, string proxyClassName, string baseClassName)
+        private static void AppendCtor(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Ctor");
             sb.AppendLine("        /// </summary>");
-            sb.AppendLine($"        public {proxyClassName}(IOpcValueReader opcValueReader, IOpcValueWriter opcValueWriter)");
+            sb.AppendLine($"        public {config.ClassName}Proxy(IOpcValueReader opcValueReader, IOpcValueWriter opcValueWriter)");
             sb.AppendLine("        {");
             sb.AppendLine("            _opcValueReader = opcValueReader;");
             sb.AppendLine("            _opcValueWriter = opcValueWriter;");
-            sb.AppendLine($"            _model = new {baseClassName}();");
+            sb.AppendLine($"            _model = new {config.ClassName}();");
             sb.AppendLine("            _lastRead = DateTime.MinValue;");
-            sb.AppendLine("            _updateInterval = TimeSpan.FromMilliseconds(500);");
+            sb.AppendLine($"            _updateInterval = TimeSpan.FromMilliseconds({config.UpdateIntervalMs});");
             sb.AppendLine("        }");
             sb.AppendLine();
         }

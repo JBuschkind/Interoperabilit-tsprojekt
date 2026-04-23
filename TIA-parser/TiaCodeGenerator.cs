@@ -8,30 +8,6 @@ using System.Text.RegularExpressions;
 namespace TiaPortalParser
 {
     /// <summary>
-    /// Configuration for the C# class file that the generator produces.
-    /// </summary>
-    public class CodeGeneratorConfig
-    {
-        /// <summary>Namespace written at the top of the file, e.g. "OPT.Framework.MyProject.Hardware".</summary>
-        public string Namespace { get; set; } = "MyProject.Hardware";
-
-        /// <summary>Class name, e.g. "Sps".</summary>
-        public string ClassName { get; set; } = "Sps";
-
-        /// <summary>
-        /// Optional extra using-directives (one per entry, without the 'using' keyword or semicolon).
-        /// The ReSharper suppression comment and the class summary are always emitted.
-        /// </summary>
-        public List<string> AdditionalUsings { get; set; } = new();
-
-        /// <summary>
-        /// When true, each property is emitted as 'public virtual T Name'.
-        /// When false, 'public T Name' is used instead.
-        /// </summary>
-        public bool UseVirtualProperties { get; set; } = true;
-    }
-
-    /// <summary>
     /// Generates a C# class file from a list of <see cref="TiaVariable"/> objects.
     /// </summary>
     public static class TiaCodeGenerator
@@ -41,7 +17,7 @@ namespace TiaPortalParser
         /// </summary>
         public static void GenerateFile(
             List<TiaVariable> variables,
-            CodeGeneratorConfig config,
+            TiaCodeGeneratorConfig config,
             string outputPath)
         {
             string content = Generate(variables, config);
@@ -53,7 +29,7 @@ namespace TiaPortalParser
         /// </summary>
         public static string Generate(
             List<TiaVariable> variables,
-            CodeGeneratorConfig config)
+            TiaCodeGeneratorConfig config)
         {
             var sb = new StringBuilder();
 
@@ -68,7 +44,7 @@ namespace TiaPortalParser
             return sb.ToString();
         }
 
-        private static void AppendHeader(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendHeader(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             // Additional using directives
             foreach (string u in config.AdditionalUsings)
@@ -83,13 +59,13 @@ namespace TiaPortalParser
             sb.AppendLine();
         }
 
-        private static void AppendNamespaceOpen(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendNamespaceOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine($"namespace {config.Namespace}");
             sb.AppendLine("{");
         }
 
-        private static void AppendClassOpen(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendClassOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine("    /// <summary>");
             sb.AppendLine("    /// Variables definition");
@@ -98,7 +74,7 @@ namespace TiaPortalParser
             sb.AppendLine("    {");
         }
 
-        private static void AppendConstructor(StringBuilder sb, CodeGeneratorConfig config)
+        private static void AppendConstructor(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
             sb.AppendLine("        /// <summary>");
             sb.AppendLine("        /// Ctor");
@@ -112,7 +88,7 @@ namespace TiaPortalParser
         private static void AppendProperties(
             StringBuilder sb,
             List<TiaVariable> vars,
-            CodeGeneratorConfig config)
+            TiaCodeGeneratorConfig config)
         {
             for (int i = 0; i < vars.Count; i++)
             {
@@ -122,9 +98,9 @@ namespace TiaPortalParser
                 string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string modifier = config.UseVirtualProperties ? "virtual " : string.Empty;
 
-                    sb.AppendLine("        /// <summary>");
-                    sb.AppendLine($"        /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
-                    sb.AppendLine("        /// </summary>");
+                sb.AppendLine("        /// <summary>");
+                sb.AppendLine($"        /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
+                sb.AppendLine("        /// </summary>");
 
                 sb.AppendLine($"        public {modifier}{csType} {propName} {{ get; set; }}");
 
