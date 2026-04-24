@@ -71,10 +71,15 @@ export const Merger: React.FC<MergerProps> = ({
             />
 
             <div className="flex items-center justify-center mt-6 gap-4">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Keep Original
+                </button>
                 <button
                     // disabled={!conflictsResolved}
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => onAcceptMerge(ctr)}
+                    onClick={() => {
+                        if (ctr) onAcceptMerge(ctr);
+                    }}
                 >
                     Accept Merge
                 </button>
@@ -84,6 +89,9 @@ export const Merger: React.FC<MergerProps> = ({
                     onClick={onCancelMerge}
                 >
                     Cancel Merge
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Overwrite with Generated Code
                 </button>
             </div>
         </div>

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import icon from '../../../assets/icon.svg';
 import Dropzone from './Dropzone';
 import { PathSelector } from './PathSelector';
 import Modal from './Modal';
 import { Merger } from './Merger';
-import { log } from 'console';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
@@ -26,14 +25,15 @@ export default function CodeGenerator({
     };
 
     type OutputFile = {
-        fileName: string;
-        file: File | null;
-        originalCode: string | null;
-        mergedCode: string | null;
-        generatedCode: string | null;
-        filePath: string | null;
-        tempFilePath: string | null;
-        toBeMerged: boolean;
+        fileName: string; // are given by the props
+        file: File | null; // the actual file (if one is selected in the dropzone)
+        filePath: string | null; // the original file path (only set if file was selected)
+        tempFilePath: string | null; // the output path for the temp file => temp file is generated code that is used for merging
+        outputPath: string | null; // the path of the output
+        originalCode: string | null; // the code of the selected file
+        generatedCode: string | null; // the generated code based on the input file
+        mergedCode: string | null; // the merged code (by user)
+        toBeMerged: boolean; // true = selected file will be merged with generated file, false = selected file will be overwritten
     };
 
     enum UIState {
@@ -58,11 +58,12 @@ export default function CodeGenerator({
         outputFileNames.map((name) => ({
             fileName: name,
             file: null, // Only set if we provide an already exiting output file
+            filePath: null,
+            tempFilePath: null,
+            outputPath: null,
             originalCode: null,
             mergedCode: null,
             generatedCode: null,
-            filePath: null,
-            tempFilePath: null,
             toBeMerged: true,
         })),
     );
@@ -124,23 +125,51 @@ export default function CodeGenerator({
         );
     };
 
-    // Sets filePath for output files that don't have a file selected
-    const resolveDefaultOutputFilePaths = async (
+    // Sets all outputPaths for outputFiles and filePaths for outputFiles with a selected file
+    const resolveFilePahts = async (
         files: OutputFile[],
-        outputDirPath: string,
+        outputDirPath: string | null,
     ) => {
         return Promise.all(
             files.map(async (outputFile) => {
+                // For selected old output files: Set filePath, outputPath, tempFilePath
                 if (outputFile.file) {
-                    return outputFile;
+                    const filePath = await window.electronApi.getFilePath(
+                        outputFile.file,
+                    );
+
+                    const parsed =
+                        await window.electron.ipcRenderer.parseFilePath(
+                            filePath,
+                        );
+
+                    const tempFilePath =
+                        await window.electron.ipcRenderer.joinPath(
+                            parsed.dir,
+                            `${parsed.name}.temp${parsed.ext}`,
+                        );
+
+                    return {
+                        ...outputFile,
+                        filePath: filePath,
+                        outputPath: filePath, // The file will either be merged or overwritten
+                        tempFilePath: tempFilePath,
+                    };
                 }
-                const filePath = await window.electron.ipcRenderer.joinPath(
+                // For outputFiles without an existing file: Set outputpath based on selected directory and filename
+                if (!outputDirPath) {
+                    throw new Error(
+                        'Missing outputDirPath for new generated files',
+                    );
+                }
+
+                const outputPath = await window.electron.ipcRenderer.joinPath(
                     outputDirPath,
                     `${outputFile.fileName}.cs`,
                 );
                 return {
                     ...outputFile,
-                    filePath,
+                    outputPath,
                 };
             }),
         );
@@ -148,62 +177,31 @@ export default function CodeGenerator({
 
     const handleExportButton = async () => {
         if (!inputFile.filePath) return; // TODO: Show Input field feedback
-        if (!outputDirPath) return; // TODO: Show Output path feedback 2. TODO: This needs to consider the case all merge files are selected
+        const needsOutputDir = outputFiles.some((f) => f.file === null);
+        if (needsOutputDir && !outputDirPath) return; // TODO: Show Output path feedback
 
         // Set filePath for output files that don't have a file selected
-        const updatedOutputFiles = await resolveDefaultOutputFilePaths(
+        const updatedOutputFiles = await resolveFilePahts(
             outputFiles,
             outputDirPath,
         );
 
         setOutputFiles(updatedOutputFiles);
 
-        // If any already exiting output files are selected, open the modal
+        // If any already exiting output files are selected, open the modal to start merging/overwriting
         if (outputFiles.some((outputFile) => outputFile.file !== null)) {
             setUiState(UIState.DecideMerge);
             return;
         }
 
         // Extract filePaths to pass to CLI
-        const outputPaths = updatedOutputFiles.map((file) => file.filePath);
+        const outputPaths = updatedOutputFiles.map((file) => file.outputPath);
 
         // Call CLI with input file path and all output paths
         await callCLI([inputFile.filePath, ...outputPaths]);
 
         clearState();
         setUiState(UIState.Idle);
-    };
-
-    // Sets all output paths and temp output paths
-    const resolveOutputFilePaths = async (outputFiles: OutputFile[]) => {
-        return Promise.all(
-            outputFiles.map(async (outputFile) => {
-                // Keep file paths for not selected output files
-                if (!outputFile.file) {
-                    return {
-                        ...outputFile,
-                    };
-                }
-
-                const filePath = await window.electronApi.getFilePath(
-                    outputFile.file,
-                );
-
-                const parsed =
-                    await window.electron.ipcRenderer.parseFilePath(filePath);
-
-                const tempFilePath = await window.electron.ipcRenderer.joinPath(
-                    parsed.dir,
-                    `${parsed.name}.temp${parsed.ext}`,
-                );
-
-                return {
-                    ...outputFile,
-                    filePath,
-                    tempFilePath,
-                };
-            }),
-        );
     };
 
     const buildMergeQueue = (files: OutputFile[]): OutputFile[] => {
@@ -213,44 +211,50 @@ export default function CodeGenerator({
     const handleAcceptModal = async () => {
         if (!inputFile.filePath) return; // TODO: Handle Cases
 
-        // 1. Get all output paths and all temp paths
-        const updatedFiles = await resolveOutputFilePaths(outputFiles);
+        //  Read in source code for files that will be merged
+        const updatedOutputFiles = await Promise.all(
+            outputFiles.map(async (file) => {
+                if (file.toBeMerged && file.filePath) {
+                    const originalCode =
+                        await window.electron.ipcRenderer.readFile(
+                            file.filePath,
+                        );
 
-        // 2. Read in source code for files that will be merged
-        updatedFiles.forEach(async (file) => {
-            if (file.toBeMerged && file.filePath && file.file) {
-                //TODO: Problem is that we handle file.filePath before as an "output path" but it doesnt exit if file.file is not set
-                // TODO: Differentiate between filePath and outputPath
-                // Read in File
-                file.originalCode = await window.electron.ipcRenderer.readFile(
-                    file.filePath,
-                );
-            }
-        });
+                    return {
+                        ...file,
+                        originalCode,
+                    };
+                }
 
-        setOutputFiles(updatedFiles);
-
-        // Build output paths: tempFilePath for files to be merged, filePath for others
-        const outputPaths = updatedFiles.map((file) =>
-            file.toBeMerged && file.tempFilePath
-                ? file.tempFilePath
-                : file.filePath,
+                return file;
+            }),
         );
 
-        // Call CLI with input file path and all output paths
+        setOutputFiles(updatedOutputFiles);
+
+        // Get output paths: tempFilePath for files to be merged, outputPath for others
+        const outputPaths = updatedOutputFiles
+            .map((outputFile) =>
+                outputFile.toBeMerged && outputFile.tempFilePath
+                    ? outputFile.tempFilePath
+                    : outputFile.outputPath,
+            )
+            .filter((path): path is string => typeof path === 'string'); // should always be string anyway
+
+        // Call CLI with input file path and all output paths (writes either temp files or final output files, can be mixed)
         await callCLI([inputFile.filePath, ...outputPaths]);
 
         // Read generated code from temp files for files that need to be merged
         const filesWithGeneratedCode = await Promise.all(
-            updatedFiles.map(async (file) => {
-                if (file.toBeMerged && file.tempFilePath) {
+            updatedOutputFiles.map(async (outputFile) => {
+                if (outputFile.toBeMerged && outputFile.tempFilePath) {
                     const generatedCode =
                         await window.electron.ipcRenderer.readFile(
-                            file.tempFilePath,
+                            outputFile.tempFilePath,
                         );
-                    return { ...file, generatedCode };
+                    return { ...outputFile, generatedCode };
                 }
-                return file;
+                return outputFile;
             }),
         );
 
@@ -258,11 +262,11 @@ export default function CodeGenerator({
 
         // 3. Build queue ONLY from selected files
         const queue = buildMergeQueue(filesWithGeneratedCode);
-        setMergeQueue(queue);
 
         if (queue.length === 0) {
             clearState();
             setUiState(UIState.Idle);
+            return;
         }
 
         setMergeQueue(queue);
@@ -289,10 +293,10 @@ export default function CodeGenerator({
     };
 
     const handleAcceptMerge = async (mergedCode: string) => {
-        if (!currentTask?.filePath || !currentTask.tempFilePath) return;
+        if (!currentTask?.outputPath || !currentTask.tempFilePath) return;
 
         await window.electron.ipcRenderer.finalizeMerge({
-            outputPath: currentTask.filePath,
+            outputPath: currentTask.outputPath,
             mergedCode: mergedCode,
         });
 
@@ -302,11 +306,23 @@ export default function CodeGenerator({
     };
 
     const handleCancelMerge = () => {
+        // TODO:
+        // 1. Open Modal
+        // 2. Rollback ?
+        // Delete temp files
+
         return;
         // window.electron.ipcRenderer.deleteTempFile(outputPath + '.temp.cs');
         // setMergeQueue([]);
         // setCurrentTask(null);
         // setUiState(UIState.Idle);
+    };
+
+    const handleSkipMerge = () => {
+        // TODO: Maybe its nice to have a skip button that just keeps the original code (even though this could be accomblished used merging)
+        // -> Use Case: You started merging but realized in the middle that you want to keep the orginal file
+        // Same could be done for overwrite -> Keep all the generated file
+        return;
     };
 
     // Resets all States
@@ -321,11 +337,12 @@ export default function CodeGenerator({
             outputFileNames.map((name) => ({
                 fileName: name,
                 file: null,
+                filePath: null,
+                tempFilePath: null,
+                outputPath: null,
                 originalCode: null,
                 mergedCode: null,
                 generatedCode: null,
-                filePath: null,
-                tempFilePath: null,
                 toBeMerged: true,
             })),
         );
@@ -335,7 +352,7 @@ export default function CodeGenerator({
         <div className="flex-1 px-6 py-8">
             {/* Main Content */}
             {(uiState === UIState.Idle || uiState === UIState.DecideMerge) && (
-                <form className="max-w-4xl mx-auto flex flex-col gap-4 bg-gray-300 p-8 rounded-lg shadow-md">
+                <form className="max-w-7xl mx-auto flex flex-col gap-4 bg-gray-300 p-8 rounded-lg shadow-md">
                     <div className="flex flex-col items-center justify-center ">
                         <img width="300" alt="icon" src={icon} />
                     </div>
@@ -345,6 +362,8 @@ export default function CodeGenerator({
                             {/* Input File Selection */}
                             <Dropzone
                                 id="input-dropzone"
+                                height="h-96"
+                                width="w-182"
                                 label={`Select a ${inputFileType} file`}
                                 accept={inputFileType}
                                 value={inputFile.file}
@@ -359,38 +378,43 @@ export default function CodeGenerator({
                                 onSelect={selectOutputDirPath}
                             />
                         </div>
-
-                        <div className="flex flex-col">
-                            {/* Output Files Selection */}
-                            {outputFiles.map((outputFile, index) => (
-                                <Dropzone
-                                    key={outputFile.fileName}
-                                    id={`dropzone-${outputFile.fileName}`}
-                                    label={`Select ${outputFile.fileName} file`}
-                                    accept=".cs"
-                                    value={outputFile.file}
-                                    onChange={handleOutputFileChange(
-                                        outputFile.fileName,
-                                    )}
-                                />
-                            ))}
+                        <div className="flex flex-col justify-between">
+                            <div className="flex flex-col justify-center">
+                                {/* Output Files Selection */}
+                                {outputFiles.map((outputFile, index) => (
+                                    <Dropzone
+                                        key={outputFile.fileName}
+                                        id={`dropzone-${outputFile.fileName}`}
+                                        height="h-38"
+                                        label={`Select ${outputFile.fileName} file`}
+                                        accept=".cs"
+                                        value={outputFile.file}
+                                        onChange={handleOutputFileChange(
+                                            outputFile.fileName,
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                            {/* Export Button */}
+                            <button
+                                type="button"
+                                className="bg-blue-500 hover:bg-blue-700 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded mb-1"
+                                onClick={handleExportButton}
+                                disabled={
+                                    !inputFile.filePath ||
+                                    (!outputDirPath &&
+                                        !outputFiles.every(
+                                            (f) => f.file !== null,
+                                        )) ||
+                                    exportButtonLoading
+                                }
+                            >
+                                {exportButtonLoading
+                                    ? 'Exporting...'
+                                    : 'Export'}
+                            </button>
                         </div>
                     </div>
-
-                    {/* Export Button */}
-                    <button
-                        type="button"
-                        className="bg-blue-500 hover:bg-blue-700 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded"
-                        onClick={handleExportButton}
-                        disabled={
-                            !inputFile.filePath ||
-                            (!outputDirPath &&
-                                !outputFiles.every((f) => f.file !== null)) ||
-                            exportButtonLoading
-                        }
-                    >
-                        {exportButtonLoading ? 'Exporting...' : 'Export'}
-                    </button>
                 </form>
             )}
 
