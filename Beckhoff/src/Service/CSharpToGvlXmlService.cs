@@ -21,7 +21,10 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
     /// <param name="csharpInputPath">Path to the C# source file.</param>
     /// <param name="templateXmlPath">Path to the XML holder/template file.</param>
     /// <param name="outputXmlPath">Path to the generated XML output file.</param>
-    public void UpdateGvlXmlFromCSharp(
+    /// <returns>
+    /// True when at least one non-constant XML variable name changed; otherwise false.
+    /// </returns>
+    public bool UpdateGvlXmlFromCSharp(
         string csharpInputPath,
         string templateXmlPath,
         string outputXmlPath)
@@ -36,10 +39,78 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
         var variableSpecsByGvl = ExtractVariableSpecsByGvl(csharpContent);
 
         var doc = XDocument.Load(templateXmlPath, LoadOptions.PreserveWhitespace);
+        var originalVariablesByGvl = CaptureNonConstantVariableOrderByGvl(doc);
+
         ApplyVariableSpecsToXml(doc, variableSpecsByGvl);
+
+        var updatedVariablesByGvl = CaptureNonConstantVariableOrderByGvl(doc);
+        bool hasVariableNameChanges = HasVariableNameChanges(originalVariablesByGvl, updatedVariablesByGvl);
 
         Directory.CreateDirectory(Path.GetDirectoryName(outputXmlPath) ?? ".");
         doc.Save(outputXmlPath);
+
+        return hasVariableNameChanges;
+    }
+
+    /// <summary>
+    /// Captures the ordered non-constant variable names grouped by GVL block name.
+    /// </summary>
+    /// <param name="doc">Loaded XML document.</param>
+    /// <returns>Dictionary from GVL name to ordered variable names.</returns>
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> CaptureNonConstantVariableOrderByGvl(XDocument doc)
+    {
+        XNamespace plcOpenNs = doc.Root?.Name.Namespace ?? "http://www.plcopen.org/xml/tc6_0200";
+        var byGvl = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var globalVars in doc.Descendants(plcOpenNs + "globalVars"))
+        {
+            if (ParseBool((string?)globalVars.Attribute("constant")))
+                continue;
+
+            string gvlName = (string?)globalVars.Attribute("name") ?? "GlobalVariables";
+            if (!byGvl.TryGetValue(gvlName, out var names))
+            {
+                names = new List<string>();
+                byGvl[gvlName] = names;
+            }
+
+            foreach (var variable in globalVars.Elements(plcOpenNs + "variable"))
+            {
+                string? name = (string?)variable.Attribute("name");
+                if (!string.IsNullOrWhiteSpace(name))
+                    names.Add(name);
+            }
+        }
+
+        return byGvl.ToDictionary(
+            kvp => kvp.Key,
+            kvp => (IReadOnlyList<string>)kvp.Value,
+            StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Checks whether variable-name lists differ between two snapshots.
+    /// </summary>
+    /// <param name="originalVariablesByGvl">Original snapshot.</param>
+    /// <param name="updatedVariablesByGvl">Updated snapshot.</param>
+    /// <returns>True when any variable-name list changed; otherwise false.</returns>
+    private static bool HasVariableNameChanges(
+        IReadOnlyDictionary<string, IReadOnlyList<string>> originalVariablesByGvl,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> updatedVariablesByGvl)
+    {
+        if (originalVariablesByGvl.Count != updatedVariablesByGvl.Count)
+            return true;
+
+        foreach (var originalPair in originalVariablesByGvl)
+        {
+            if (!updatedVariablesByGvl.TryGetValue(originalPair.Key, out var updatedNames))
+                return true;
+
+            if (!originalPair.Value.SequenceEqual(updatedNames, StringComparer.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

@@ -56,7 +56,10 @@ dotnet run --project .\xmlParser.csproj -- --direction reverse --input-cs .\Outp
 ```
 
 Hinweis:
-Reverse benoetigt eine vorhandene XML-Template-Datei (normalerweise aus einem vorherigen Forward-Lauf).
+Reverse uebernimmt Variablennamen aus Node-Strings wie "GVL_PLC.SomeVariable" in der C#-Datei.
+Wenn diese Node-Strings nicht geaendert wurden, kann die erzeugte XML unveraendert bleiben.
+
+Wenn `Output/GVL_PLC.template.xml` nicht existiert, nutzt das Tool automatisch `Input/GVL_PLC.xml` als Fallback-Template.
 
 ## Als EXE ausfuehren (optional)
 

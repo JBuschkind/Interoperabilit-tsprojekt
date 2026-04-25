@@ -112,8 +112,10 @@ public sealed class ParsingController : IParsingController
     private int RunReverse(string[] args, string projectRoot)
     {
         string inputCsPath = GetOption(args, "--input-cs", Path.Combine(projectRoot, "Output", "PlcStatusControl.generated.cs"));
-        string templateXmlPath = GetOption(args, "--template-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.template.xml"));
+        string defaultTemplateXmlPath = Path.Combine(projectRoot, "Output", "GVL_PLC.template.xml");
+        string templateXmlPath = GetOption(args, "--template-xml", defaultTemplateXmlPath);
         string outputXmlPath = GetOption(args, "--output-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.updated.xml"));
+        string fallbackTemplateXmlPath = Path.Combine(projectRoot, "Input", "GVL_PLC.xml");
 
         Console.WriteLine("Direction:                       reverse");
         Console.WriteLine($"Input C#:                        {inputCsPath}");
@@ -132,9 +134,35 @@ public sealed class ParsingController : IParsingController
             return 1;
         }
 
+        if (!File.Exists(templateXmlPath))
+        {
+            bool usesDefaultTemplatePath =
+                string.Equals(templateXmlPath, defaultTemplateXmlPath, StringComparison.OrdinalIgnoreCase);
+
+            if (usesDefaultTemplatePath && File.Exists(fallbackTemplateXmlPath))
+            {
+                templateXmlPath = fallbackTemplateXmlPath;
+                Console.WriteLine($"Info: Default template not found. Using input XML as template: {templateXmlPath}");
+            }
+            else
+            {
+                Console.WriteLine($"Error: XML template file not found: {templateXmlPath}");
+                Console.WriteLine("Tip: Run forward once or pass --template-xml <path-to-xml>.");
+                return 1;
+            }
+        }
+
         try
         {
-            _cSharpToGvlXmlService.UpdateGvlXmlFromCSharp(inputCsPath, templateXmlPath, outputXmlPath);
+            bool hasVariableNameChanges =
+                _cSharpToGvlXmlService.UpdateGvlXmlFromCSharp(inputCsPath, templateXmlPath, outputXmlPath);
+
+            if (!hasVariableNameChanges)
+            {
+                Console.WriteLine("Info: No GVL node-name changes detected in C#. Output XML may be identical.");
+                Console.WriteLine("Hint: Reverse updates names from strings like \"GVL_PLC.SomeVariable\".");
+            }
+
             Console.WriteLine("Success: Reverse translation completed.");
             return 0;
         }

@@ -8,7 +8,10 @@ public interface ICSharpToGvlXmlService
     /// <param name="csharpInputPath">Path to the C# source file.</param>
     /// <param name="templateXmlPath">Path to the XML holder/template file.</param>
     /// <param name="outputXmlPath">Path to the generated XML output file.</param>
-    void UpdateGvlXmlFromCSharp(
+    /// <returns>
+    /// True when at least one non-constant XML variable name changed; otherwise false.
+    /// </returns>
+    bool UpdateGvlXmlFromCSharp(
         string csharpInputPath,
         string templateXmlPath,
         string outputXmlPath);

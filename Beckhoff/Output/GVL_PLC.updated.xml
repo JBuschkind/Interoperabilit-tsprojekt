@@ -80,9 +80,6 @@ VAR_GLOBAL
 	//Current plc version is released
 	{attribute 'OPC.UA.DA' := '1'}
 	IsReleased :BOOL;
-
-	{attribute 'OPC.UA.DA' := '1'}
-	SomeOtherNode : BOOL;
 END_VAR
 VAR_GLOBAL CONSTANT
 	iExpectedNumberOfPartitiants : UINT := 35; //set Number of Expected Ethercat Partitians
@@ -146,16 +143,6 @@ END_VAR</xhtml>
                   <documentation>
                     <xhtml xmlns="http://www.w3.org/1999/xhtml">CANCloseState. True if ok</xhtml>
                   </documentation>
-                </variable><variable name="SomeOtherNode">
-                  <type><BOOL /></type>
-                  <addData>
-                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
-                      <Attributes>
-                        <Attribute Name="OPC.UA.DA" Value="1" />
-                      </Attributes>
-                    </data>
-                  </addData>
-                  
                 </variable><variable name="AppTimestamp">
                   <type><DT /></type>
                   <addData>
@@ -256,16 +243,6 @@ END_VAR</xhtml>
           <documentation>
             <xhtml xmlns="http://www.w3.org/1999/xhtml">CANCloseState. True if ok</xhtml>
           </documentation>
-        </variable><variable name="SomeOtherNode">
-          <type><BOOL /></type>
-          <addData>
-            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
-              <Attributes>
-                <Attribute Name="OPC.UA.DA" Value="1" />
-              </Attributes>
-            </data>
-          </addData>
-          
         </variable><variable name="AppTimestamp">
           <type><DT /></type>
           <addData>
