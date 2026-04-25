@@ -17,6 +17,7 @@ import { resolveHtmlPath } from './util';
 import { execFile } from 'child_process';
 import { writeFileSync, existsSync, unlinkSync, readFileSync } from 'fs';
 import { promisify } from 'util';
+import { registerBeckhoffIpcHandlers } from '../beckhoff/main/registerBeckhoffIpcHandlers';
 
 class AppUpdater {
   constructor() {
@@ -127,6 +128,8 @@ ipcMain.handle('parse-file-path', (_event, filePath: string) => {
     base: parsed.base,
   };
 });
+
+registerBeckhoffIpcHandlers();
 
 // Changes  End ------------------------------------------------
 

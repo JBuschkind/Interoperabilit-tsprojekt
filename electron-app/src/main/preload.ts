@@ -7,6 +7,7 @@ import {
   webUtils,
 } from 'electron';
 import path from 'path';
+import { createBeckhoffIpcRendererApi } from '../beckhoff/preload/createBeckhoffIpcRendererApi';
 
 // allowed IPC channels
 export type Channels = 'ipc-example';
@@ -67,6 +68,8 @@ const electronHandler = {
 
     parseFilePath: (filePath: string) =>
       ipcRenderer.invoke('parse-file-path', filePath),
+
+    ...createBeckhoffIpcRendererApi(ipcRenderer),
   },
 };
 
