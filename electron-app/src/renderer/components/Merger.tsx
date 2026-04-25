@@ -10,6 +10,7 @@ import '@mismerge/core/styles.css';
 import '@mismerge/core/dark.css';
 
 type MergerProps = {
+    fileName: string;
     originalCode: string | null;
     modifiedCode: string | null;
     onAcceptMerge: (mergedCode: string) => void;
@@ -17,6 +18,7 @@ type MergerProps = {
 };
 
 export const Merger: React.FC<MergerProps> = ({
+    fileName, // TODO: Instead of showing only the current file it would be better to see the entire queue and where the user currently is. Should maybe be handled outside of component
     originalCode,
     modifiedCode,
     onAcceptMerge,
@@ -52,6 +54,8 @@ export const Merger: React.FC<MergerProps> = ({
           }
         `}
             </style>
+
+            <div className="flex justify-center mb-4 ">File: {fileName}</div>
 
             <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around">
                 <div>Original</div>

@@ -10,6 +10,7 @@ type CodeGeneratorProps = {
     parameter?: string[];
     outputFileNames?: string[];
     callCLI: (args: string[]) => Promise<string>;
+    onConfigClick: () => void;
 };
 
 export default function CodeGenerator({
@@ -17,6 +18,7 @@ export default function CodeGenerator({
     parameter = ['ClassName', 'Variable A'],
     outputFileNames = ['SPS', 'SPSProxy'],
     callCLI,
+    onConfigClick,
 }: CodeGeneratorProps) {
     type InputFile = {
         fileName: string | null;
@@ -325,6 +327,10 @@ export default function CodeGenerator({
         return;
     };
 
+    const handleConfigClick = () => {
+        return;
+    };
+
     // Resets all States
     const clearState = () => {
         setInputFile({
@@ -349,96 +355,110 @@ export default function CodeGenerator({
     };
 
     return (
-        <div className="flex-1 px-6 py-8">
-            {/* Main Content */}
-            {(uiState === UIState.Idle || uiState === UIState.DecideMerge) && (
-                <form className="max-w-7xl mx-auto flex flex-col gap-4 bg-gray-300 p-8 rounded-lg shadow-md">
-                    <div className="flex flex-col items-center justify-center ">
-                        <img width="300" alt="icon" src={icon} />
-                    </div>
-
-                    <div className="flex flex-row justify-around">
-                        <div className="flex flex-col">
-                            {/* Input File Selection */}
-                            <Dropzone
-                                id="input-dropzone"
-                                height="h-96"
-                                width="w-182"
-                                label={`Select a ${inputFileType} file`}
-                                accept={inputFileType}
-                                value={inputFile.file}
-                                onChange={handleInputFileChange}
-                            />
-
-                            {/* Output Path Selection */}
-                            <PathSelector
-                                label="Select output path:"
-                                value={outputDirPath}
-                                placeholder="No folder selected"
-                                onSelect={selectOutputDirPath}
-                            />
-                        </div>
-                        <div className="flex flex-col justify-between">
-                            <div className="flex flex-col justify-center">
-                                {/* Output Files Selection */}
-                                {outputFiles.map((outputFile, index) => (
-                                    <Dropzone
-                                        key={outputFile.fileName}
-                                        id={`dropzone-${outputFile.fileName}`}
-                                        height="h-38"
-                                        label={`Select ${outputFile.fileName} file`}
-                                        accept=".cs"
-                                        value={outputFile.file}
-                                        onChange={handleOutputFileChange(
-                                            outputFile.fileName,
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            {/* Export Button */}
+        <div className="flex-1 flex flex-col overflow-y-auto">
+            <div className="flex-1 flex flex-col justify-center items-center">
+                {/* Main Content */}
+                {(uiState === UIState.Idle ||
+                    uiState === UIState.DecideMerge) && (
+                    <form className="max-w-7xl flex flex-col gap-4 bg-gray-300 p-8 rounded-lg shadow-md">
+                        <div className="flex justify-end">
                             <button
                                 type="button"
-                                className="bg-blue-500 hover:bg-blue-700 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded mb-1"
-                                onClick={handleExportButton}
-                                disabled={
-                                    !inputFile.filePath ||
-                                    (!outputDirPath &&
-                                        !outputFiles.every(
-                                            (f) => f.file !== null,
-                                        )) ||
-                                    exportButtonLoading
-                                }
+                                onClick={onConfigClick}
+                                className="text-sm px-3 py-1.5 rounded-base bg-neutral-secondary-medium hover:cursor-pointer hover:bg-neutral-tertiary-medium text-heading border border-default-medium"
                             >
-                                {exportButtonLoading
-                                    ? 'Exporting...'
-                                    : 'Export'}
+                                Settings
                             </button>
                         </div>
-                    </div>
-                </form>
-            )}
 
-            {uiState === UIState.DecideMerge && (
-                <Modal
-                    acceptButtonLoading={acceptButtonLoading}
-                    onClose={() => setUiState(UIState.Idle)}
-                    onAccept={handleAcceptModal}
-                    files={outputFiles.filter(
-                        (outputFile) => outputFile.file !== null, // Only files that were provide will be merged or overwritten
-                    )}
-                    onToggleChange={handleToggleChange}
-                />
-            )}
+                        <div className="flex flex-col items-center justify-center ">
+                            <img width="300" alt="icon" src={icon} />
+                        </div>
 
-            {uiState === UIState.Merge && currentTask && (
-                <Merger
-                    key={currentTask.fileName}
-                    originalCode={currentTask.originalCode}
-                    modifiedCode={currentTask.generatedCode}
-                    onAcceptMerge={handleAcceptMerge}
-                    onCancelMerge={handleCancelMerge}
-                />
-            )}
+                        <div className="flex flex-row gap-6 justify-around">
+                            <div className="flex flex-col">
+                                {/* Input File Selection */}
+                                <Dropzone
+                                    id="input-dropzone"
+                                    height="h-82"
+                                    width="w-182"
+                                    label={`Select a ${inputFileType} file`}
+                                    accept={inputFileType}
+                                    value={inputFile.file}
+                                    onChange={handleInputFileChange}
+                                />
+
+                                {/* Output Path Selection */}
+                                <PathSelector
+                                    label="Select output path:"
+                                    value={outputDirPath}
+                                    placeholder="No folder selected"
+                                    onSelect={selectOutputDirPath}
+                                />
+                            </div>
+                            <div className="flex flex-col justify-between">
+                                <div className="flex flex-col justify-center">
+                                    {/* Output Files Selection */}
+                                    {outputFiles.map((outputFile, index) => (
+                                        <Dropzone
+                                            key={outputFile.fileName}
+                                            id={`dropzone-${outputFile.fileName}`}
+                                            height="20"
+                                            label={`Select ${outputFile.fileName} file`}
+                                            accept=".cs"
+                                            value={outputFile.file}
+                                            onChange={handleOutputFileChange(
+                                                outputFile.fileName,
+                                            )}
+                                        />
+                                    ))}
+                                </div>
+                                {/* Export Button */}
+                                <button
+                                    type="button"
+                                    className="bg-blue-500 hover:bg-blue-700 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded mb-1"
+                                    onClick={handleExportButton}
+                                    disabled={
+                                        !inputFile.filePath ||
+                                        (!outputDirPath &&
+                                            !outputFiles.every(
+                                                (f) => f.file !== null,
+                                            )) ||
+                                        exportButtonLoading
+                                    }
+                                >
+                                    {exportButtonLoading
+                                        ? 'Exporting...'
+                                        : 'Export'}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                )}
+
+                {uiState === UIState.DecideMerge && (
+                    <Modal
+                        acceptButtonLoading={acceptButtonLoading}
+                        onClose={() => setUiState(UIState.Idle)}
+                        onAccept={handleAcceptModal}
+                        files={outputFiles.filter(
+                            (outputFile) => outputFile.file !== null, // Only files that were provide will be merged or overwritten
+                        )}
+                        onToggleChange={handleToggleChange}
+                    />
+                )}
+
+                {uiState === UIState.Merge && currentTask && (
+                    <Merger
+                        key={currentTask.fileName}
+                        fileName={currentTask.fileName}
+                        originalCode={currentTask.originalCode}
+                        modifiedCode={currentTask.generatedCode}
+                        onAcceptMerge={handleAcceptMerge}
+                        onCancelMerge={handleCancelMerge}
+                    />
+                )}
+            </div>
         </div>
     );
 }
