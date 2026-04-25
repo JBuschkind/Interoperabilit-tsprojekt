@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "bnfoU9RqD9M=",
+  "dgSpecHash": "ZDQyyAR9Xpg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Flori\\Projekte\\draeger\\HelloCli\\HelloCli.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Flori\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.5\\microsoft.netcore.app.runtime.win-x64.10.0.5.nupkg.sha512",
-    "C:\\Users\\Flori\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.5\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.5.nupkg.sha512",
-    "C:\\Users\\Flori\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.5\\microsoft.aspnetcore.app.runtime.win-x64.10.0.5.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\Mahdi\\Desktop\\Uni\\Uni Unterlagen\\WS25\\Dräger\\Github\\Interoperabilit-tsprojekt\\CLIs\\HelloCli\\HelloCli.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

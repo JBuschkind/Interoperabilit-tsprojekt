@@ -3,11 +3,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - PARSER_MODE=${PARSER_MODE:-forward}
     volumes:
       - ./Input:/input:ro
       - ./Output:/output
     command:
+      - --mode
+      - ${PARSER_MODE:-forward}
+      - --input-xml
       - /input/GVL_PLC.xml
+      - --output-cs
       - /output/PlcStatusControl.generated.cs
+      - --output-txt
       - /output/extracted_variables.txt
+      - --properties
       - /input/plcstatus.properties
+      - --template-xml
+      - /output/GVL_PLC.template.xml
+      - --input-cs
+      - /output/PlcStatusControl.generated.cs
+      - --output-xml
+      - /output/GVL_PLC.updated.xml

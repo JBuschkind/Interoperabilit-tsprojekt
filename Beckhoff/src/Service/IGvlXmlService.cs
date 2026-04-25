@@ -3,6 +3,13 @@ namespace AmlParser.Modular.Service;
 public interface IGvlXmlService
 {
     /// <summary>
+    /// Creates a temporary XML holder file from an existing PLCopen XML source.
+    /// </summary>
+    /// <param name="inputXmlPath">Path to the input XML file.</param>
+    /// <param name="outputTemplateXmlPath">Path to the generated XML holder file.</param>
+    void CreateXmlTemplateHolderFromGvlXml(string inputXmlPath, string outputTemplateXmlPath);
+
+    /// <summary>
     /// Extracts all variable names from the PLCopen XML and writes them line by line
     /// into a text file.
     /// </summary>

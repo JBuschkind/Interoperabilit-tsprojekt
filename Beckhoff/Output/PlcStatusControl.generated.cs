@@ -34,9 +34,15 @@ namespace OPT.Framework.A200001_Ilca_SensorCalibration.Hardware
         }
 
         /// <inheritdoc />
-        public bool GetCanOpenState()
+        public bool GetCanCloseState()
         {
-            var result = _plcControl.ReadValueFromPlcNode<bool>("GVL_PLC.CANOpenState");
+            var result = _plcControl.ReadValueFromPlcNode<bool>("GVL_PLC.CANCloseState");
+            return (result.IsSuccess && result.Value);
+        }
+
+        public bool GetSomeOtherState()
+        {
+            var result = _plcControl.ReadValueFromPlcNode<bool>("GVL_PLC.SomeOtherNode");
             return (result.IsSuccess && result.Value);
         }
 
