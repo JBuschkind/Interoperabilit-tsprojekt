@@ -28,27 +28,6 @@ export default function Siemens() {
                 value: 1,
             },
             {
-                id: 'varA',
-                label: 'Variable A',
-                type: 'text',
-                defaultValue: 'Class 1',
-                value: 'Class 1',
-            },
-            {
-                id: 'varB',
-                label: 'Variable B',
-                type: 'text',
-                defaultValue: 'Class 2',
-                value: 'Class 2',
-            },
-            {
-                id: 'price',
-                label: 'Price',
-                type: 'number',
-                defaultValue: 1,
-                value: 1,
-            },
-            {
                 id: 'category',
                 label: 'Category',
                 type: 'select',

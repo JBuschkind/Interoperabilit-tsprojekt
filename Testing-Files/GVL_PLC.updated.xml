@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Beckhoff Automation GmbH" productName="TwinCAT PLC Control" productVersion="3.5.13.21" creationDateTime="2026-03-04T12:40:17.5987306" />
+  <contentHeader name="Untitled1" modificationDateTime="2026-03-04T12:40:17.5997101">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="GVL_PLC">
+        
+        
+        
+        
+        
+        
+        
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	(*0x0001 = Link error
+	0x0002 = I/O locked after link error (I/O reset required)
+	0x0004 = Link error (redundancy adapter)
+	0x0008 = Missing one frame (redundancy mode)
+	0x0010 = Out of send resources (I/O reset required)
+	0x0020 = Watchdog triggered
+	0x0040 = Ethernet driver (miniport) not found
+	0x0080 = I/O reset active
+	0x0100 = At least one device in 'INIT' state
+	0x0200 = At least one device in 'PRE-OP' state
+	0x0400 = At least one device in 'SAFE-OP' state
+	0x0800 = At least one device indicates an error state
+	0x1000 = DC not in sync*)
+	{attribute 'OPC.UA.DA' := '1'}
+	SystemStatus : UINT;
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	AllPartitiantsPresent : BOOL;
+		
+	//CANOpenState. True if ok
+	{attribute 'OPC.UA.DA' := '1'}
+	CANOpenState : BOOL;
+	
+	//Compiler timestamp
+	{attribute 'OPC.UA.DA' := '1'}
+	AppTimestamp : DT;
+
+	//Current plc version
+	{attribute 'OPC.UA.DA' := '1'}
+	AppVersion : STRING;
+	
+	//Current plc version is released
+	{attribute 'OPC.UA.DA' := '1'}
+	IsReleased :BOOL;
+END_VAR
+VAR_GLOBAL CONSTANT
+	iExpectedNumberOfPartitiants : UINT := 35; //set Number of Expected Ethercat Partitians
+END_VAR</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>26ccc2eb-6a77-44f1-87da-1d51086e54d0</ObjectId>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+            <MixedAttrsVarList>
+              <globalVars name="GVL_PLC">
+                
+                
+                
+                
+                
+                
+              <variable name="SystemStatus">
+                  <type><UINT /></type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">0x0001 = Link error
+	0x0002 = I/O locked after link error (I/O reset required)
+	0x0004 = Link error (redundancy adapter)
+	0x0008 = Missing one frame (redundancy mode)
+	0x0010 = Out of send resources (I/O reset required)
+	0x0020 = Watchdog triggered
+	0x0040 = Ethernet driver (miniport) not found
+	0x0080 = I/O reset active
+	0x0100 = At least one device in 'INIT' state
+	0x0200 = At least one device in 'PRE-OP' state
+	0x0400 = At least one device in 'SAFE-OP' state
+	0x0800 = At least one device indicates an error state
+	0x1000 = DC not in sync</xhtml>
+                  </documentation>
+                </variable><variable name="AllPartitiantsPresent">
+                  <type><BOOL /></type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable><variable name="CANOpenState">
+                  <type><BOOL /></type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">CANOpenState. True if ok</xhtml>
+                  </documentation>
+                </variable><variable name="AppTimestamp">
+                  <type><DT /></type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">Compiler timestamp</xhtml>
+                  </documentation>
+                </variable><variable name="AppVersion">
+                  <type><string /></type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version</xhtml>
+                  </documentation>
+                </variable><variable name="IsReleased">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version is released</xhtml>
+                  </documentation>
+                </variable></globalVars>
+              <globalVars name="GVL_PLC" constant="true">
+                <variable name="iExpectedNumberOfPartitiants">
+                  <type>
+                    <UINT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="35" />
+                  </initialValue>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">set Number of Expected Ethercat Partitians</xhtml>
+                  </documentation>
+                </variable>
+              </globalVars>
+            </MixedAttrsVarList>
+          </data>
+        </addData>
+      <variable name="SystemStatus">
+          <type><UINT /></type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">0x0001 = Link error
+	0x0002 = I/O locked after link error (I/O reset required)
+	0x0004 = Link error (redundancy adapter)
+	0x0008 = Missing one frame (redundancy mode)
+	0x0010 = Out of send resources (I/O reset required)
+	0x0020 = Watchdog triggered
+	0x0040 = Ethernet driver (miniport) not found
+	0x0080 = I/O reset active
+	0x0100 = At least one device in 'INIT' state
+	0x0200 = At least one device in 'PRE-OP' state
+	0x0400 = At least one device in 'SAFE-OP' state
+	0x0800 = At least one device indicates an error state
+	0x1000 = DC not in sync</xhtml>
+          </documentation>
+        </variable><variable name="AllPartitiantsPresent">
+          <type><BOOL /></type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+        </variable><variable name="CANOpenState">
+          <type><BOOL /></type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">CANOpenState. True if ok</xhtml>
+          </documentation>
+        </variable><variable name="AppTimestamp">
+          <type><DT /></type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">Compiler timestamp</xhtml>
+          </documentation>
+        </variable><variable name="AppVersion">
+          <type><string /></type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version</xhtml>
+          </documentation>
+        </variable><variable name="IsReleased">
+          <type>
+            <BOOL />
+          </type>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="OPC.UA.DA" Value="1" />
+              </Attributes>
+            </data>
+          </addData>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version is released</xhtml>
+          </documentation>
+        </variable><variable name="iExpectedNumberOfPartitiants">
+          <type>
+            <UINT />
+          </type>
+          <initialValue>
+            <simpleValue value="35" />
+          </initialValue>
+          <documentation>
+            <xhtml xmlns="http://www.w3.org/1999/xhtml">set Number of Expected Ethercat Partitians</xhtml>
+          </documentation>
+        </variable></globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Object Name="GVL_PLC" ObjectId="26ccc2eb-6a77-44f1-87da-1d51086e54d0" />
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>

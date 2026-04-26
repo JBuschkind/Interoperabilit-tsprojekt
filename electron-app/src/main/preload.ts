@@ -6,8 +6,6 @@ import {
   IpcRendererEvent,
   webUtils,
 } from 'electron';
-import path from 'path';
-import { createBeckhoffIpcRendererApi } from '../beckhoff/preload/createBeckhoffIpcRendererApi';
 
 // allowed IPC channels
 export type Channels = 'ipc-example';
@@ -57,6 +55,12 @@ const electronHandler = {
       spsProxyOutputPath: string;
     }) => ipcRenderer.invoke('run-siemens-parser-cli', payload),
 
+    runBeckhoffParserCLI: (payload: {
+      inputPath: string;
+      outputPath: string;
+      direction: string;
+    }) => ipcRenderer.invoke('run-beckhoff-parser-cli', payload),
+
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>
       ipcRenderer.invoke('finalize-merge', payload),
 
@@ -68,8 +72,6 @@ const electronHandler = {
 
     parseFilePath: (filePath: string) =>
       ipcRenderer.invoke('parse-file-path', filePath),
-
-    ...createBeckhoffIpcRendererApi(ipcRenderer),
   },
 };
 

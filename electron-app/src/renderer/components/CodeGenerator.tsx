@@ -9,6 +9,7 @@ type CodeGeneratorProps = {
     inputFileType?: string;
     parameter?: string[];
     outputFileNames?: string[];
+    outputFileType?: string;
     callCLI: (args: string[]) => Promise<string>;
     onConfigClick: () => void;
 };
@@ -16,6 +17,7 @@ type CodeGeneratorProps = {
 export default function CodeGenerator({
     inputFileType = '.db',
     outputFileNames = ['SPS', 'SPSProxy'],
+    outputFileType = '.cs',
     callCLI,
     onConfigClick,
 }: CodeGeneratorProps) {
@@ -166,7 +168,7 @@ export default function CodeGenerator({
 
                 const outputPath = await window.electron.ipcRenderer.joinPath(
                     outputDirPath,
-                    `${outputFile.fileName}.cs`,
+                    `${outputFile.fileName}${outputFileType}`,
                 );
                 return {
                     ...outputFile,
@@ -402,7 +404,7 @@ export default function CodeGenerator({
                                         id={`dropzone-${outputFile.fileName}`}
                                         height="20"
                                         label={`Select ${outputFile.fileName} file`}
-                                        accept=".cs"
+                                        accept={outputFileType}
                                         value={outputFile.file}
                                         onChange={handleOutputFileChange(
                                             outputFile.fileName,

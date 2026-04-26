@@ -10,7 +10,7 @@ export default function Layout() {
 
                     <div className="text-sm font-medium text-center text-body">
                         <ul className="flex -mb-px gap-6 pb-2">
-                            <li>
+                            <li className="mt-1">
                                 <NavLink
                                     to="/"
                                     className={({ isActive }) =>
@@ -24,7 +24,7 @@ export default function Layout() {
                                     Siemens TIA Portal
                                 </NavLink>
                             </li>
-                            <li>
+                            <li className="mt-1">
                                 <NavLink
                                     to="/beckhoff"
                                     className={({ isActive }) =>
