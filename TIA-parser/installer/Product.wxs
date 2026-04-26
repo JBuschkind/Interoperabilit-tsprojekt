@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+    Name="TIA Parser"
+    Manufacturer="Draeger"
+    Version="1.0.0"
+    UpgradeCode="A6F08B97-7BB6-42B4-A5D8-56B39C1907E6"
+    Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="TIA Parser">
+        <Component Id="cmpMainExe" Guid="*">
+          <File Id="filMainExe" Source=".publish-windows\tiaparser.exe" KeyPath="yes" />
+          <Environment
+            Id="EnvAddInstallDirToPath"
+            Name="PATH"
+            Value="[INSTALLFOLDER]"
+            Part="last"
+            Action="set"
+            System="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="TIA Parser CLI" Level="1">
+      <ComponentRef Id="cmpMainExe" />
+    </Feature>
+  </Package>
+</Wix>
