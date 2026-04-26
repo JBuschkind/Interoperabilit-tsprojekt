@@ -10,6 +10,9 @@ namespace TiaPortalParser
         /// <summary>The list of parsed variables.</summary>
         public List<TiaVariable> Variables { get; set; } = new List<TiaVariable>();
 
+        /// <summary>
+        /// Returns a short textual summary of the parsed data block.
+        /// </summary>
         public override string ToString() =>
             $"TiaVariableList with {Variables.Count} variables";
     }

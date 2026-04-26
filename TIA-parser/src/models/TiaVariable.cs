@@ -31,6 +31,9 @@ namespace TiaPortalParser
             ? Name
             : $"{StructPath}.{Name}";
 
+        /// <summary>
+        /// Returns a readable representation of the variable for debugging and logging.
+        /// </summary>
         public override string ToString() =>
             $"[{FullPath}]  Type={DataType}  ExternalWritable={ExternalWritable?.ToString() ?? "n/a"}  Comment={Comment}";
     }
