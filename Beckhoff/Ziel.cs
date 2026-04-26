@@ -1,3 +1,5 @@
+// Beispiel C# Datei. So soll am ende die generierte datei aussehen
+
 using OPT.Framework.A200001_Ilca_SensorCalibration.Enumerations;
 using System;
 using OPT.Framework.API.HardwareControls;

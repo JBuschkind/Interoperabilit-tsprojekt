@@ -135,6 +135,22 @@ public sealed class GvlXmlService : IGvlXmlService
     }
 
     /// <summary>
+    /// Creates a temporary XML holder file by copying the full PLCopen XML content.
+    /// The holder preserves the original structure so variable names can be updated later.
+    /// </summary>
+    /// <param name="inputXmlPath">Path to the source XML file.</param>
+    /// <param name="outputTemplateXmlPath">Path to the generated holder XML file.</param>
+    public void CreateXmlTemplateHolderFromGvlXml(string inputXmlPath, string outputTemplateXmlPath)
+    {
+        if (!File.Exists(inputXmlPath))
+            throw new FileNotFoundException("Input XML not found", inputXmlPath);
+
+        var doc = XDocument.Load(inputXmlPath, LoadOptions.PreserveWhitespace);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputTemplateXmlPath) ?? ".");
+        doc.Save(outputTemplateXmlPath);
+    }
+
+    /// <summary>
     /// Extracts all variables from the XML, normalizes duplicates,
     /// and writes fully qualified names into a TXT file.
     /// </summary>
@@ -415,11 +431,11 @@ public sealed class GvlXmlService : IGvlXmlService
             or "ulong";
     }
 
-            /// <summary>
-            /// Extracts the PLC data type of a variable from its type node.
-            /// </summary>
-            /// <param name="variable">XML element representing a PLC variable.</param>
-            /// <returns>PLC type name, or an empty string when not present.</returns>
+    /// <summary>
+    /// Extracts the PLC data type of a variable from its type node.
+    /// </summary>
+    /// <param name="variable">XML element representing a PLC variable.</param>
+    /// <returns>PLC type name, or an empty string when not present.</returns>
     private static string ParsePlcType(XElement variable)
     {
         var typeElement = variable.Element(PlcOpenNs + "type");
