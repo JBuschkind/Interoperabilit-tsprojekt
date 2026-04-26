@@ -2,63 +2,44 @@ import '../App.css';
 import CodeGenerator from '../components/CodeGenerator';
 import ConfigModal from '../components/ConfigModal';
 import { useConfig } from '../hooks/useConfig';
+import { useEffect } from 'react';
 
 export default function Siemens() {
-    const { config, updateValue, getPayload, isModalOpen, setModalOpen } =
-        useConfig([
-            {
-                id: 'varA',
-                label: 'Variable A',
-                type: 'text',
-                defaultValue: 'Class 1',
-                value: 'Class 1',
-            },
-            {
-                id: 'varB',
-                label: 'Variable B',
-                type: 'text',
-                defaultValue: 'Class 2',
-                value: 'Class 2',
-            },
-            {
-                id: 'price',
-                label: 'Price',
-                type: 'number',
-                defaultValue: 1,
-                value: 1,
-            },
-            {
-                id: 'category',
-                label: 'Category',
-                type: 'select',
-                defaultValue: null,
-                value: null,
-                options: [
-                    { value: 'TV', label: 'TV/Monitors' },
-                    { value: 'PC', label: 'PC' },
-                    { value: 'GA', label: 'Gaming/Console' },
-                    { value: 'PH', label: 'Phones' },
-                ],
-            },
-            {
-                id: 'description',
-                label: 'Description',
-                type: 'textarea',
-                defaultValue: '',
-                placeholder: 'Test',
-                value: '',
-            },
-        ]);
+    const {
+        config,
+        updateValue,
+        setConfig,
+        getCLIArgs,
+        isModalOpen,
+        setModalOpen,
+    } = useConfig([]);
+
+    // On mount: Read config json for settings
+    useEffect(() => {
+        const loadConfig = async () => {
+            try {
+                const fileContent =
+                    await window.electron.ipcRenderer.readConfig('siemens');
+                const parsed = JSON.parse(fileContent);
+
+                setConfig(parsed);
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        };
+
+        loadConfig();
+    }, []);
 
     // paths[0] = inputPath, paths[1] = spsOutputPath, paths[2] = spsProxyOutputPath
     const callSiemensParserCLI = async (paths: string[]) => {
-        const payload = getPayload();
+        const cliArgs = getCLIArgs();
 
         return await window.electron.ipcRenderer.runSiemensParserCLI({
             inputPath: paths[0],
             spsOutputPath: paths[1],
             spsProxyOutputPath: paths[2],
-            // config: payload
+            cliArgs: cliArgs,
         });
     };
 
@@ -71,7 +52,7 @@ export default function Siemens() {
                     config={config}
                     onChange={updateValue}
                     onClose={() => setModalOpen(false)}
-                    onSubmit={() => {}}
+                    onSubmit={() => setModalOpen(false)} // TODO
                 />
             )}
 

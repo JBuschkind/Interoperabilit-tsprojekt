@@ -13,17 +13,30 @@ export function useConfig(initialConfig: ConfigItem[]) {
   };
 
   const reset = () => {
-    setConfig(initialConfig);
+    // setConfig(initialConfig);
   };
 
-  const getPayload = () => {
-    return config.reduce(
-      (acc, item) => {
-        acc[item.id] = item.value;
-        return acc;
-      },
-      {} as Record<string, ConfigValue>,
-    );
+  /**
+   * CLI-ready argument array:
+   * ["--flag", "value", "--boolFlag"]
+   */
+  const getCLIArgs = () => {
+    return config.flatMap((item) => {
+      const key = `--${item.id}`;
+      const value = item.value;
+
+      if (value === null || value === undefined || value === '') {
+        return [];
+      }
+
+      // boolean flags → --flag (only if true)
+      if (typeof value === 'boolean') {
+        return value ? [key] : [];
+      }
+
+      // everything else → --key value
+      return [key, String(value)];
+    });
   };
 
   const save = () => {
@@ -34,7 +47,7 @@ export function useConfig(initialConfig: ConfigItem[]) {
     config,
     setConfig,
     updateValue,
-    getPayload,
+    getCLIArgs,
     reset,
     save,
     isModalOpen,

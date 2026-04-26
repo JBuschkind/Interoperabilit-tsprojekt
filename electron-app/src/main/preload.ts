@@ -6,6 +6,7 @@ import {
   IpcRendererEvent,
   webUtils,
 } from 'electron';
+import { read } from 'fs';
 
 // allowed IPC channels
 export type Channels = 'ipc-example';
@@ -53,6 +54,7 @@ const electronHandler = {
       inputPath: string;
       spsOutputPath: string;
       spsProxyOutputPath: string;
+      cliArgs: string[];
     }) => ipcRenderer.invoke('run-siemens-parser-cli', payload),
 
     runBeckhoffParserCLI: (payload: {
@@ -72,6 +74,8 @@ const electronHandler = {
 
     parseFilePath: (filePath: string) =>
       ipcRenderer.invoke('parse-file-path', filePath),
+
+    readConfig: (type: string) => ipcRenderer.invoke('read-config', type),
   },
 };
 

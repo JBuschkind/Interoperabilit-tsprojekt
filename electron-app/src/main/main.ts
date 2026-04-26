@@ -71,7 +71,7 @@ const execFileAsync = promisify(execFile);
 
 ipcMain.handle(
   'run-siemens-parser-cli',
-  async (_event, { inputPath, spsOutputPath, spsProxyOutputPath }) => {
+  async (_event, { inputPath, spsOutputPath, spsProxyOutputPath, cliArgs }) => {
     // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
     if (spsOutputPath.endsWith('.temp.cs')) {
       tempFilesToCleanUp.push(spsOutputPath);
@@ -88,6 +88,7 @@ ipcMain.handle(
       inputPath,
       spsOutputPath,
       spsProxyOutputPath,
+      ...cliArgs,
     ]);
     return stdout;
   },
@@ -182,6 +183,19 @@ ipcMain.handle('parse-file-path', (_event, filePath: string) => {
     ext: parsed.ext,
     base: parsed.base,
   };
+});
+
+ipcMain.handle('read-config', async (_event, type: string) => {
+  const CONFIG_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, `CLIs/${type}/config.json`)
+    : path.join(__dirname, `../../CLIs/${type}/config.json`);
+
+  console.log(CONFIG_PATH);
+
+  if (!existsSync(CONFIG_PATH)) {
+    throw new Error('File does not exist');
+  }
+  return readFileSync(CONFIG_PATH, 'utf-8');
 });
 
 // Changes  End ------------------------------------------------

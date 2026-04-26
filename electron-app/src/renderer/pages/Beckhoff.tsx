@@ -5,7 +5,7 @@ import ConfigModal from '../components/ConfigModal';
 import { useConfig } from '../hooks/useConfig';
 
 export default function Beckhoff() {
-    const { config, updateValue, getPayload, isModalOpen, setModalOpen } =
+    const { config, updateValue, getCLIArgs, isModalOpen, setModalOpen } =
         useConfig([
             {
                 id: 'varA',
@@ -19,7 +19,7 @@ export default function Beckhoff() {
     const [direction, setDirection] = useState<string>('forward');
 
     const callBeckhoffParserCLI = async (paths: string[]) => {
-        const payload = getPayload();
+        const payload = getCLIArgs();
         // TODO
         return await window.electron.ipcRenderer.runBeckhoffParserCLI({
             inputPath: paths[0],
@@ -38,7 +38,7 @@ export default function Beckhoff() {
                     config={config}
                     onChange={updateValue}
                     onClose={() => setModalOpen(false)}
-                    onSubmit={() => {}}
+                    onSubmit={() => setModalOpen(false)} // TODO
                 />
             )}
             {/* TODO: This switch is only temporary until we decide on how the UI looks lie */}
