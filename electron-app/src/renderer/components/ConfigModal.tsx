@@ -75,7 +75,14 @@ export default function ConfigModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="w-full max-w-lg max-h-[90vh] bg-neutral-primary-soft border border-default rounded-base shadow-sm flex flex-col">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+                onClick={onClose}
+            />
+
+            {/* Modal */}
+            <div className="relative w-full max-w-lg max-h-[90vh] bg-neutral-primary-soft border border-default rounded-base shadow-sm flex flex-col">
                 {/* HEADER */}
                 <div className="flex justify-between items-center border-b border-default p-4 shrink-0">
                     <h3 className="text-lg font-medium text-heading">
