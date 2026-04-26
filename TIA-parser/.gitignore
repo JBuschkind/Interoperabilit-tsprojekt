@@ -1,0 +1,5 @@
+obj/
+bin/
+publish/
+.publish-windows/
+publish-windows/
