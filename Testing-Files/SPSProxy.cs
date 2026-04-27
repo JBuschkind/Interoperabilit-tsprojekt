@@ -1,8 +1,5 @@
 ﻿using Opc.Ua;
 using System;
-using lululu;
-using lalala;
-using lelele;
 
 // ReSharper disable StringLiteralTypo
 
@@ -18,127 +15,127 @@ namespace OPT.Framework.MyProject.Hardware
         private readonly TimeSpan _updateInterval;
 
         private readonly NodeId _sPSAnNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "SPS an", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "SPS an", 3);
 
         private readonly NodeId _einschaltschuetzeAnNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Einschaltschütze an", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Einschaltschütze an", 3);
 
         private readonly NodeId _nH1A10130S4QuittNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 1 =A1+01-30S4 quitt", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 1 =A1+01-30S4 quitt", 3);
 
         private readonly NodeId _nH2A10130S5QuittNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 2 =A1+01-30S5 quitt", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 2 =A1+01-30S5 quitt", 3);
 
         private readonly NodeId _nH3A20230S2QuittNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 3 =A2+02-30S2 quitt", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 3 =A2+02-30S2 quitt", 3);
 
         private readonly NodeId _nH4A30330S4QuittNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 4 =A3+03-30S4 quitt", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 4 =A3+03-30S4 quitt", 3);
 
         private readonly NodeId _nH14QuittNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 1-4 quitt", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "N-H 1-4 quitt", 3);
 
         private readonly NodeId _sT1A30330S2VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 1 =A3+03-30S2 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 1 =A3+03-30S2 verr", 3);
 
         private readonly NodeId _sT2A30330S1VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 2 =A3+03-30S1 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 2 =A3+03-30S1 verr", 3);
 
         private readonly NodeId _sT3A20230S2VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 3 =A2+02-30S2 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 3 =A2+02-30S2 verr", 3);
 
         private readonly NodeId _sT4A20230S1VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 4 =A2+02-30S1 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 4 =A2+02-30S1 verr", 3);
 
         private readonly NodeId _sT5A10130S3VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 5 =A1+01-30S3 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 5 =A1+01-30S3 verr", 3);
 
         private readonly NodeId _sT6A10130S2VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 6 =A1+01-30S2 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 6 =A1+01-30S2 verr", 3);
 
         private readonly NodeId _sT16VerrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 1-6 verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 1-6 verr", 3);
 
         private readonly NodeId _sT7A30331S5GeschlNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 7 =A3+03-31S5 geschl", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "ST 7 =A3+03-31S5 geschl", 3);
 
         private readonly NodeId _busNioFestoContrM400NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Contr M400", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Contr M400", 3);
 
         private readonly NodeId _busNioFestoContrM1000NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Contr M1000", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Contr M1000", 3);
 
         private readonly NodeId _busNioLinmotContrM700NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Linmot Contr M700", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Linmot Contr M700", 3);
 
         private readonly NodeId _busNioFestoInsel1A303NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Insel1 =A3+03", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Insel1 =A3+03", 3);
 
         private readonly NodeId _busNioFestoInsel2A101NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Insel2 =A1+01", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Festo Insel2 =A1+01", 3);
 
         private readonly NodeId _busNioSwitchA1011NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A1_01_1", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A1_01_1", 3);
 
         private readonly NodeId _busNioSwitchA1012NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A1_01_2", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A1_01_2", 3);
 
         private readonly NodeId _busNioSiemensIOA202NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A2_02", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A2_02", 3);
 
         private readonly NodeId _busNioSwitchA2021NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A2_02_1", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A2_02_1", 3);
 
         private readonly NodeId _busNioSwitchA2022NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A2_02_2", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A2_02_2", 3);
 
         private readonly NodeId _busNioSiemensIOA303NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A3_03", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A3_03", 3);
 
         private readonly NodeId _busNioSwitchA3031NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_1", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_1", 3);
 
         private readonly NodeId _busNioSwitchA3032NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_2", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_2", 3);
 
         private readonly NodeId _busNioSwitchA3033NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_3", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A3_03_3", 3);
 
         private readonly NodeId _busNioSiemensIOA505NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A5_05", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A5_05", 3);
 
         private readonly NodeId _busNioSwitchA5051NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A5_05_1", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A5_05_1", 3);
 
         private readonly NodeId _busNioSiemensIOA606NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A6_06", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Siemens IO A6_06", 3);
 
         private readonly NodeId _busNioSwitchA8081NodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A8_08_1", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Switch A8_08_1", 3);
 
         private readonly NodeId _busNioAmadaNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Amada", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "Bus nio Amada", 3);
 
         private readonly NodeId _userLevel1ActiveNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel1Active", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel1Active", 3);
 
         private readonly NodeId _userLevel2ActiveNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel2Active", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel2Active", 3);
 
         private readonly NodeId _userLevel3ActiveNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel3Active", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel3Active", 3);
 
         private readonly NodeId _userLevel4ActiveNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel4Active", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel4Active", 3);
 
         private readonly NodeId _userLevelNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "SPS -> PC", "UserLevel", 3);
 
         private readonly NodeId _sT16verrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "PC -> SPS", "ST1-6verr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "PC -> SPS", "ST1-6verr", 3);
 
         private readonly NodeId _sT16entrNodeId =
-            NodeIdFactory.Create("Schnittstelle SPS - PC", "PC -> SPS", "ST1-6entr", 5);
+            NodeIdFactory.Create("Schnittstelle SPS - PC", "PC -> SPS", "ST1-6entr", 3);
 
         /// <summary>
         /// Ctor
@@ -149,7 +146,7 @@ namespace OPT.Framework.MyProject.Hardware
             _opcValueWriter = opcValueWriter;
             _model = new Sps();
             _lastRead = DateTime.MinValue;
-            _updateInterval = TimeSpan.FromMilliseconds(666);
+            _updateInterval = TimeSpan.FromMilliseconds(500);
         }
 
         /// <inheritdoc />

@@ -55,13 +55,39 @@ export default function Siemens() {
                     onSubmit={() => setModalOpen(false)} // TODO
                 />
             )}
+            {/* Settings Section */}
+            <div className="w-full flex justify-between">
+                <div className="w-28">{/* Spacer */}</div>
+
+                {/* Toggle between directions */}
+                <div className="invisible bg-surface-container-low p-1 rounded-sm flex items-center gap-1 border border-outline/10 shadow-lg text-surface-inverse/60">
+                    <button className="px-6 py-2 text-xs font-black uppercase tracking-widest bg-primary-inverse text-on-primary-container transition-all">
+                        .db → C#
+                    </button>
+                    <button className="px-6 py-2 text-xs font-black uppercase tracking-widest text-on-surface-variant hover:bg-surface-container transition-all">
+                        C# → .db
+                    </button>
+                </div>
+
+                {/* Settings Button */}
+                <button
+                    type="button"
+                    onClick={() => setModalOpen(true)}
+                    className="w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors"
+                    title="Settings"
+                >
+                    <span className="material-symbols-outlined text-surface-inverse/60 text-lg">
+                        tune
+                    </span>
+                    <span className="text-surface-inverse/60">Settings</span>
+                </button>
+            </div>
 
             {/* Main Content */}
             <CodeGenerator
                 inputFileType=".db"
                 outputFileNames={['SPS', 'SPSProxy']}
                 callCLI={callSiemensParserCLI}
-                onConfigClick={() => setModalOpen(true)}
             />
         </>
     );

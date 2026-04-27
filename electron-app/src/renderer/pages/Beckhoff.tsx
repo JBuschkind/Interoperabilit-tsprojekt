@@ -56,34 +56,49 @@ export default function Beckhoff() {
                     onSubmit={() => setModalOpen(false)} // TODO
                 />
             )}
-            {/* TODO: This switch is only temporary until we decide on how the UI looks lie */}
-            <div className="flex flex-col items-center mt-15 gap-1">
-                <label className="flex justify-center items-center cursor-pointer">
-                    <span className="select-none text-sm font-medium text-heading">
-                        Forward
+            {/* Settings Section */}
+            <div className="w-full flex justify-between">
+                <div className="w-28">{/* Spacer */}</div>
+
+                {/* Toggle between directions */}
+                <div className="bg-surface-container-low p-1 rounded-sm flex items-center gap-1 border border-outline/10 shadow-lg text-surface-inverse/60">
+                    <button
+                        onClick={() => setDirection('forward')}
+                        className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
+                        ${
+                            direction === 'forward'
+                                ? 'bg-primary-inverse text-on-primary-container'
+                                : 'text-on-surface-variant hover:bg-surface-container'
+                        }`}
+                    >
+                        .xml → C#
+                    </button>
+
+                    <button
+                        onClick={() => setDirection('reverse')}
+                        className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
+                        ${
+                            direction === 'reverse'
+                                ? 'bg-primary-inverse text-on-primary-container'
+                                : 'text-on-surface-variant hover:bg-surface-container'
+                        }`}
+                    >
+                        C# → .xml
+                    </button>
+                </div>
+
+                {/* Settings Button */}
+                <button
+                    type="button"
+                    onClick={() => setModalOpen(true)}
+                    className="w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors"
+                    title="Settings"
+                >
+                    <span className="material-symbols-outlined text-surface-inverse/60 text-lg">
+                        tune
                     </span>
-
-                    <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={direction === 'reverse'}
-                        onChange={(e) =>
-                            setDirection(
-                                e.target.checked ? 'reverse' : 'forward',
-                            )
-                        }
-                    />
-
-                    <div className="relative mx-3 w-9 h-5 bg-neutral-quaternary peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
-
-                    <span className="select-none text-sm font-medium text-heading">
-                        Reverse
-                    </span>
-                </label>
-
-                <span className="text-xs text-neutral-500">
-                    (Temporary toggle for testing purposes)
-                </span>
+                    <span className="text-surface-inverse/60">Settings</span>
+                </button>
             </div>
             {/* Main Content */}
             {direction === 'forward' ? (
@@ -93,7 +108,6 @@ export default function Beckhoff() {
                     outputFileNames={['PlcStatusControl']}
                     outputFileType=".cs"
                     callCLI={callBeckhoffParserCLI}
-                    onConfigClick={() => setModalOpen(true)}
                 />
             ) : (
                 <CodeGenerator
@@ -102,7 +116,6 @@ export default function Beckhoff() {
                     outputFileNames={['GVL_PLC.updated']}
                     outputFileType=".xml"
                     callCLI={callBeckhoffParserCLI}
-                    onConfigClick={() => setModalOpen(true)}
                 />
             )}{' '}
         </>

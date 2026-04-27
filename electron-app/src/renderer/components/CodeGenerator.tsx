@@ -4,14 +4,13 @@ import Dropzone from './Dropzone';
 import { PathSelector } from './PathSelector';
 import Modal from './Modal';
 import { Merger } from './Merger';
+import MiniDropzone from './MiniDropzone';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
-    parameter?: string[];
     outputFileNames?: string[];
     outputFileType?: string;
     callCLI: (args: string[]) => Promise<string>;
-    onConfigClick: () => void;
 };
 
 export default function CodeGenerator({
@@ -19,7 +18,6 @@ export default function CodeGenerator({
     outputFileNames = ['SPS', 'SPSProxy'],
     outputFileType = '.cs',
     callCLI,
-    onConfigClick,
 }: CodeGeneratorProps) {
     type InputFile = {
         fileName: string | null;
@@ -78,6 +76,9 @@ export default function CodeGenerator({
     const [mergeQueue, setMergeQueue] = useState<OutputFile[]>([]); // Contains output files that were selected for merging
     const [currentTask, setCurrentTask] = useState<OutputFile | null>(null); // The output file that is being merged currently
     const [uiState, setUiState] = useState<UIState>(UIState.Idle);
+    const [outputIsDirectory, setOutputIsDirectory] = useState<boolean | null>(
+        true,
+    );
 
     /*
      * Functions
@@ -356,81 +357,162 @@ export default function CodeGenerator({
     };
 
     return (
-        <div className="flex-1 flex flex-col justify-center items-center">
+        <>
             {/* Main Content */}
             {(uiState === UIState.Idle || uiState === UIState.DecideMerge) && (
-                <form className="max-w-7xl flex flex-col gap-4 bg-gray-300 p-8 rounded-lg shadow-md">
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={onConfigClick}
-                            className="text-sm px-3 py-1.5 rounded-base bg-neutral-secondary-medium hover:cursor-pointer hover:bg-neutral-tertiary-medium text-heading border border-default-medium"
-                        >
-                            Settings
-                        </button>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center ">
-                        <img width="300" alt="icon" src={icon} />
-                    </div>
-
-                    <div className="flex flex-row gap-6 justify-around">
-                        <div className="flex flex-col">
-                            {/* Input File Selection */}
+                <form className="flex flex-col gap-5">
+                    {/* Input section */}
+                    <div className="flex flex-col gap-3">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-headline text-lg font-bold tracking-tight text-primary uppercase flex items-center gap-2">
+                                Source Input
+                            </h2>
+                        </div>
+                        <div className="bg-surface-container-low p-6 rounded-sm">
                             <Dropzone
                                 id="input-dropzone"
-                                height="h-82"
-                                width="w-182"
-                                label={`Select a ${inputFileType} file`}
                                 accept={inputFileType}
                                 value={inputFile.file}
                                 onChange={handleInputFileChange}
                             />
+                        </div>
+                    </div>
 
-                            {/* Output Path Selection */}
-                            <PathSelector
-                                label="Select output path:"
-                                value={outputDirPath}
-                                placeholder="No folder selected"
-                                onSelect={selectOutputDirPath}
-                            />
+                    {/* Output Section */}
+                    <div className="flex flex-col gap-3">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-headline text-lg font-bold tracking-tight text-primary uppercase flex items-center gap-2">
+                                Output Destination
+                            </h2>
                         </div>
-                        <div className="flex flex-col justify-between">
-                            <div className="flex flex-col justify-center">
-                                {/* Output Files Selection */}
-                                {outputFiles.map((outputFile, index) => (
-                                    <Dropzone
-                                        key={outputFile.fileName}
-                                        id={`dropzone-${outputFile.fileName}`}
-                                        height="20"
-                                        label={`Select ${outputFile.fileName} file`}
-                                        accept={outputFileType}
-                                        value={outputFile.file}
-                                        onChange={handleOutputFileChange(
-                                            outputFile.fileName,
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            {/* Export Button */}
-                            <button
-                                type="button"
-                                className="bg-blue-500 hover:bg-blue-700 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded mb-1"
-                                onClick={handleExportButton}
-                                disabled={
-                                    !inputFile.filePath ||
-                                    (!outputDirPath &&
-                                        !outputFiles.every(
-                                            (f) => f.file !== null,
-                                        )) ||
-                                    exportButtonLoading
-                                }
+                        <div className="flex justify-between gap-6">
+                            {/* Output Dir Path Selection */}
+                            <div
+                                onClick={() => setOutputIsDirectory(true)}
+                                className={`flex flex-col w-1/2 min-w-0 bg-surface-container-low p-5 border-l-2 transition-all cursor-pointer
+                                    ${
+                                        outputIsDirectory
+                                            ? 'border-primary-container opacity-100'
+                                            : 'hover:border-primary-container  opacity-40 grayscale hover:opacity-60'
+                                    }
+                                `}
                             >
-                                {exportButtonLoading
-                                    ? 'Exporting...'
-                                    : 'Export'}
-                            </button>
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-primary-container/10 flex items-center justify-center rounded">
+                                            <span className="material-symbols-outlined text-primary">
+                                                folder_zip
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-bold uppercase tracking-tight text-primary">
+                                                Output Directory
+                                            </h3>
+                                            <p className="text-xs text-surface-inverse">
+                                                Batch export to target system
+                                                folder
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <input
+                                        type="radio"
+                                        name="output_mode"
+                                        checked={outputIsDirectory === true}
+                                        onChange={() =>
+                                            setOutputIsDirectory(true)
+                                        }
+                                    />
+                                </div>
+
+                                <PathSelector
+                                    value={outputDirPath}
+                                    placeholder="Select destination path..."
+                                    onSelect={selectOutputDirPath}
+                                />
+                            </div>
+                            {/* Output Files Selection */}
+                            <div
+                                onClick={() => setOutputIsDirectory(false)}
+                                className={`flex flex-col w-1/2 min-w-0 bg-surface-container-low p-5 border-l-2 transition-all cursor-pointer
+                                    ${!outputIsDirectory ? 'border-primary-container' : 'border-transparent hover:border-primary-container opacity-40 grayscale hover:opacity-60'}
+                                `}
+                            >
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-primary-container/10 flex items-center justify-center rounded">
+                                            <span className="material-symbols-outlined text-primary">
+                                                merge_type
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-bold uppercase tracking-tight text-primary">
+                                                Link to Existing Files
+                                            </h3>
+                                            <p className="text-xs text-surface-inverse">
+                                                Merge generated Code into
+                                                existing source files
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <input
+                                        className="w-4 h-4 text-primary bg-surface border-outline focus:ring-primary transition-all"
+                                        type="radio"
+                                        name="output_mode"
+                                        checked={outputIsDirectory === false}
+                                        onChange={() =>
+                                            setOutputIsDirectory(false)
+                                        }
+                                    />
+                                </div>
+
+                                <div className="min-w-0 flex flex-col items-center max-h-42 overflow-y-auto scrollbar-custom pr-2 space-y-2">
+                                    {outputFiles.map((outputFile) => (
+                                        <MiniDropzone
+                                            key={outputFile.fileName}
+                                            id={`mini-dropzone-${outputFile.fileName}`}
+                                            accept={outputFileType}
+                                            value={outputFile.file}
+                                            onChange={handleOutputFileChange(
+                                                outputFile.fileName,
+                                            )}
+                                        />
+                                    ))}
+                                </div>
+                            </div>{' '}
                         </div>
+                    </div>
+                    {/* Export Button Section*/}
+                    <div className="flex flex-row justify-center items-center gap-6 bg-surface-container-highest p-6 rounded-sm border-t border-primary/10">
+                        <button
+                            type="submit"
+                            onClick={clearState}
+                            className="border border-outline px-6 py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-surface-bright hover:cursor-pointer transition-colors active:scale-95 text-surface-inverse"
+                        >
+                            Clear Workspace
+                        </button>
+                        <button
+                            type="button"
+                            className="bg-primary text-on-primary px-10 py-2.5 text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                            onClick={handleExportButton}
+                            disabled={
+                                !inputFile.filePath ||
+                                (!outputDirPath &&
+                                    !outputFiles.every(
+                                        (f) => f.file !== null,
+                                    )) ||
+                                exportButtonLoading
+                            }
+                        >
+                            {exportButtonLoading
+                                ? 'Exporting...'
+                                : 'Generate Code'}
+                        </button>
                     </div>
                 </form>
             )}
@@ -457,6 +539,6 @@ export default function CodeGenerator({
                     onCancelMerge={handleCancelMerge}
                 />
             )}
-        </div>
+        </>
     );
 }

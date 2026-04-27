@@ -5,6 +5,87 @@
 
 @import 'tailwindcss';
 
+/* Define custom theme directly in CSS */
+@theme {
+  /* PRIMARY */
+  --color-primary: #98cbff;
+  --color-primary-on: #003354;
+  --color-primary-container: #00a3ff;
+  --color-primary-on-container: #00375a;
+  --color-primary-fixed: #cfe5ff;
+  --color-primary-fixed-dim: #98cbff;
+  --color-primary-on-fixed: #001d33;
+  --color-primary-on-fixed-variant: #004a77;
+  --color-primary-inverse: #00629d;
+
+  /* SECONDARY */
+  --color-secondary: #b7c8e1;
+  --color-secondary-on: #213145;
+  --color-secondary-container: #3a4a5f;
+  --color-secondary-on-container: #a9bad3;
+  --color-secondary-fixed: #d3e4fe;
+  --color-secondary-fixed-dim: #b7c8e1;
+  --color-secondary-on-fixed: #0b1c30;
+  --color-secondary-on-fixed-variant: #38485d;
+
+  /* TERTIARY */
+  --color-tertiary: #ffb95f;
+  --color-tertiary-on: #472a00;
+  --color-tertiary-container: #da8b00;
+  --color-tertiary-on-container: #4c2d00;
+  --color-tertiary-fixed: #ffddb8;
+  --color-tertiary-fixed-dim: #ffb95f;
+  --color-tertiary-on-fixed: #2a1700;
+  --color-tertiary-on-fixed-variant: #653e00;
+
+  /* SURFACE */
+  --color-surface: #0b1326; /*Main background*/
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+
+  --color-surface-container: #171f33;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+
+  --color-surface-variant: #2d3449;
+  --color-surface-tint: #98cbff;
+
+  --color-surface-inverse: #dae2fd;
+  --color-surface-inverse-on: #283044;
+
+  /* BACKGROUND */
+  --color-background: #0b1326;
+  --color-background-on: #dae2fd;
+
+  /* ERROR */
+  --color-error: #ffb4ab;
+  --color-error-on: #690005;
+  --color-error-container: #93000a;
+  --color-error-on-container: #ffdad6;
+
+  /* OUTLINE */
+  --color-outline: #88919d;
+  --color-outline-variant: #3f4852;
+
+  /* TEXT */
+  --color-text-primary: #dae2fd;
+  --color-text-secondary: #bec7d4;
+}
+@utility scrollbar-custom {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #0b1326;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #3f4852;
+  }
+}
 /* Flowbite plugin MUST come after Tailwind */
 @plugin "flowbite/plugin";
 

@@ -1,8 +1,4 @@
-﻿using lalala;
-using kakaka;
-using jejeje;
-
-// ReSharper disable UnusedAutoPropertyAccessor.Global
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 
 namespace OPT.Framework.MyProject.Hardware
