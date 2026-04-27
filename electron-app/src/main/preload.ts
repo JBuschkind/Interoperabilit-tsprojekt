@@ -61,6 +61,7 @@ const electronHandler = {
       inputPath: string;
       outputPath: string;
       direction: string;
+      cliArgs: string[];
     }) => ipcRenderer.invoke('run-beckhoff-parser-cli', payload),
 
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>

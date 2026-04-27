@@ -3,42 +3,42 @@
     "id": "namespace",
     "label": "Namespace",
     "type": "text",
-    "defaultValue": "Class 1",
+    "defaultValue": "",
     "value": "OPT.Framework.MyProject.Hardware"
   },
   {
     "id": "class-name",
     "label": "Class Name",
     "type": "text",
-    "defaultValue": "Class 2",
+    "defaultValue": "",
     "value": "Sps"
   },
   {
     "id": "using",
     "label": "Usings",
     "type": "textarea",
-    "defaultValue": "Class 2",
+    "defaultValue": "",
     "value": ""
   },
   {
     "id": "proxy-using",
     "label": "Usings (Proxy)",
     "type": "textarea",
-    "defaultValue": "Class 2",
+    "defaultValue": "",
     "value": ""
   },
   {
     "id": "namespace-id",
     "label": "Namespace ID (OPC)",
     "type": "number",
-    "defaultValue": 1,
+    "defaultValue": null,
     "value": 3
   },
   {
     "id": "update-interval-ms",
     "label": "Update Interval (ms)",
     "type": "number",
-    "defaultValue": 1,
+    "defaultValue": null,
     "value": 500
   }
 ]

@@ -1,31 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../App.css';
 import CodeGenerator from '../components/CodeGenerator';
 import ConfigModal from '../components/ConfigModal';
 import { useConfig } from '../hooks/useConfig';
 
 export default function Beckhoff() {
-    const { config, updateValue, getCLIArgs, isModalOpen, setModalOpen } =
-        useConfig([
-            {
-                id: 'varA',
-                label: 'Variable A',
-                type: 'text',
-                defaultValue: 'Class 1',
-                value: 'Class 1',
-            },
-        ]);
+    const {
+        config,
+        setConfig,
+        updateValue,
+        getCLIArgs,
+        isModalOpen,
+        setModalOpen,
+    } = useConfig([]);
 
     const [direction, setDirection] = useState<string>('forward');
 
+    // On mount: Read config json for settings
+    useEffect(() => {
+        const loadConfig = async () => {
+            try {
+                const fileContent =
+                    await window.electron.ipcRenderer.readConfig('beckhoff');
+                const parsed = JSON.parse(fileContent);
+
+                setConfig(parsed);
+            } catch (err) {
+                console.error('Failed to load config:', err);
+            }
+        };
+
+        loadConfig();
+    }, []);
+
     const callBeckhoffParserCLI = async (paths: string[]) => {
-        const payload = getCLIArgs();
-        // TODO
+        const cliArgs = getCLIArgs();
+
         return await window.electron.ipcRenderer.runBeckhoffParserCLI({
             inputPath: paths[0],
             outputPath: paths[1],
             direction: direction,
-            // config: payload
+            cliArgs: cliArgs,
         });
     };
 

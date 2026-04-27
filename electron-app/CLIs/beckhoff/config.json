@@ -3,42 +3,105 @@
     "id": "namespace",
     "label": "Namespace",
     "type": "text",
-    "defaultValue": "Class 1",
-    "value": "OPT.Framework.MyProject.Hardware"
+    "defaultValue": "OPT.Framework.A200001_Ilca_SensorCalibration.Hardware",
+    "value": "OPT.Framework.A200001_Ilca_SensorCalibration.Hardware"
   },
   {
-    "id": "class-name",
+    "id": "enumUsing",
+    "label": "Enum Using",
+    "type": "text",
+    "defaultValue": "OPT.Framework.A200001_Ilca_SensorCalibration.Enumerations",
+    "value": "OPT.Framework.A200001_Ilca_SensorCalibration.Enumerations"
+  },
+  {
+    "id": "hardwareUsing",
+    "label": "Hardware Using",
+    "type": "text",
+    "defaultValue": "OPT.Framework.API.HardwareControls",
+    "value": "OPT.Framework.API.HardwareControls"
+  },
+  {
+    "id": "className",
     "label": "Class Name",
     "type": "text",
-    "defaultValue": "Class 2",
-    "value": "Sps"
+    "defaultValue": "PlcStatusControl",
+    "value": "PlcStatusControl"
   },
   {
-    "id": "using",
-    "label": "Usings",
-    "type": "textarea",
-    "defaultValue": "Class 2",
-    "value": ""
-  },
-  {
-    "id": "proxy-using",
-    "label": "Usings (Proxy)",
-    "type": "textarea",
-    "defaultValue": "Class 2",
-    "value": ""
-  },
-  {
-    "id": "namespace-id",
+    "id": "Interface Name",
     "label": "Namespace ID (OPC)",
-    "type": "number",
-    "defaultValue": 1,
-    "value": 3
+    "type": "text",
+    "defaultValue": "IPlcStatusControl",
+    "value": "IPlcStatusControl"
   },
   {
-    "id": "update-interval-ms",
-    "label": "Update Interval (ms)",
-    "type": "number",
-    "defaultValue": 1,
-    "value": 500
+    "id": "plcControlTypeName",
+    "label": "PLC Control Type Name",
+    "type": "text",
+    "defaultValue": "IPlcControl",
+    "value": "IPlcControl"
+  },
+  {
+    "id": "hardwareControlPoolTypeName",
+    "label": "Hardware Control Pool Type Name",
+    "type": "text",
+    "defaultValue": "IHardwareControlPool",
+    "value": "IHardwareControlPool"
+  },
+  {
+    "id": "plcReadMethodName",
+    "label": "PLC Read Method Name",
+    "type": "text",
+    "defaultValue": "ReadValueFromPlcNode",
+    "value": "ReadValueFromPlcNode"
+  },
+  {
+    "id": "enumTypeName",
+    "label": "Enum Type Name",
+    "type": "text",
+    "defaultValue": "EPlcState",
+    "value": "EPlcState"
+  },
+  {
+    "id": "plcSystemStateSourceType",
+    "label": "PLC System State Source Type",
+    "type": "text",
+    "defaultValue": "ushort",
+    "value": "ushort"
+  },
+  {
+    "id": "plcSystemStateNode",
+    "label": "PLC System State Node",
+    "type": "text",
+    "defaultValue": "GVL_PLC.SystemStatus",
+    "value": "GVL_PLC.SystemStatus"
+  },
+  {
+    "id": "allPlcNodesPresentNode",
+    "label": "All PLC Nodes Present Node",
+    "type": "text",
+    "defaultValue": "GVL_PLC.AllPartitiantsPresent",
+    "value": "GVL_PLC.AllPartitiantsPresent"
+  },
+  {
+    "id": "canOpenStateNode",
+    "label": "Can Open State Node",
+    "type": "text",
+    "defaultValue": "GVL_PLC.CANOpenState",
+    "value": "GVL_PLC.CANOpenState"
+  },
+  {
+    "id": "appTimestampNode",
+    "label": "App Timestamp Node",
+    "type": "text",
+    "defaultValue": "GVL_PLC.AppTimestamp",
+    "value": "GVL_PLC.AppTimestamp"
+  },
+  {
+    "id": "appVersionNode",
+    "label": "App Version Node",
+    "type": "text",
+    "defaultValue": "GVL_PLC.AppVersion",
+    "value": "GVL_PLC.AppVersion"
   }
 ]

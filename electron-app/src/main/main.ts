@@ -96,7 +96,7 @@ ipcMain.handle(
 
 ipcMain.handle(
   'run-beckhoff-parser-cli',
-  async (_event, { inputPath, outputPath, direction }) => {
+  async (_event, { inputPath, outputPath, direction, cliArgs }) => {
     // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
     if (outputPath.endsWith('.temp.cs')) {
       tempFilesToCleanUp.push(outputPath);
