@@ -18,9 +18,6 @@ node_modules
 # OSX
 .DS_Store
 
-# Exclude CLIs folder
-CLIs/
-
 release/app/dist
 release/build
 .erb/dll
