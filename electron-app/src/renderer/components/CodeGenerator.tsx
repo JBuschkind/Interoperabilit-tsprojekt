@@ -137,7 +137,7 @@ export default function CodeGenerator({
         return Promise.all(
             files.map(async (outputFile) => {
                 // For selected old output files: Set filePath, outputPath, tempFilePath
-                if (outputFile.file) {
+                if (!outputIsDirectory && outputFile.file) {
                     const filePath = await window.electronApi.getFilePath(
                         outputFile.file,
                     );
@@ -181,8 +181,9 @@ export default function CodeGenerator({
 
     const handleExportButton = async () => {
         if (!inputFile.filePath) return; // TODO: Show Input field feedback
-        const needsOutputDir = outputFiles.some((f) => f.file === null);
-        if (needsOutputDir && !outputDirPath) return; // TODO: Show Output path feedback
+        if (outputIsDirectory && !outputDirPath) return;
+        if (!outputIsDirectory && outputFiles.some((f) => f.file === null))
+            return;
 
         // Set filePath for output files that don't have a file selected
         const updatedOutputFiles = await resolveFilePahts(
@@ -193,7 +194,7 @@ export default function CodeGenerator({
         setOutputFiles(updatedOutputFiles);
 
         // If any already exiting output files are selected, open the modal to start merging/overwriting
-        if (outputFiles.some((outputFile) => outputFile.file !== null)) {
+        if (!outputIsDirectory) {
             setUiState(UIState.DecideMerge);
             return;
         }
@@ -369,7 +370,7 @@ export default function CodeGenerator({
                                 Source Input
                             </h2>
                         </div>
-                        <div className="bg-surface-container-low p-6 rounded-sm">
+                        <div className="bg-surface-container-low p-6 rounded-xs">
                             <Dropzone
                                 id="input-dropzone"
                                 accept={inputFileType}
@@ -488,7 +489,8 @@ export default function CodeGenerator({
                         </div>
                     </div>
                     {/* Export Button Section*/}
-                    <div className="flex flex-row justify-center items-center gap-6 bg-surface-container-highest p-6 rounded-sm border-t border-primary/10">
+                    <div className="flex flex-row justify-center items-center gap-6 bg-surface-container-highest p-6  border-t border-primary/10">
+                        {/* Submit makes page reload on cancel*/}
                         <button
                             type="submit"
                             onClick={clearState}
@@ -498,14 +500,19 @@ export default function CodeGenerator({
                         </button>
                         <button
                             type="button"
-                            className="bg-primary text-on-primary px-10 py-2.5 text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
+                            className="
+                                bg-primary text-on-primary px-10 py-2.5 text-xs font-black uppercase tracking-[0.2em]
+                                shadow-lg shadow-primary/20 transition-all
+                                hover:brightness-110 active:scale-95 hover:cursor-pointer
+                                disabled:opacity-40 disabled:cursor-not-allowed
+                                disabled:hover:brightness-100 disabled:active:scale-100
+                            "
                             onClick={handleExportButton}
                             disabled={
                                 !inputFile.filePath ||
-                                (!outputDirPath &&
-                                    !outputFiles.every(
-                                        (f) => f.file !== null,
-                                    )) ||
+                                (outputIsDirectory && !outputDirPath) ||
+                                (!outputIsDirectory &&
+                                    outputFiles.some((f) => f.file === null)) ||
                                 exportButtonLoading
                             }
                         >
