@@ -65,16 +65,12 @@ public sealed class ParsingController : IParsingController
     {
         string inputXmlPath = GetOption(args, "--input-xml", Path.Combine(projectRoot, "Input", "GVL_PLC.xml"));
         string outputCsPath = GetOption(args, "--output-cs", Path.Combine(projectRoot, "Output", "PlcStatusControl.generated.cs"));
-        string outputTxtPath = GetOption(args, "--output-txt", Path.Combine(projectRoot, "Output", "extracted_variables.txt"));
         string propertiesPath = GetOption(args, "--properties", Path.Combine(projectRoot, "Input", "plcstatus.properties"));
-        string templateXmlPath = GetOption(args, "--template-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.template.xml"));
 
         Console.WriteLine("Direction:                       forward");
         Console.WriteLine($"Input XML:                       {inputXmlPath}");
         Console.WriteLine($"Output PlcStatusControl:         {outputCsPath}");
-        Console.WriteLine($"Output variable list (TXT):      {outputTxtPath}");
         Console.WriteLine($"Configuration (properties):      {propertiesPath}");
-        Console.WriteLine($"Output XML holder (template):    {templateXmlPath}");
 
         if (!inputXmlPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
         {
@@ -88,9 +84,6 @@ public sealed class ParsingController : IParsingController
                 inputXmlPath,
                 outputCsPath,
                 propertiesFilePath: propertiesPath);
-
-            _gvlXmlService.GenerateExtractedVariablesTextFromGvlXml(inputXmlPath, outputTxtPath);
-            _gvlXmlService.CreateXmlTemplateHolderFromGvlXml(inputXmlPath, templateXmlPath);
 
             Console.WriteLine("Success: Forward translation completed.");
             return 0;
@@ -201,7 +194,6 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine("  --output-cs          Output C# path");
         Console.WriteLine("  --output-txt         Output TXT path");
         Console.WriteLine("  --properties         Properties file path");
-        Console.WriteLine("  --template-xml       XML template path");
         Console.WriteLine();
         Console.WriteLine("Reverse options:");
         Console.WriteLine("  --input-cs           Input C# path");
