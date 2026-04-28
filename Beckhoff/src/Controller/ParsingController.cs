@@ -65,16 +65,23 @@ public sealed class ParsingController : IParsingController
     {
         string inputXmlPath = GetOption(args, "--input-xml", Path.Combine(projectRoot, "Input", "GVL_PLC.xml"));
         string outputCsPath = GetOption(args, "--output-cs", Path.Combine(projectRoot, "Output", "PlcStatusControl.generated.cs"));
-        string outputTxtPath = GetOption(args, "--output-txt", Path.Combine(projectRoot, "Output", "extracted_variables.txt"));
-        string propertiesPath = GetOption(args, "--properties", Path.Combine(projectRoot, "Input", "plcstatus.properties"));
-        string templateXmlPath = GetOption(args, "--template-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.template.xml"));
+        string? propertiesPath = GetOptionOrNull(args, "--properties");
+
+        var configOverrides = ParseConfigOverrides(args);
 
         Console.WriteLine("Direction:                       forward");
         Console.WriteLine($"Input XML:                       {inputXmlPath}");
         Console.WriteLine($"Output PlcStatusControl:         {outputCsPath}");
-        Console.WriteLine($"Output variable list (TXT):      {outputTxtPath}");
-        Console.WriteLine($"Configuration (properties):      {propertiesPath}");
-        Console.WriteLine($"Output XML holder (template):    {templateXmlPath}");
+
+        if (propertiesPath != null)
+            Console.WriteLine($"Properties file:                 {propertiesPath}");
+
+        if (configOverrides.Count > 0)
+        {
+            Console.WriteLine($"CLI config overrides:            {configOverrides.Count}");
+            foreach (var entry in configOverrides)
+                Console.WriteLine($"  {entry.Key} = {entry.Value}");
+        }
 
         if (!inputXmlPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
         {
@@ -87,10 +94,8 @@ public sealed class ParsingController : IParsingController
             _gvlXmlService.GeneratePlcStatusControlFromGvlXml(
                 inputXmlPath,
                 outputCsPath,
-                propertiesFilePath: propertiesPath);
-
-            _gvlXmlService.GenerateExtractedVariablesTextFromGvlXml(inputXmlPath, outputTxtPath);
-            _gvlXmlService.CreateXmlTemplateHolderFromGvlXml(inputXmlPath, templateXmlPath);
+                propertiesFilePath: propertiesPath,
+                cliOverrides: configOverrides);
 
             Console.WriteLine("Success: Forward translation completed.");
             return 0;
@@ -199,9 +204,24 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine("Forward options:");
         Console.WriteLine("  --input-xml          Input XML path");
         Console.WriteLine("  --output-cs          Output C# path");
-        Console.WriteLine("  --output-txt         Output TXT path");
-        Console.WriteLine("  --properties         Properties file path");
-        Console.WriteLine("  --template-xml       XML template path");
+        Console.WriteLine("  --properties         Properties file path (optional, overrides defaults)");
+        Console.WriteLine();
+        Console.WriteLine("Forward config overrides (override defaults and properties file):");
+        Console.WriteLine("  --namespace                          Generated class namespace");
+        Console.WriteLine("  --enum-using                         Using for enum types");
+        Console.WriteLine("  --hardware-using                     Using for hardware controls");
+        Console.WriteLine("  --class-name                         Generated class name");
+        Console.WriteLine("  --interface-name                     Generated interface name");
+        Console.WriteLine("  --plc-control-type-name              PLC control type name");
+        Console.WriteLine("  --hardware-control-pool-type-name    Hardware control pool type name");
+        Console.WriteLine("  --plc-read-method-name               PLC read method name");
+        Console.WriteLine("  --enum-type-name                     Enum type name");
+        Console.WriteLine("  --plc-system-state-source-type       PLC system state source type");
+        Console.WriteLine("  --plc-system-state-node              Explicit PLC system state node path");
+        Console.WriteLine("  --all-plc-nodes-present-node         Explicit all-nodes-present node path");
+        Console.WriteLine("  --can-open-state-node                Explicit CANOpen state node path");
+        Console.WriteLine("  --app-timestamp-node                 Explicit app timestamp node path");
+        Console.WriteLine("  --app-version-node                   Explicit app version node path");
         Console.WriteLine();
         Console.WriteLine("Reverse options:");
         Console.WriteLine("  --input-cs           Input C# path");
@@ -210,6 +230,8 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine();
         Console.WriteLine("General:");
         Console.WriteLine("  --help, -h           Show this help");
+        Console.WriteLine();
+        Console.WriteLine("Priority: defaults < properties file < CLI options < env vars (PLCSTATUS_*)");
     }
 
     /// <summary>
@@ -271,6 +293,75 @@ public sealed class ParsingController : IParsingController
         }
 
         return defaultValue;
+    }
+
+    /// <summary>
+    /// Maps CLI config options to their corresponding configuration keys
+    /// and returns only those that were explicitly provided.
+    /// </summary>
+    /// <param name="args">Raw CLI argument array.</param>
+    /// <returns>Dictionary of configuration overrides from CLI arguments.</returns>
+    private static Dictionary<string, string> ParseConfigOverrides(string[] args)
+    {
+        var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var optionMappings = new (string CliOption, string ConfigKey)[]
+        {
+            ("--namespace", "namespace"),
+            ("--enum-using", "enumUsing"),
+            ("--hardware-using", "hardwareUsing"),
+            ("--class-name", "className"),
+            ("--interface-name", "interfaceName"),
+            ("--plc-control-type-name", "plcControlTypeName"),
+            ("--hardware-control-pool-type-name", "hardwareControlPoolTypeName"),
+            ("--plc-read-method-name", "plcReadMethodName"),
+            ("--enum-type-name", "enumTypeName"),
+            ("--plc-system-state-source-type", "plcSystemStateSourceType"),
+            ("--plc-system-state-node", "plcSystemStateNode"),
+            ("--all-plc-nodes-present-node", "allPlcNodesPresentNode"),
+            ("--can-open-state-node", "canOpenStateNode"),
+            ("--app-timestamp-node", "appTimestampNode"),
+            ("--app-version-node", "appVersionNode"),
+        };
+
+        foreach (var (cliOption, configKey) in optionMappings)
+        {
+            string? value = GetOptionOrNull(args, cliOption);
+            if (value != null)
+                overrides[configKey] = value;
+        }
+
+        return overrides;
+    }
+
+    /// <summary>
+    /// Resolves a named CLI option, returning null when the option is not present.
+    /// Supports "--name value" and "--name=value" formats.
+    /// </summary>
+    /// <param name="args">Raw CLI argument array.</param>
+    /// <param name="optionName">Option name to find.</param>
+    /// <returns>The option value or null when not present.</returns>
+    private static string? GetOptionOrNull(string[] args, string optionName)
+    {
+        int optionIndex = Array.FindIndex(
+            args,
+            arg => string.Equals(arg, optionName, StringComparison.OrdinalIgnoreCase));
+
+        if (optionIndex >= 0
+            && optionIndex + 1 < args.Length
+            && !args[optionIndex + 1].StartsWith("--", StringComparison.Ordinal))
+        {
+            return args[optionIndex + 1];
+        }
+
+        string optionPrefix = optionName + "=";
+        string? combinedOption = args.FirstOrDefault(
+            arg => arg.StartsWith(optionPrefix, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(combinedOption))
+            return combinedOption[optionPrefix.Length..];
+
+        return null;
     }
 
     /// <summary>

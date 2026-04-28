@@ -15,20 +15,12 @@ public sealed class GvlXmlService : IGvlXmlService
     /// <param name="inputXmlPath">Path to the input XML file.</param>
     /// <param name="outputCsPath">Path to the generated C# file.</param>
     /// <param name="propertiesFilePath">Optional path to a properties file with overrides.</param>
-    /// <param name="namespace">Optional namespace override for the generated class.</param>
-    /// <param name="className">Optional class name for the generated class.</param>
-    /// <param name="plcControlTypeName">Type name for the PLC control field.</param>
-    /// <param name="hardwareControlPoolTypeName">Type name for the constructor parameter.</param>
-    /// <param name="plcReadMethodName">Method name used for PLC node reads.</param>
+    /// <param name="cliOverrides">Optional key-value pairs parsed from CLI arguments.</param>
     public void GeneratePlcStatusControlFromGvlXml(
         string inputXmlPath,
         string outputCsPath,
         string? propertiesFilePath = null,
-        string? @namespace = null,
-        string className = "PlcStatusControl",
-        string plcControlTypeName = "IPlcControl",
-        string hardwareControlPoolTypeName = "IHardwareControlPool",
-        string plcReadMethodName = "ReadValueFromPlcNode")
+        IReadOnlyDictionary<string, string>? cliOverrides = null)
     {
         if (!File.Exists(inputXmlPath))
             throw new FileNotFoundException("Input XML not found", inputXmlPath);
@@ -45,13 +37,8 @@ public sealed class GvlXmlService : IGvlXmlService
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
         var settings = PlcStatusControlConfig.Load(
-            inputXmlPath,
             propertiesFilePath,
-            @namespace,
-            className,
-            plcControlTypeName,
-            hardwareControlPoolTypeName,
-            plcReadMethodName);
+            cliOverrides);
 
         string? plcSystemStateNode = ResolveNodePath(
             settings.PlcSystemStateNode,

@@ -40,50 +40,26 @@ internal sealed class PlcStatusControlConfig
 
     /// <summary>
     /// Creates a configuration instance with defaults and then applies
-    /// properties and environment overrides in a defined order.
+    /// overrides in the following priority order (last wins):
+    /// 1. Hardcoded defaults
+    /// 2. Properties file (only when explicitly provided via <paramref name="propertiesFilePath"/>)
+    /// 3. CLI overrides
+    /// 4. Environment variables (PLCSTATUS_* prefix)
     /// </summary>
-    /// <param name="inputXmlPath">Input XML path used to derive the default properties file location.</param>
     /// <param name="propertiesFilePath">Optional explicit path to a properties file.</param>
-    /// <param name="namespaceOverride">Optional namespace override.</param>
-    /// <param name="className">Optional class name override.</param>
-    /// <param name="plcControlTypeName">Optional type name for PLC control.</param>
-    /// <param name="hardwareControlPoolTypeName">Optional type name for the hardware pool.</param>
-    /// <param name="plcReadMethodName">Optional method name used for PLC reads.</param>
+    /// <param name="cliOverrides">Optional key-value pairs parsed from CLI arguments.</param>
     /// <returns>Fully resolved generator configuration.</returns>
     public static PlcStatusControlConfig Load(
-        string inputXmlPath,
-        string? propertiesFilePath,
-        string? namespaceOverride,
-        string className,
-        string plcControlTypeName,
-        string hardwareControlPoolTypeName,
-        string plcReadMethodName)
+        string? propertiesFilePath = null,
+        IReadOnlyDictionary<string, string>? cliOverrides = null)
     {
         var config = new PlcStatusControlConfig();
 
-        if (!string.IsNullOrWhiteSpace(namespaceOverride))
-            config.Namespace = namespaceOverride;
+        if (!string.IsNullOrWhiteSpace(propertiesFilePath) && File.Exists(propertiesFilePath))
+            config.ApplyValues(ReadPropertiesFile(propertiesFilePath));
 
-        if (!string.IsNullOrWhiteSpace(className))
-            config.ClassName = className;
-
-        if (!string.IsNullOrWhiteSpace(plcControlTypeName))
-            config.PlcControlTypeName = plcControlTypeName;
-
-        if (!string.IsNullOrWhiteSpace(hardwareControlPoolTypeName))
-            config.HardwareControlPoolTypeName = hardwareControlPoolTypeName;
-
-        if (!string.IsNullOrWhiteSpace(plcReadMethodName))
-            config.PlcReadMethodName = plcReadMethodName;
-
-        string inputFolder = Path.GetDirectoryName(inputXmlPath) ?? ".";
-        string defaultPropertiesPath = Path.Combine(inputFolder, "plcstatus.properties");
-        string effectivePropertiesPath = string.IsNullOrWhiteSpace(propertiesFilePath)
-            ? defaultPropertiesPath
-            : propertiesFilePath;
-
-        if (File.Exists(effectivePropertiesPath))
-            config.ApplyValues(ReadPropertiesFile(effectivePropertiesPath));
+        if (cliOverrides is { Count: > 0 })
+            config.ApplyValues(cliOverrides);
 
         config.ApplyValues(ReadEnvironmentValues());
         return config;
