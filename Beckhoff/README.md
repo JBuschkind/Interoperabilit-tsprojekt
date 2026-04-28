@@ -3,6 +3,7 @@
 Dieses Projekt ist ein reines CLI-Tool.
 
 Es unterstuetzt zwei Uebersetzungsrichtungen:
+
 1. Forward: XML -> C# + TXT + XML-Template
 2. Reverse: C# -> aktualisierte XML
 
@@ -30,11 +31,13 @@ dotnet build .\xmlParser.csproj
 ```
 
 ## Voraussetzungen
+
 1. .NET 8 SDK installiert
 
 ## Richtungs-Flag
 
 Die Richtung wird ueber eine Flag gesetzt:
+
 1. Empfohlen: --direction forward|reverse
 2. Kurzform: -d forward|reverse
 3. Legacy-Alias: --mode forward|reverse
@@ -73,7 +76,24 @@ Danach z. B.:
 .\publish\xmlParser.exe --direction forward
 ```
 
+## Als dotnet tool installieren (optional)
+
+Als erstes das projekt als nupkg tool verpacken:
+
+```powershell
+dotnet pack ./xmlParser.csproj -c Release -o ./nupkg
+```
+
+Die .nupkg Datei kann dann zur Installation verwendet werden:
+
+```powershell
+dotnet tool install -g --add-source .\path\to\your\nupkg TwinCAT.Parser.Tool
+```
+
+Der Parser kann dann mit dem Befehl `twincatparser` verwendet werden
+
 ## Wichtige CLI-Optionen
+
 1. --direction oder -d: forward oder reverse
 2. --mode: forward oder reverse (Legacy-Alias)
 3. --input-xml: Eingabe-XML fuer Forward
@@ -86,6 +106,7 @@ Danach z. B.:
 10. --help oder -h: Hilfe anzeigen
 
 ## Projektstruktur
+
 1. Program.cs: Einstiegspunkt
 2. src/Controller/ParsingController.cs: CLI-Argumente und Pipeline-Auswahl
 3. src/Service/GvlXmlService.cs: Forward-Logik
@@ -93,12 +114,12 @@ Danach z. B.:
 5. src/Service/PlcStatusControlConfig.cs: Laden von plcstatus.properties
 
 ## Ausgabedateien
+
 1. Output/PlcStatusControl.generated.cs: generierte C# Zielklasse
-2. Output/extracted_variables.txt: extrahierte Variablennamen
-3. Output/GVL_PLC.template.xml: XML-Template fuer Reverse
-4. Output/GVL_PLC.updated.xml: Rueckuebersetzte XML-Datei
+2. Output/GVL_PLC.updated.xml: Rueckuebersetzte XML-Datei
 
 Wichtige Keys:
+
 - `namespace`
 - `enumUsing`
 - `hardwareUsing`
@@ -116,3 +137,7 @@ Wichtige Keys:
 - `appVersionNode`
 
 Environment-Variablen mit Prefix `PLCSTATUS_` ueberschreiben Werte aus der Properties-Datei.
+
+```
+
+```
