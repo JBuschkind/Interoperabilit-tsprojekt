@@ -31,7 +31,7 @@ export function OutputCard({
             className={`flex flex-col w-1/2 min-w-0 bg-surface-container-low p-5 border-l-2 transition-all
                 ${
                     disabled
-                        ? 'opacity-30 grayscale cursor-not-allowed'
+                        ? 'opacity-30 grayscale cursor-not-allowed '
                         : 'cursor-pointer'
                 }
                 ${
@@ -41,7 +41,7 @@ export function OutputCard({
                 }
                 ${
                     !disabled && !selected
-                        ? 'hover:border-primary-container opacity-40 hover:opacity-60'
+                        ? 'hover:border-primary-container opacity-40 hover:opacity-60 '
                         : ''
                 }
             `}

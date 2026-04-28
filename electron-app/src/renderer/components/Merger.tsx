@@ -39,28 +39,36 @@ export const Merger: React.FC<MergerProps> = ({
         });
 
     return (
-        <div className="w-full">
+        <div className="flex flex-col flex-1 w-full">
             <style>
                 {`
-          .mismerge {
-            font-family: 'Fira Code', monospace;
-            font-variant-ligatures: normal;
-            min-height: 75vh;
-            margin-top: 1rem;
-          }
+                    .mismerge {
+                        font-family: 'Fira Code', monospace;
+                        font-variant-ligatures: normal;
+                        min-height: 75vh;
+                        margin-top: 1rem;
+                    }
 
-          .shiki {
-            background-color: transparent !important;
-          }
-        `}
+                    .shiki {
+                        background-color: transparent !important;
+                    }
+                `}
             </style>
 
-            <div className="flex justify-center mb-4 ">File: {fileName}</div>
+            <div className="text-surface-inverse flex justify-center mb-4 ">
+                File: {fileName}
+            </div>
 
             <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around">
-                <div>Original</div>
-                <div>Current</div>
-                <div>New</div>
+                <div className="flex-1 text-surface-inverse text-center ">
+                    Original
+                </div>
+                <div className="flex-1 text-surface-inverse text-center border-x border-gray-300">
+                    Result
+                </div>
+                <div className="flex-1 text-surface-inverse text-center">
+                    Generated new file
+                </div>
             </div>
 
             <MisMerge3
@@ -74,29 +82,31 @@ export const Merger: React.FC<MergerProps> = ({
                 conflictsResolved={conflictsResolved}
             />
 
-            <div className="flex items-center justify-center mt-6 gap-4">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Keep Original
-                </button>
-                <button
-                    // disabled={!conflictsResolved}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => {
-                        if (ctr) onAcceptMerge(ctr);
-                    }}
-                >
-                    Accept Merge
-                </button>
+            <div className="flex flex-1 flex-col justify-center">
+                <div className="flex items-center justify-center gap-4 ">
+                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Keep Original
+                    </button>
+                    <button
+                        // disabled={!conflictsResolved}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => {
+                            if (ctr) onAcceptMerge(ctr);
+                        }}
+                    >
+                        Accept Merge
+                    </button>
 
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={onCancelMerge}
-                >
-                    Cancel Merge
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Overwrite with Generated Code
-                </button>
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={onCancelMerge}
+                    >
+                        Cancel Merge
+                    </button>
+                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Overwrite with Generated Code
+                    </button>
+                </div>
             </div>
         </div>
     );
