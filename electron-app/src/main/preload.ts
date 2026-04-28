@@ -57,12 +57,18 @@ const electronHandler = {
       cliArgs: string[];
     }) => ipcRenderer.invoke('run-siemens-parser-cli', payload),
 
-    runBeckhoffParserCLI: (payload: {
+    runBeckhoffParserCLIForward: (payload: {
       inputPath: string;
       outputPath: string;
-      direction: string;
       cliArgs: string[];
-    }) => ipcRenderer.invoke('run-beckhoff-parser-cli', payload),
+    }) => ipcRenderer.invoke('run-beckhoff-parser-cli-forward', payload),
+
+    runBeckhoffParserCLIReverse: (payload: {
+      inputPath: string;
+      outputPath: string;
+      originalXML: string;
+      cliArgs: string[];
+    }) => ipcRenderer.invoke('run-beckhoff-parser-cli-reverse', payload),
 
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>
       ipcRenderer.invoke('finalize-merge', payload),

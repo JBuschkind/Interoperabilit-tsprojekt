@@ -5,11 +5,13 @@ import { PathSelector } from './PathSelector';
 import Modal from './Modal';
 import { Merger } from './Merger';
 import MiniDropzone from './MiniDropzone';
+import { OutputCard } from './OutputCard';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
     outputFileNames?: string[];
     outputFileType?: string;
+    direction?: string;
     callCLI: (args: string[]) => Promise<string>;
 };
 
@@ -17,6 +19,7 @@ export default function CodeGenerator({
     inputFileType = '.db',
     outputFileNames = ['SPS', 'SPSProxy'],
     outputFileType = '.cs',
+    direction = 'forward', // e.g. C# -> .xml
     callCLI,
 }: CodeGeneratorProps) {
     type InputFile = {
@@ -76,8 +79,8 @@ export default function CodeGenerator({
     const [mergeQueue, setMergeQueue] = useState<OutputFile[]>([]); // Contains output files that were selected for merging
     const [currentTask, setCurrentTask] = useState<OutputFile | null>(null); // The output file that is being merged currently
     const [uiState, setUiState] = useState<UIState>(UIState.Idle);
-    const [outputIsDirectory, setOutputIsDirectory] = useState<boolean | null>(
-        true,
+    const [outputIsDirectory, setOutputIsDirectory] = useState<boolean>(
+        direction === 'forward' ? true : false,
     );
 
     /*
@@ -238,6 +241,7 @@ export default function CodeGenerator({
         setOutputFiles(updatedOutputFiles);
 
         // Get output paths: tempFilePath for files to be merged, outputPath for others
+        // TODO: this output path extraction could be handled in parent commponent
         const outputPaths = updatedOutputFiles
             .map((outputFile) =>
                 outputFile.toBeMerged && outputFile.tempFilePath
@@ -246,8 +250,19 @@ export default function CodeGenerator({
             )
             .filter((path): path is string => typeof path === 'string'); // should always be string anyway
 
-        // Call CLI with input file path and all output paths (writes either temp files or final output files, can be mixed)
-        await callCLI([inputFile.filePath, ...outputPaths]);
+        // Special Case: If we do C# -> .XML, we need the original XML as a second input as well.
+        // This input however will be selected as a merging file
+        if (direction === 'reverse' && updatedOutputFiles[0].filePath) {
+            const templateInputPath = updatedOutputFiles[0].filePath;
+            await callCLI([
+                inputFile.filePath,
+                templateInputPath,
+                ...outputPaths,
+            ]);
+        } else {
+            // Call CLI with input file path and all output paths (writes either temp files or final output files, can be mixed)
+            await callCLI([inputFile.filePath, ...outputPaths]);
+        }
 
         // Read generated code from temp files for files that need to be merged
         const filesWithGeneratedCode = await Promise.all(
@@ -389,89 +404,35 @@ export default function CodeGenerator({
                             </h2>
                         </div>
                         <div className="flex justify-between gap-6">
-                            {/* Output Dir Path Selection */}
-                            <div
-                                onClick={() => setOutputIsDirectory(true)}
-                                className={`flex flex-col w-1/2 min-w-0 bg-surface-container-low p-5 border-l-2 transition-all cursor-pointer
-                                    ${
-                                        outputIsDirectory
-                                            ? 'border-primary-container opacity-100'
-                                            : 'hover:border-primary-container  opacity-40 grayscale hover:opacity-60'
-                                    }
-                                `}
+                            {/* Output Directory Selection */}
+                            <OutputCard
+                                selected={outputIsDirectory}
+                                disabled={direction === 'reverse'}
+                                onSelect={() => setOutputIsDirectory(true)}
+                                icon="folder_zip"
+                                title="Output Directory"
+                                description="Batch export to target system folder"
+                                name="output_mode"
+                                checked={outputIsDirectory === true}
                             >
-                                {/* Header */}
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-primary-container/10 flex items-center justify-center rounded">
-                                            <span className="material-symbols-outlined text-primary">
-                                                folder_zip
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-bold uppercase tracking-tight text-primary">
-                                                Output Directory
-                                            </h3>
-                                            <p className="text-xs text-surface-inverse">
-                                                Batch export to target system
-                                                folder
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <input
-                                        type="radio"
-                                        name="output_mode"
-                                        checked={outputIsDirectory === true}
-                                        onChange={() =>
-                                            setOutputIsDirectory(true)
-                                        }
-                                    />
-                                </div>
-
                                 <PathSelector
                                     value={outputDirPath}
                                     placeholder="Select destination path..."
                                     onSelect={selectOutputDirPath}
                                 />
-                            </div>
-                            {/* Output Files Selection */}
-                            <div
-                                onClick={() => setOutputIsDirectory(false)}
-                                className={`flex flex-col w-1/2 min-w-0 bg-surface-container-low p-5 border-l-2 transition-all cursor-pointer
-                                    ${!outputIsDirectory ? 'border-primary-container' : 'border-transparent hover:border-primary-container opacity-40 grayscale hover:opacity-60'}
-                                `}
+                            </OutputCard>
+
+                            {/* Output/Merge File Selection */}
+                            <OutputCard
+                                selected={!outputIsDirectory}
+                                disabled={false}
+                                onSelect={() => setOutputIsDirectory(false)}
+                                icon="merge_type"
+                                title="Link to Existing Files"
+                                description="Merge or overwrite generated code into existing files"
+                                name="output_mode"
+                                checked={outputIsDirectory === false}
                             >
-                                {/* Header */}
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-primary-container/10 flex items-center justify-center rounded">
-                                            <span className="material-symbols-outlined text-primary">
-                                                merge_type
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-bold uppercase tracking-tight text-primary">
-                                                Link to Existing Files
-                                            </h3>
-                                            <p className="text-xs text-surface-inverse">
-                                                Merge generated Code into
-                                                existing source files
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <input
-                                        className="w-4 h-4 text-primary bg-surface border-outline focus:ring-primary transition-all"
-                                        type="radio"
-                                        name="output_mode"
-                                        checked={outputIsDirectory === false}
-                                        onChange={() =>
-                                            setOutputIsDirectory(false)
-                                        }
-                                    />
-                                </div>
-
                                 <div className="min-w-0 flex flex-col items-center max-h-42 overflow-y-auto scrollbar-custom pr-2 space-y-2">
                                     {outputFiles.map((outputFile) => (
                                         <MiniDropzone
@@ -485,7 +446,7 @@ export default function CodeGenerator({
                                         />
                                     ))}
                                 </div>
-                            </div>{' '}
+                            </OutputCard>
                         </div>
                     </div>
                     {/* Export Button Section*/}

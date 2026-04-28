@@ -33,13 +33,23 @@ export default function Beckhoff() {
         loadConfig();
     }, []);
 
-    const callBeckhoffParserCLI = async (paths: string[]) => {
+    const callBeckhoffParserCLIForward = async (paths: string[]) => {
         const cliArgs = getCLIArgs();
 
-        return await window.electron.ipcRenderer.runBeckhoffParserCLI({
+        return await window.electron.ipcRenderer.runBeckhoffParserCLIForward({
             inputPath: paths[0],
             outputPath: paths[1],
-            direction: direction,
+            cliArgs: cliArgs,
+        });
+    };
+
+    const callBeckhoffParserCLIReverse = async (paths: string[]) => {
+        const cliArgs = getCLIArgs();
+
+        return await window.electron.ipcRenderer.runBeckhoffParserCLIReverse({
+            inputPath: paths[0],
+            originalXML: paths[1],
+            outputPath: paths[2],
             cliArgs: cliArgs,
         });
     };
@@ -107,7 +117,7 @@ export default function Beckhoff() {
                     inputFileType=".xml"
                     outputFileNames={['PlcStatusControl']}
                     outputFileType=".cs"
-                    callCLI={callBeckhoffParserCLI}
+                    callCLI={callBeckhoffParserCLIForward}
                 />
             ) : (
                 <CodeGenerator
@@ -115,7 +125,8 @@ export default function Beckhoff() {
                     inputFileType=".cs"
                     outputFileNames={['GVL_PLC.updated']}
                     outputFileType=".xml"
-                    callCLI={callBeckhoffParserCLI}
+                    direction="reverse"
+                    callCLI={callBeckhoffParserCLIReverse}
                 />
             )}{' '}
         </>
