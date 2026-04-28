@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+import { Button } from './Button';
 import {
     DefaultDarkColors,
     DefaultLightColors,
@@ -55,8 +55,8 @@ export const Merger: React.FC<MergerProps> = ({
                 `}
             </style>
 
-            <div className="text-surface-inverse flex justify-center mb-4 ">
-                File: {fileName}
+            <div className="text-surface-inverse flex justify-center mb-2 gap-2">
+                <span className="font-bold">File:</span> <span>{fileName}</span>
             </div>
 
             <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around">
@@ -82,30 +82,27 @@ export const Merger: React.FC<MergerProps> = ({
                 conflictsResolved={conflictsResolved}
             />
 
-            <div className="flex flex-1 flex-col justify-center">
-                <div className="flex items-center justify-center gap-4 ">
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Keep Original
-                    </button>
-                    <button
-                        // disabled={!conflictsResolved}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            <div className="w-full flex-1 flex items-center justify-center gap-4 ">
+                {/* Original Control*/}
+                <div className="flex-1 flex justify-center">
+                    <Button>Keep orginal</Button>
+                </div>
+                {/* Result Control */}
+                <div className="flex-1 flex justify-around">
+                    <Button
+                        // disabled={!conflictsResolved} TODO: figure out how to react to this binding properly
                         onClick={() => {
                             if (ctr) onAcceptMerge(ctr);
                         }}
                     >
                         Accept Merge
-                    </button>
+                    </Button>
 
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={onCancelMerge}
-                    >
-                        Cancel Merge
-                    </button>
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Overwrite with Generated Code
-                    </button>
+                    <Button onClick={onCancelMerge}>Cancel Merge</Button>
+                </div>
+                {/* New File Control */}
+                <div className="flex-1 flex justify-center">
+                    <Button>overwrite with Generated Code</Button>
                 </div>
             </div>
         </div>

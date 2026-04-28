@@ -380,7 +380,7 @@ export default function CodeGenerator({
         <>
             {/* Main Content */}
             {(uiState === UIState.Idle || uiState === UIState.DecideMerge) && (
-                <form className="mx-auto max-w-5xl w-8/12 flex flex-col gap-5 md:py-12 py-4 px-4">
+                <form className="mx-auto max-w-5xl md:w-8/12 flex flex-col gap-5 md:py-12 py-4 px-4">
                     {/* Settings Section */}
                     <div className="w-full flex justify-between">
                         <div className="h-11 w-28">{/* Spacer */}</div>
@@ -420,7 +420,8 @@ export default function CodeGenerator({
                         <button
                             type="button"
                             onClick={() => setModalOpen(true)}
-                            className="h-11 w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors"
+                            disabled={direction === 'reverse'}
+                            className="h-11 w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-surface-container-low"
                             title="Settings"
                         >
                             <span className="material-symbols-outlined text-surface-inverse/60 text-lg">

@@ -5,8 +5,8 @@ export default function Layout() {
         <div className="h-screen flex flex-col bg-surface text-surface font-body ">
             {/* Header */}
             <header className="h-14 px-6 shrink-0 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-black/50">
-                <div className="max-w-6xl mx-auto flex items-center justify-between">
-                    <h1 className="text-xl font-bold text-primary tracking-tighter uppercase ">
+                <div className=" flex items-center justify-between">
+                    <h1 className="w-32 text-center text-xl font-bold text-primary tracking-tighter uppercase ">
                         Dräger App
                     </h1>
 
@@ -43,7 +43,9 @@ export default function Layout() {
                         </ul>
                     </div>
 
-                    <div>2</div>
+                    <div className="w-32 text-surface-inverse text-center">
+                        2
+                    </div>
                 </div>
             </header>
 
