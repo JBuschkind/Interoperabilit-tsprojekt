@@ -48,7 +48,7 @@ export default function Beckhoff() {
 
         return await window.electron.ipcRenderer.runBeckhoffParserCLIReverse({
             inputPath: paths[0],
-            originalXML: paths[1],
+            originalXMLPath: paths[1],
             outputPath: paths[2],
             cliArgs: cliArgs,
         });

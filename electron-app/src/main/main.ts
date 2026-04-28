@@ -113,21 +113,7 @@ ipcMain.handle(
       inputPath,
       '--output-cs',
       outputPath,
-      '--output-txt', // Some extracted variables? TODO: Just another output file?
-      path.join(
-        __dirname,
-        '../../CLIs/beckhoff/extra-files/extracted_variables.txt',
-      ),
-      '--template-xml', // Path to where the input xml will land as a reference for reverse direction. TODO: This needs to be handled cleaner
-      path.join(
-        __dirname,
-        '../../CLIs/beckhoff/extra-files/GVL_PLC.template.xml',
-      ),
-      '--properties', // Path to config file
-      path.join(
-        __dirname,
-        '../../CLIs/beckhoff/extra-files/plcstatus.properties', // Looks like CLI Arguments
-      ),
+      ...cliArgs,
     ];
 
     const { stdout } = await execFileAsync(CLI_PATH, args);
@@ -137,7 +123,7 @@ ipcMain.handle(
 
 ipcMain.handle(
   'run-beckhoff-parser-cli-reverse',
-  async (_event, { inputPath, originalXML, outputPath, cliArgs }) => {
+  async (_event, { inputPath, originalXMLPath, outputPath, cliArgs }) => {
     // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
     if (outputPath.endsWith('.temp.cs')) {
       tempFilesToCleanUp.push(outputPath);
@@ -154,11 +140,8 @@ ipcMain.handle(
       inputPath,
       '--output-xml',
       outputPath,
-      '--template-xml', // Path to the XML file that was saved in forward direction
-      path.join(
-        __dirname,
-        '../../CLIs/beckhoff/extra-files/GVL_PLC.template.xml', // ??
-      ),
+      '--template-xml',
+      originalXMLPath,
     ];
 
     const { stdout } = await execFileAsync(CLI_PATH, args);
