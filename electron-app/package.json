@@ -1,5 +1,5 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "draeger-app",
   "description": "A foundation for scalable desktop apps",
   "keywords": [
     "electron",
@@ -199,8 +199,8 @@
     "webpack-merge": "^6.0.1"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "DraegerApp",
+    "appId": "org.erb.DraegerApp",
     "asar": true,
     "afterSign": ".erb/scripts/notarize.js",
     "asarUnpack": "**\\*.{node,dll}",
@@ -255,7 +255,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./CLIs/**"
     ],
     "publish": {
       "provider": "github",
