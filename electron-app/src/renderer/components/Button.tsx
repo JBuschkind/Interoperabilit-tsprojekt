@@ -7,12 +7,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-    'border px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-colors active:scale-95';
+    ' px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-colors active:scale-95 transition-all';
 
 const variantStyles: Record<ButtonVariant, string> = {
-    default: 'border-outline text-surface-inverse hover:bg-surface-bright',
-    primary: 'border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white',
-    danger: 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white',
+    default:
+        'border border-outline text-surface-inverse hover:bg-surface-bright',
+    primary:
+        'bg-primary text-surface px-10 text-xs font-black shadow-lg shadow-primary/20 ',
+    danger: 'border border-red-500 text-red-500 hover:bg-red-500 hover:text-white',
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -26,11 +28,12 @@ export const Button: React.FC<ButtonProps> = ({
             className={`
                 ${baseStyles}
                 ${variantStyles[variant]}
-                ${!disabled ? 'hover:cursor-pointer' : 'cursor-not-allowed opacity-50 hover:bg-transparent'}
+                ${!disabled ? 'hover:cursor-pointer hover:brightness-110' : 'cursor-not-allowed opacity-20 active:scale-100'}
                 ${className}
             `}
             disabled={disabled}
             {...props}
+            type="button"
         />
     );
 };

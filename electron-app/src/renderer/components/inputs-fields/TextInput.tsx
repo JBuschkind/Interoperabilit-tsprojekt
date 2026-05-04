@@ -23,10 +23,7 @@ export default function TextInput({
 }: TextInputProps) {
     return (
         <div>
-            <label
-                htmlFor={id}
-                className="block mb-2.5 text-sm font-medium text-heading"
-            >
+            <label htmlFor={id} className="block mb-2.5 text-sm font-medium ">
                 {label}
             </label>
 
@@ -38,7 +35,7 @@ export default function TextInput({
                 onChange={(e) => onChange?.(e.target.value)}
                 placeholder={placeholder}
                 disabled={disabled}
-                className={`bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body ${
+                className={`bg-surface-container-lowest border-0 text-sm rounded-xs focus:ring-primary focus:border-primary block w-full px-3 py-2.5 shadow-xs placeholder:text-body ${
                     error
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                         : ''

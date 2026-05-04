@@ -46,8 +46,9 @@ export default function Siemens() {
                     onResetDefaults={resetToDefaults}
                     onSubmit={async () => {
                         await save(); // commit draft → store
-                        closeModal();
+                        // closeModal();
                     }}
+                    closeModal={closeModal}
                 />
             )}
 

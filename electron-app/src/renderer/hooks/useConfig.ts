@@ -70,7 +70,6 @@ export function useConfig(configName: string) {
     await store.set(`config-${configName}`, obj);
 
     setBaseConfig(structuredClone(draftConfig));
-    setModalOpen(false);
   };
 
   // -----------------------------------------

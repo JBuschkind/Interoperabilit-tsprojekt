@@ -57,8 +57,9 @@ export default function Beckhoff() {
                     onResetDefaults={resetToDefaults}
                     onSubmit={async () => {
                         await save(); // commit draft → store
-                        closeModal();
+                        // closeModal();
                     }}
+                    closeModal={closeModal}
                 />
             )}
             {/* Main Content */}

@@ -6,6 +6,7 @@ import Modal from './Modal';
 import { Merger } from './Merger';
 import MiniDropzone from './MiniDropzone';
 import { OutputCard } from './OutputCard';
+import { Button } from './Button';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
@@ -506,22 +507,9 @@ export default function CodeGenerator({
                     </div>
                     {/* Export Button Section*/}
                     <div className="flex flex-row justify-center items-center gap-6 bg-surface-container-highest p-6  border-t border-primary/10">
-                        <button
-                            type="button"
-                            onClick={clearState}
-                            className="border border-outline px-6 py-2.5 text-xs font-bold uppercase tracking-widest hover:bg-surface-bright hover:cursor-pointer transition-colors active:scale-95 text-surface-inverse"
-                        >
-                            Clear Workspace
-                        </button>
-                        <button
-                            type="button"
-                            className="
-                                bg-primary text-on-primary px-10 py-2.5 text-xs font-black uppercase tracking-[0.2em]
-                                shadow-lg shadow-primary/20 transition-all
-                                hover:brightness-110 active:scale-95 hover:cursor-pointer
-                                disabled:opacity-40 disabled:cursor-not-allowed
-                                disabled:hover:brightness-100 disabled:active:scale-100
-                            "
+                        <Button onClick={clearState}>Clear Workspace</Button>
+                        <Button
+                            variant="primary"
                             onClick={handleExportButton}
                             disabled={
                                 !inputFile.filePath ||
@@ -534,7 +522,7 @@ export default function CodeGenerator({
                             {exportButtonLoading
                                 ? 'Exporting...'
                                 : 'Generate Code'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             )}

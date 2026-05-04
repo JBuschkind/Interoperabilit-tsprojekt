@@ -4,6 +4,7 @@ import CategoryInput from '../components/inputs-fields/CategoryInput';
 import TextAreaInput from '../components/inputs-fields/TextAreaInput';
 import { useEffect, useState } from 'react';
 import type { ConfigItem, ConfigValue } from '../../types/config';
+import { Button } from './Button';
 
 interface ConfigModalProps {
     title: string;
@@ -13,6 +14,7 @@ interface ConfigModalProps {
     onResetSaved: () => void;
     onResetDefaults: () => void;
     onSubmit: () => void;
+    closeModal: () => void;
     hasUnsavedChanges: boolean;
 }
 
@@ -24,6 +26,7 @@ export default function ConfigModal({
     onResetSaved,
     onResetDefaults,
     onSubmit,
+    closeModal,
     hasUnsavedChanges,
 }: ConfigModalProps) {
     const [showDiscardWarning, setShowDiscardWarning] = useState(false);
@@ -99,102 +102,95 @@ export default function ConfigModal({
             />
 
             {/* Modal */}
-            <div className="relative w-full max-w-lg max-h-[90vh] bg-neutral-primary-soft border border-default rounded-base shadow-sm flex flex-col">
+            <div className="flex flex-col relative w-full max-w-2xl max-h-[90vh] bg-surface-container-low  rounded-xs shadow-sm  text-surface-inverse">
                 {/* HEADER */}
-                <div className="flex justify-between items-center border-b border-default p-4 shrink-0">
-                    <h3 className="text-lg font-medium text-heading">
-                        {title}
-                    </h3>
+                <div className="flex justify-between items-center  p-4 shrink-0">
+                    <div className="w-34  flex justify-center items-center gap-2 text-primary text-2xl">
+                        <span className="material-symbols-outlined ">tune</span>
+
+                        <h3 className="font-medium ">{title}</h3>
+                    </div>
+
                     {hasUnsavedChanges && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-600 border border-yellow-500/30">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                             Unsaved changes
                         </span>
                     )}
-                    <button
-                        className="hover:cursor-pointer"
-                        onClick={handleCancel}
-                    >
-                        ✕
-                    </button>
+
+                    <div className="w-34 flex items-center justify-end">
+                        <button
+                            className="flex items-center justify-center hover:cursor-pointer rounded-full p-1 text-center hover:bg-surface-bright"
+                            onClick={handleCancel}
+                        >
+                            <span className="material-symbols-outlined">
+                                Close
+                            </span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* BODY */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                <div className="flex-1 overflow-y-auto scrollbar-custom p-6 flex flex-col gap-4">
                     {config.map(renderField)}
                 </div>
 
                 {/* FOOTER */}
-                <div className="flex gap-4 border-t border-default p-4 shrink-0">
-                    <button
+                <div className="flex gap-4 p-4 shrink-0">
+                    <Button
+                        variant="primary"
+                        className="flex-1"
                         onClick={onSubmit}
                         disabled={!hasUnsavedChanges}
-                        className={`px-4 py-2 rounded-base hover:cursor-pointer ${
-                            hasUnsavedChanges
-                                ? 'bg-brand text-white'
-                                : 'bg-neutral-secondary-medium text-gray-400 cursor-not-allowed'
-                        }`}
                     >
                         Save
-                    </button>
+                    </Button>
                     {/* RESET TO SAVED (UNDO) */}
-                    <button
-                        onClick={onResetSaved}
-                        className="bg-neutral-secondary-medium px-4 py-2 rounded-base hover:cursor-pointer"
-                    >
-                        Undo
-                    </button>
+                    <Button onClick={onResetSaved}>Undo</Button>
 
                     {/* RESET TO DEFAULT */}
-                    <button
-                        onClick={onResetDefaults}
-                        className="bg-red-500 text-white px-4 py-2 rounded-base hover:cursor-pointer"
-                    >
-                        Reset to default
-                    </button>
+                    <Button onClick={onResetDefaults}>Reset to default</Button>
 
-                    <button
-                        onClick={handleCancel}
-                        className="bg-neutral-secondary-medium px-4 py-2 rounded-base hover:cursor-pointer"
-                    >
-                        Cancel
-                    </button>
+                    <Button onClick={handleCancel}>Cancel</Button>
                 </div>
             </div>
             {showDiscardWarning && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-                    <div className="bg-white rounded-base p-6 shadow-lg w-90">
-                        <h4 className="text-lg font-medium mb-2">
+                <div className=" absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 text-surface-inverse">
+                    <div className="bg-surface-container-high rounded-base p-6 shadow-lg w-120">
+                        <h4 className="text-primary text-lg font-medium mb-2">
                             Unsaved changes
                         </h4>
 
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm mb-4">
                             You have unsaved changes. Do you want to discard
                             them?
                         </p>
 
                         <div className="flex justify-end gap-3">
-                            <button
-                                onClick={onSubmit}
-                                className="px-3 py-2 rounded-base bg-brand text-white"
+                            <Button
+                                variant="primary"
+                                onClick={() => {
+                                    onSubmit();
+                                    closeModal();
+                                }}
+                                disabled={!hasUnsavedChanges}
                             >
                                 Save
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={() => setShowDiscardWarning(false)}
-                                className="px-3 py-2 rounded-base bg-gray-200"
                             >
                                 Keep editing
-                            </button>
+                            </Button>
 
-                            <button
+                            <Button
+                                variant="danger"
                                 onClick={() => {
                                     setShowDiscardWarning(false);
                                     onClose(); // actually close modal
                                 }}
-                                className="px-3 py-2 rounded-base bg-red-500 text-white"
                             >
                                 Discard
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
