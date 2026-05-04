@@ -84,6 +84,13 @@ const electronHandler = {
 
     readConfig: (type: string) => ipcRenderer.invoke('read-config', type),
   },
+  store: {
+    get: <T = any>(key: string): Promise<T> =>
+      ipcRenderer.invoke('store-get', key),
+
+    set: (key: string, value: unknown): Promise<boolean> =>
+      ipcRenderer.invoke('store-set', key, value),
+  },
 };
 
 // Creates: window.electron = electronHandler (so React can use it)

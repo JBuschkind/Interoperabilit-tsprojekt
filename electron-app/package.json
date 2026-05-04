@@ -123,6 +123,7 @@
     "@tailwindcss/postcss": "^4.2.2",
     "electron-debug": "^4.1.0",
     "electron-log": "^5.3.2",
+    "electron-store": "^7.0.0",
     "electron-updater": "^6.3.9",
     "flowbite": "^4.0.1",
     "postcss": "^8.5.10",

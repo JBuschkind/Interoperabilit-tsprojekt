@@ -17,6 +17,7 @@ import { resolveHtmlPath } from './util';
 import { execFile } from 'child_process';
 import { writeFileSync, existsSync, unlinkSync, readFileSync } from 'fs';
 import { promisify } from 'util';
+import Store from 'electron-store';
 
 class AppUpdater {
   constructor() {
@@ -37,6 +38,18 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 // Changes ------------------------------------------------
+
+const store = new Store();
+
+ipcMain.handle('store-get', (_event, key: string) => {
+  return store.get(key);
+});
+
+ipcMain.handle('store-set', (_event, key: string, value: unknown) => {
+  store.set(key, value);
+  return true;
+});
+
 ipcMain.handle('select-file-path', async (_event, filetypes: string[]) => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],
