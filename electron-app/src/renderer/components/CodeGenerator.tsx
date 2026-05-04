@@ -388,14 +388,14 @@ export default function CodeGenerator({
 
                         {/* Toggle between directions is only shown if we have setDirection (currently only beckhoff page) */}
                         {setDirection ? (
-                            <div className="h-11 bg-surface-container-low p-1 rounded-sm flex items-center gap-1 border border-outline/10 shadow-lg text-surface-inverse/60">
+                            <div className="h-11 bg-surface-container-low p-1 rounded-sm flex items-center gap-1 border border-outline/10 shadow-lg text-textcolor/60">
                                 <button
                                     onClick={() => setDirection('forward')}
                                     className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
                                 ${
                                     direction === 'forward'
-                                        ? 'bg-primary-inverse text-on-primary-container'
-                                        : 'text-on-surface-variant hover:bg-surface-container'
+                                        ? 'bg-primary-container/60'
+                                        : ' hover:bg-surface-container'
                                 }`}
                                 >
                                     .xml → C#
@@ -406,8 +406,8 @@ export default function CodeGenerator({
                                     className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
                                 ${
                                     direction === 'reverse'
-                                        ? 'bg-primary-inverse text-on-primary-container'
-                                        : 'text-on-surface-variant hover:bg-surface-container'
+                                        ? 'bg-primary-container/60'
+                                        : ' hover:bg-surface-container'
                                 }`}
                                 >
                                     C# → .xml
@@ -425,12 +425,10 @@ export default function CodeGenerator({
                             className="h-11 w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-surface-container-low"
                             title="Settings"
                         >
-                            <span className="material-symbols-outlined text-surface-inverse/60 text-lg">
+                            <span className="material-symbols-outlined text-textcolor/60 text-lg">
                                 tune
                             </span>
-                            <span className="text-surface-inverse/60">
-                                Settings
-                            </span>
+                            <span className="text-textcolor/60">Settings</span>
                         </button>
                     </div>
                     {/* Input section */}

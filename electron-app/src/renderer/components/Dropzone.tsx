@@ -41,7 +41,7 @@ export default function Dropzone({
                 ${
                     isDragging
                         ? 'bg-surface-container border-primary/50 '
-                        : 'bg-surface-container-lowest'
+                        : 'bg-surface-container-lower'
                 }
                 ${file ? 'bg-green-50 border-green-300' : 'border-outline/30'}`}
         >
@@ -57,12 +57,12 @@ export default function Dropzone({
             {!file ? (
                 // No file Placeholder
                 <div className="flex flex-col items-center justify-center text-body pt-5 pb-6 gap-4">
-                    <div className="w-16 h-16 bg-surface-container flex items-center justify-center rounded-sm text-surface-inverse/60 group-hover:text-primary transition-colors">
+                    <div className="w-16 h-16 bg-surface-container flex items-center justify-center rounded-sm text-textcolor/60 group-hover:text-primary transition-colors">
                         <span className="material-symbols-outlined text-4xl">
                             upload_file
                         </span>
                     </div>
-                    <p className="font-headline font-bold text-lg text-surface-inverse uppercase tracking-tight">
+                    <p className="font-headline font-bold text-lg text-textcolor uppercase tracking-tight">
                         Drag &amp; Drop {accept === '*' ? 'ANY ' : accept} File
                     </p>
                 </div>
@@ -85,11 +85,11 @@ export default function Dropzone({
                         </svg>
                     </div>
 
-                    <p className="text-sm font-medium text-surface-inverse">
+                    <p className="text-sm font-medium text-textcolor">
                         File ready
                     </p>
 
-                    <p className="text-xs text-surface-inverse/60 mt-1">
+                    <p className="text-xs text-textcolor/60 mt-1">
                         {file.name} ({formatSize(file.size)})
                     </p>
 

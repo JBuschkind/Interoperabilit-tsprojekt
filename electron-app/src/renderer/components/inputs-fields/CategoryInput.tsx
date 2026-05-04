@@ -38,7 +38,7 @@ export default function CategoryInput({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
-                className={`block w-full bg-surface-container-lowest border-0 text-heading text-sm rounded-xs focus:ring-primary focus:border-primary px-3 py-2.5 shadow-xs placeholder:text-body ${
+                className={`block w-full bg-surface-container-lower border-0 text-heading text-sm rounded-xs focus:ring-primary focus:border-primary px-3 py-2.5 shadow-xs placeholder:text-body ${
                     error
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                         : ''

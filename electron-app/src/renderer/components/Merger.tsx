@@ -55,18 +55,18 @@ export const Merger: React.FC<MergerProps> = ({
                 `}
             </style>
 
-            <div className="text-surface-inverse flex justify-center mb-2 gap-2">
+            <div className="text-textcolor flex justify-center mb-2 gap-2">
                 <span className="font-bold">File:</span> <span>{fileName}</span>
             </div>
 
             <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around">
-                <div className="flex-1 text-surface-inverse text-center ">
+                <div className="flex-1 text-textcolor text-center ">
                     Original
                 </div>
-                <div className="flex-1 text-surface-inverse text-center border-x border-gray-300">
+                <div className="flex-1 text-textcolor text-center border-x border-gray-300">
                     Result
                 </div>
-                <div className="flex-1 text-surface-inverse text-center">
+                <div className="flex-1 text-textcolor text-center">
                     Generated new file
                 </div>
             </div>

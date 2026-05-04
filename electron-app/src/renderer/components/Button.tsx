@@ -11,10 +11,10 @@ const baseStyles =
 
 const variantStyles: Record<ButtonVariant, string> = {
     default:
-        'border border-outline text-surface-inverse hover:bg-surface-bright',
+        'border border-outline text-textcolor hover:bg-surface-container-highest',
     primary:
         'bg-primary text-surface px-10 text-xs font-black shadow-lg shadow-primary/20 ',
-    danger: 'border border-red-500 text-red-500 hover:bg-red-500 hover:text-white',
+    danger: 'border border-error text-error hover:bg-error hover:text-white',
 };
 
 export const Button: React.FC<ButtonProps> = ({

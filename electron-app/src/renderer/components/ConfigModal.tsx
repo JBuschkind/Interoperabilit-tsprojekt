@@ -102,7 +102,7 @@ export default function ConfigModal({
             />
 
             {/* Modal */}
-            <div className="flex flex-col relative w-full max-w-2xl max-h-[90vh] bg-surface-container-low  rounded-xs shadow-sm  text-surface-inverse">
+            <div className="flex flex-col relative w-full max-w-2xl max-h-[90vh] bg-surface-container-low  rounded-xs shadow-sm  text-textcolor">
                 {/* HEADER */}
                 <div className="flex justify-between items-center  p-4 shrink-0">
                     <div className="w-34  flex justify-center items-center gap-2 text-primary text-2xl">
@@ -119,7 +119,7 @@ export default function ConfigModal({
 
                     <div className="w-34 flex items-center justify-end">
                         <button
-                            className="flex items-center justify-center hover:cursor-pointer rounded-full p-1 text-center hover:bg-surface-bright"
+                            className="flex items-center justify-center hover:cursor-pointer rounded-full p-1 text-center hover:bg-surface-container-highest"
                             onClick={handleCancel}
                         >
                             <span className="material-symbols-outlined">
@@ -154,7 +154,7 @@ export default function ConfigModal({
                 </div>
             </div>
             {showDiscardWarning && (
-                <div className=" absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 text-surface-inverse">
+                <div className=" absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 text-textcolor">
                     <div className="bg-surface-container-high rounded-base p-6 shadow-lg w-120">
                         <h4 className="text-primary text-lg font-medium mb-2">
                             Unsaved changes

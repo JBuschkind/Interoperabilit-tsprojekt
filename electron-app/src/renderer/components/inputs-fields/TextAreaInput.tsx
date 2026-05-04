@@ -35,7 +35,7 @@ export default function TextAreaInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
-                className={`block bg-surface-container-lowest border-0  text-sm rounded-xs focus:ring-primary focus:border-primary w-full p-3.5 shadow-xs placeholder:text-body ${
+                className={`block bg-surface-container-lower border-0  text-sm rounded-xs focus:ring-primary focus:border-primary w-full p-3.5 shadow-xs placeholder:text-body ${
                     error
                         ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                         : ''

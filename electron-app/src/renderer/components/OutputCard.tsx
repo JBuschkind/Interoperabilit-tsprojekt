@@ -63,9 +63,7 @@ export function OutputCard({
                         <h3 className="text-sm font-bold uppercase tracking-tight text-primary">
                             {title}
                         </h3>
-                        <p className="text-xs text-surface-inverse">
-                            {description}
-                        </p>
+                        <p className="text-xs text-textcolor">{description}</p>
                     </div>
                 </div>
 

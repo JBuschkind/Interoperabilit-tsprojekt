@@ -56,7 +56,7 @@ export default function MiniDropzone({
                 ${
                     isDragging
                         ? 'bg-surface-container border-primary/50 '
-                        : 'bg-surface-container-lowest'
+                        : 'bg-surface-container-lower'
                 }
                 ${file ? 'bg-green-50 border-green-300' : 'border-outline/30'}`}
         >
@@ -70,11 +70,11 @@ export default function MiniDropzone({
             />
 
             {!file ? (
-                <p className="font-headline font-bold text-sm text-surface-inverse uppercase tracking-tight">
+                <p className="font-headline font-bold text-sm text-textcolor uppercase tracking-tight">
                     Drag &amp; Drop {accept === '*' ? 'ANY ' : accept} File
                 </p>
             ) : (
-                <div className="flex min-w-0 items-center gap-3 bg-surface-container-lowest p-3  w-full">
+                <div className="flex min-w-0 items-center gap-3 bg-surface-container-lower p-3  w-full">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                             <span className="mono-technical text-2xs text-primary uppercase font-bold tracking-widest">
@@ -82,7 +82,7 @@ export default function MiniDropzone({
                             </span>
                         </div>
                         <div
-                            className="truncate text-[11px] text-surface-inverse mono-technical"
+                            className="truncate text-[11px] text-textcolor mono-technical"
                             title={filePath ?? undefined}
                         >
                             {filePath}
@@ -94,7 +94,7 @@ export default function MiniDropzone({
                             e.stopPropagation();
                             clearFile();
                         }}
-                        className="flex justify-center items-center text-surface-inverse p-1 hover:text-error cursor-pointer"
+                        className="flex justify-center items-center text-textcolor p-1 hover:text-error cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-lg">
                             close
