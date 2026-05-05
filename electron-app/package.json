@@ -126,6 +126,7 @@
     "electron-store": "^7.0.0",
     "electron-updater": "^6.3.9",
     "flowbite": "^4.0.1",
+    "material-symbols": "^0.44.4",
     "postcss": "^8.5.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

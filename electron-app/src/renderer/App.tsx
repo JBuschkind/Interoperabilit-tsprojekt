@@ -4,6 +4,7 @@ import Siemens from './pages/Siemens';
 import Beckhoff from './pages/Beckhoff';
 import 'flowbite';
 import Layout from './Layout';
+import 'material-symbols';
 
 export default function App() {
     return (
