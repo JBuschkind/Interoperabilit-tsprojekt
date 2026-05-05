@@ -9,6 +9,7 @@ type MiniDropzoneProps = {
     maxSizeMB?: number;
     className?: string;
     smallMode?: boolean;
+    fileName?: string;
 };
 
 export default function MiniDropzone({
@@ -16,6 +17,7 @@ export default function MiniDropzone({
     accept = '*',
     value = null,
     onChange,
+    fileName,
     maxSizeMB,
 }: MiniDropzoneProps) {
     const {
@@ -70,8 +72,17 @@ export default function MiniDropzone({
             />
 
             {!file ? (
-                <p className="font-headline font-bold text-sm text-textcolor uppercase tracking-tight">
-                    Drag &amp; Drop {accept === '*' ? 'ANY ' : accept} File
+                <p className="font-headline font-bold text-sm  text-textcolor uppercase tracking-tight">
+                    {/* Drag &amp; Drop{' '} */}
+                    Add{' '}
+                    {accept === '*' ? (
+                        'ANY '
+                    ) : (
+                        <span className="text-primary">
+                            {fileName + accept}
+                        </span>
+                    )}{' '}
+                    File
                 </p>
             ) : (
                 <div className="flex min-w-0 items-center gap-3 bg-surface-container-lower p-3  w-full">

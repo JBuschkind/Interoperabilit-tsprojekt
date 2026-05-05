@@ -491,6 +491,7 @@ export default function CodeGenerator({
                                     {outputFiles.map((outputFile) => (
                                         <MiniDropzone
                                             key={outputFile.fileName}
+                                            fileName={outputFile.fileName}
                                             id={`mini-dropzone-${outputFile.fileName}`}
                                             accept={outputFileType}
                                             value={outputFile.file}
