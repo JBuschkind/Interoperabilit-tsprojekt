@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
+import logo from '../../assets/icons/test-logo.png';
 
 export default function Layout() {
     return (
@@ -6,9 +7,16 @@ export default function Layout() {
             {/* Header */}
             <header className="h-14 px-6 shrink-0 bg-surface-container-lowest/80 backdrop-blur-xl shadow-2xl shadow-black/50">
                 <div className=" flex items-center justify-between">
-                    <h1 className="w-32 text-center text-xl font-bold text-primary tracking-tighter uppercase ">
-                        Dräger App
-                    </h1>
+                    <div className="w-60 flex items-center justify-between">
+                        <img
+                            src={logo}
+                            alt="PlcBridge"
+                            className="h-10 object-contain"
+                        />
+                        <h1 className=" text-center text-xl font-bold text-primary tracking-tighter uppercase ">
+                            PLC BRIDGE
+                        </h1>
+                    </div>
 
                     <div className="text-sm font-medium text-center text-body">
                         <ul className="flex -mb-px gap-6 pb-2">
@@ -48,7 +56,7 @@ export default function Layout() {
             </header>
 
             {/* Main content (this is where pages render) */}
-            <main className="flex-1 flex flex-col  items-center overflow-y-auto scrollbar-custom w-full min-h-0 ">
+            <main className="flex-1 flex flex-col items-center overflow-y-auto scrollbar-custom w-full min-h-0 ">
                 <Outlet />
             </main>
         </div>
