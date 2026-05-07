@@ -29,7 +29,7 @@
 
   /* ERROR */
   --color-error: #93000a;
-  --color-error-container: red; /* tbd*/
+  --color-error-container: #ff3333;
 }
 @utility scrollbar-custom {
   &::-webkit-scrollbar {

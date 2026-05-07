@@ -21,10 +21,10 @@ export const PathSelector: React.FC<PathSelectorProps> = ({
                 <button
                     type="button"
                     onClick={onSelect}
-                    className={`w-full flex items-center justify-between font-mono text-[11px] text-sm text-left shadow-xs transition cursor-pointer ${
+                    className={`w-full flex items-center justify-between font-mono text-[11px] text-sm text-left shadow-xs transition cursor-pointer bg-surface-container-lower ${
                         error
-                            ? 'border-2 border-red-500 bg-surface-container-lower'
-                            : 'bg-surface-container-lower border-0'
+                            ? 'border-2 border-error-container'
+                            : 'border-0'
                     }`}
                 >
                     <span

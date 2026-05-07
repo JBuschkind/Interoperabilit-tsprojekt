@@ -48,7 +48,7 @@ export default function Dropzone({
                     }
                     ${
                         error
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-error-container'
                             : file
                             ? 'bg-green-50 border-green-300'
                             : 'border-outline/30'

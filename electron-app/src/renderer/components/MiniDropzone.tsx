@@ -67,7 +67,7 @@ export default function MiniDropzone({
                         file
                             ? 'bg-green-50 border-green-300'
                             : error
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-error-container'
                             : 'border-outline/30'
                     }`}
             >
