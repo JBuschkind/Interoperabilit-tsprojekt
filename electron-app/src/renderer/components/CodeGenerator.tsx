@@ -7,6 +7,7 @@ import { Merger } from './Merger';
 import MiniDropzone from './MiniDropzone';
 import { OutputCard } from './OutputCard';
 import { Button } from './Button';
+import { Toast } from './Toast';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
@@ -54,6 +55,10 @@ export default function CodeGenerator({
     // Button loading states
     const [exportButtonLoading, setExportButtonLoading] = useState(false);
     const [acceptButtonLoading, setAcceptButtonLoading] = useState(false);
+
+    // Toast state
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
     // Input File (e.g. .db or .xml)
     const [inputFile, setInputFile] = useState<InputFile>({
@@ -214,6 +219,8 @@ export default function CodeGenerator({
         await callCLI([inputFile.filePath, ...outputPaths]);
 
         clearState();
+        setToastMessage('Code generation completed!');
+        setShowToast(true);
         setUiState(UIState.Idle);
     };
 
@@ -308,7 +315,8 @@ export default function CodeGenerator({
                 setCurrentTask(null);
                 setUiState(UIState.Idle);
                 clearState();
-                alert('All merges completed!');
+                setToastMessage('All merges completed!');
+                setShowToast(true);
                 return [];
             }
 
@@ -375,10 +383,21 @@ export default function CodeGenerator({
                 toBeMerged: true,
             })),
         );
+        setToastMessage('State cleared!');
+        setShowToast(true);
     };
 
     return (
         <>
+            {/* Toast Notification */}
+            {showToast && (
+                <Toast
+                    message={toastMessage}
+                    type="success"
+                    onClose={() => setShowToast(false)}
+                />
+            )}
+
             {/* Main Content */}
             {(uiState === UIState.Idle || uiState === UIState.DecideMerge) && (
                 <form className="mx-auto max-w-5xl md:w-8/12 flex flex-col gap-5 md:py-12 py-4 px-4">
