@@ -5,6 +5,7 @@ type PathSelectorProps = {
     placeholder: string;
     onSelect: () => void;
     browseText?: string;
+    error?: boolean;
 };
 
 export const PathSelector: React.FC<PathSelectorProps> = ({
@@ -12,6 +13,7 @@ export const PathSelector: React.FC<PathSelectorProps> = ({
     placeholder,
     onSelect,
     browseText = 'Browse',
+    error = false,
 }) => {
     return (
         <>
@@ -19,7 +21,11 @@ export const PathSelector: React.FC<PathSelectorProps> = ({
                 <button
                     type="button"
                     onClick={onSelect}
-                    className="w-full flex items-center justify-between bg-surface-container-lower border-0 font-mono text-[11px] text-sm text-left  shadow-xs  transition cursor-pointer"
+                    className={`w-full flex items-center justify-between font-mono text-[11px] text-sm text-left shadow-xs transition cursor-pointer ${
+                        error
+                            ? 'border-2 border-red-500 bg-surface-container-lower'
+                            : 'bg-surface-container-lower border-0'
+                    }`}
                 >
                     <span
                         className={

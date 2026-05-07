@@ -10,6 +10,7 @@ type MiniDropzoneProps = {
     className?: string;
     smallMode?: boolean;
     fileName?: string;
+    error?: boolean;
 };
 
 export default function MiniDropzone({
@@ -19,6 +20,7 @@ export default function MiniDropzone({
     onChange,
     fileName,
     maxSizeMB,
+    error = false,
 }: MiniDropzoneProps) {
     const {
         file,
@@ -46,73 +48,81 @@ export default function MiniDropzone({
     }, [file]);
 
     return (
-        <label
-            htmlFor={`${id}-input`}
-            onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-            className={`flex items-center justify-center border-2 border-dashed transition-all cursor-pointer w-full h-17
-                ${
-                    isDragging
-                        ? 'bg-surface-container border-primary/50 '
-                        : 'bg-surface-container-lower'
-                }
-                ${file ? 'bg-green-50 border-green-300' : 'border-outline/30'}`}
-        >
-            <input
-                ref={inputRef}
-                id={`${id}-input`}
-                type="file"
-                accept={accept}
-                className="hidden"
-                onChange={handleChange}
-            />
+        <>
+            <label
+                htmlFor={`${id}-input`}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`flex items-center justify-center border-2 border-dashed transition-all cursor-pointer w-full h-17
+                    ${
+                        isDragging
+                            ? 'bg-surface-container border-primary/50 '
+                            : 'bg-surface-container-lower'
+                    }
+                    ${
+                        file
+                            ? 'bg-green-50 border-green-300'
+                            : error
+                            ? 'border-red-500 bg-red-50'
+                            : 'border-outline/30'
+                    }`}
+            >
+                <input
+                    ref={inputRef}
+                    id={`${id}-input`}
+                    type="file"
+                    accept={accept}
+                    className="hidden"
+                    onChange={handleChange}
+                />
 
-            {!file ? (
-                <p className="font-headline font-bold text-sm  text-textcolor uppercase tracking-tight">
-                    {/* Drag &amp; Drop{' '} */}
-                    Add{' '}
-                    {accept === '*' ? (
-                        'ANY '
-                    ) : (
-                        <span className="text-primary">
-                            {fileName + accept}
-                        </span>
-                    )}{' '}
-                    File
-                </p>
-            ) : (
-                <div className="flex min-w-0 items-center gap-3 bg-surface-container-lower p-3  w-full">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                            <span className="mono-technical text-2xs text-primary uppercase font-bold tracking-widest">
-                                {file.name}
+                {!file ? (
+                    <p className="font-headline font-bold text-sm  text-textcolor uppercase tracking-tight">
+                        {/* Drag &amp; Drop{' '} */}
+                        Add{' '}
+                        {accept === '*' ? (
+                            'ANY '
+                        ) : (
+                            <span className="text-primary">
+                                {fileName + accept}
                             </span>
+                        )}{' '}
+                        File
+                    </p>
+                ) : (
+                    <div className="flex min-w-0 items-center gap-3 bg-surface-container-lower p-3  w-full">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="mono-technical text-2xs text-primary uppercase font-bold tracking-widest">
+                                    {file.name}
+                                </span>
+                            </div>
+                            <div
+                                className="truncate text-[11px] text-textcolor mono-technical"
+                                title={filePath ?? undefined}
+                            >
+                                {filePath}
+                            </div>
                         </div>
-                        <div
-                            className="truncate text-[11px] text-textcolor mono-technical"
-                            title={filePath ?? undefined}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                clearFile();
+                            }}
+                            className="flex justify-center items-center text-textcolor p-1 hover:text-error cursor-pointer"
                         >
-                            {filePath}
-                        </div>
+                            <span className="material-symbols-outlined text-lg">
+                                close
+                            </span>
+                        </button>
                     </div>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            clearFile();
-                        }}
-                        className="flex justify-center items-center text-textcolor p-1 hover:text-error cursor-pointer"
-                    >
-                        <span className="material-symbols-outlined text-lg">
-                            close
-                        </span>
-                    </button>
-                </div>
-            )}
-        </label>
+                )}
+            </label>
+        </>
     );
 }

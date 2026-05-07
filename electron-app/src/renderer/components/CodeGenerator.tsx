@@ -59,6 +59,12 @@ export default function CodeGenerator({
     // Toast state
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
+
+    // Error states for input validation
+    const [inputFileError, setInputFileError] = useState<boolean>(false);
+    const [outputDirError, setOutputDirError] = useState<boolean>(false);
+    const [outputFilesError, setOutputFilesError] = useState<boolean>(false);
 
     // Input File (e.g. .db or .xml)
     const [inputFile, setInputFile] = useState<InputFile>({
@@ -99,7 +105,10 @@ export default function CodeGenerator({
 
     const selectOutputDirPath = async () => {
         const file = await window.electron.ipcRenderer.selectDirPath();
-        if (file) setOutputDirPath(file);
+        if (file) {
+            setOutputDirPath(file);
+            setOutputDirError(false);
+        }
     };
 
     const handleInputFileChange = async (file: File | null) => {
@@ -114,6 +123,10 @@ export default function CodeGenerator({
             fileName: file ? file.name : null,
             filePath,
         }));
+
+        if (file) {
+            setInputFileError(false);
+        }
     };
 
     // Sets file in an output file
@@ -129,6 +142,10 @@ export default function CodeGenerator({
                         : outputFile,
                 ),
             );
+
+            if (file) {
+                setOutputFilesError(false);
+            }
         };
 
     // Updates the toBeMerged value based on the toggle
@@ -193,10 +210,42 @@ export default function CodeGenerator({
     };
 
     const handleExportButton = async () => {
-        if (!inputFile.filePath) return; // TODO: Show Input field feedback
-        if (outputIsDirectory && !outputDirPath) return;
-        if (!outputIsDirectory && outputFiles.some((f) => f.file === null))
+        // Clear previous errors
+        setInputFileError(false);
+        setOutputDirError(false);
+        setOutputFilesError(false);
+
+        let hasErrors = false;
+
+        if (!inputFile.filePath) {
+            setInputFileError(true);
+            setToastMessage('Please select an input file.');
+            hasErrors = true;
+        }
+        if (outputIsDirectory && !outputDirPath) {
+            setOutputDirError(true);
+            if (hasErrors) {
+                setToastMessage('Please select an input file and output directory.');
+            } else {
+                setToastMessage('Please select an output directory.');
+                hasErrors = true;
+            }
+        }
+        if (!outputIsDirectory && outputFiles.some((f) => f.file === null)) {
+            setOutputFilesError(true);
+            if (hasErrors) {
+                setToastMessage('Please select an input file and all output files.');
+            } else {
+                setToastMessage('Please select all output files.');
+                hasErrors = true;
+            }
+        }
+
+        if (hasErrors) {
+            setToastType('error');
+            setShowToast(true);
             return;
+        }
 
         // Set filePath for output files that don't have a file selected
         const updatedOutputFiles = await resolveFilePahts(
@@ -220,6 +269,7 @@ export default function CodeGenerator({
 
         clearState();
         setToastMessage('Code generation completed!');
+        setToastType('success');
         setShowToast(true);
         setUiState(UIState.Idle);
     };
@@ -316,6 +366,7 @@ export default function CodeGenerator({
                 setUiState(UIState.Idle);
                 clearState();
                 setToastMessage('All merges completed!');
+                setToastType('success');
                 setShowToast(true);
                 return [];
             }
@@ -383,7 +434,13 @@ export default function CodeGenerator({
                 toBeMerged: true,
             })),
         );
+        // Clear error states
+        setInputFileError(false);
+        setOutputDirError(false);
+        setOutputFilesError(false);
+
         setToastMessage('State cleared!');
+        setToastType('success');
         setShowToast(true);
     };
 
@@ -393,7 +450,7 @@ export default function CodeGenerator({
             {showToast && (
                 <Toast
                     message={toastMessage}
-                    type="success"
+                    type={toastType}
                     onClose={() => setShowToast(false)}
                 />
             )}
@@ -464,6 +521,7 @@ export default function CodeGenerator({
                                 accept={inputFileType}
                                 value={inputFile.file}
                                 onChange={handleInputFileChange}
+                                error={inputFileError}
                             />
                         </div>
                     </div>
@@ -492,6 +550,7 @@ export default function CodeGenerator({
                                     value={outputDirPath}
                                     placeholder="Select destination path..."
                                     onSelect={selectOutputDirPath}
+                                    error={outputDirError}
                                 />
                             </OutputCard>
 
@@ -517,6 +576,7 @@ export default function CodeGenerator({
                                             onChange={handleOutputFileChange(
                                                 outputFile.fileName,
                                             )}
+                                            error={outputFilesError}
                                         />
                                     ))}
                                 </div>
@@ -530,10 +590,6 @@ export default function CodeGenerator({
                             variant="primary"
                             onClick={handleExportButton}
                             disabled={
-                                !inputFile.filePath ||
-                                (outputIsDirectory && !outputDirPath) ||
-                                (!outputIsDirectory &&
-                                    outputFiles.some((f) => f.file === null)) ||
                                 exportButtonLoading
                             }
                         >
