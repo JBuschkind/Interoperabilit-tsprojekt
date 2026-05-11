@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from './Button';
-import {
-    DefaultDarkColors,
-    DefaultLightColors,
-    MisMerge3,
-} from '@mismerge/react';
+import { DefaultDarkColors, MisMerge3 } from '@mismerge/react';
 import { codeToHtml } from 'shiki';
 import '@mismerge/core/styles.css';
 import '@mismerge/core/dark.css';
@@ -17,49 +13,69 @@ type MergerProps = {
     onCancelMerge?: () => void;
 };
 
+/**
+ * Single MisMerge3 instance for the lifetime of this component (parent uses
+ * display toggling instead of unmounting — workaround for mismerge #25).
+ * @see https://github.com/BearToCode/mismerge/issues/25
+ */
 export const Merger: React.FC<MergerProps> = ({
-    fileName, // TODO: Instead of showing only the current file it would be better to see the entire queue and where the user currently is. Should maybe be handled outside of component
+    fileName,
     originalCode,
     modifiedCode,
     onAcceptMerge,
     onCancelMerge,
 }) => {
-    const [ctr, setCtr] = useState(originalCode);
-
-    const [conflictsResolved, setConflictsResolved] = useState(false);
+    const [ctr, setCtr] = useState(() => originalCode ?? '');
 
     useEffect(() => {
-        console.log(ctr);
-    }, [ctr]);
+        setCtr(originalCode ?? '');
+    }, [fileName, originalCode, modifiedCode]);
 
-    const highlight = async (text: string) =>
-        await codeToHtml(text, {
-            lang: 'js',
-            theme: 'github-dark',
-        });
+    const mergeColors = useMemo(() => {
+        return typeof structuredClone === 'function'
+            ? structuredClone(DefaultDarkColors)
+            : (JSON.parse(
+                  JSON.stringify(DefaultDarkColors),
+              ) as typeof DefaultDarkColors);
+    }, []);
+
+    const highlight = useCallback(
+        (text: string) =>
+            codeToHtml(text, {
+                lang: 'csharp',
+                theme: 'github-dark',
+            }),
+        [],
+    );
+
+    const lhs = originalCode ?? '';
+    const rhs = modifiedCode ?? '';
 
     return (
-        <div className="flex flex-col flex-1 w-full">
+        <div className="flex flex-col flex-1 w-full min-h-0">
             <style>
                 {`
-                    .mismerge {
+                    .merger-editor-host .mismerge {
                         font-family: 'Fira Code', monospace;
                         font-variant-ligatures: normal;
-                        min-height: 75vh;
+                        width: 100%;
+                        min-height: 280px;
+                        max-height: min(70vh, 720px);
+                        height: min(70vh, 720px);
                         margin-top: 1rem;
                     }
 
-                    .shiki {
+                    .merger-editor-host .shiki {
                         background-color: transparent !important;
                     }
                 `}
             </style>
 
-            <div className="text-textcolor flex justify-center mb-2 gap-2">
+            <div className="text-textcolor flex justify-center mb-2 gap-2 flex-shrink-0">
                 <span className="font-bold">File:</span> <span>{fileName}</span>
             </div>
 
-            <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around">
+            <div className="border border-gray-300 rounded-md w-full h-8 flex items-center justify-around flex-shrink-0">
                 <div className="flex-1 text-textcolor text-center ">
                     Original
                 </div>
@@ -71,26 +87,25 @@ export const Merger: React.FC<MergerProps> = ({
                 </div>
             </div>
 
-            <MisMerge3
-                lhs={originalCode}
-                ctr={ctr}
-                rhs={modifiedCode}
-                onCtrChange={setCtr}
-                colors={DefaultDarkColors}
-                wrapLines={true}
-                highlight={highlight}
-                conflictsResolved={conflictsResolved}
-            />
+            <div className="merger-editor-host flex-1 min-h-0 w-full flex flex-col">
+                <MisMerge3
+                    className="mismerge"
+                    lhs={lhs}
+                    ctr={ctr}
+                    rhs={rhs}
+                    onCtrChange={setCtr}
+                    colors={mergeColors}
+                    wrapLines={true}
+                    highlight={highlight}
+                />
+            </div>
 
-            <div className="w-full flex-1 flex items-center justify-center gap-4 ">
-                {/* Original Control*/}
-                <div className="flex-1 flex justify-center">
+            <div className="w-full flex-shrink-0 flex flex-wrap items-center justify-center gap-4 py-4 border-t border-outline/20">
+                <div className="flex-1 flex justify-center min-w-[8rem]">
                     <Button>Keep orginal</Button>
                 </div>
-                {/* Result Control */}
-                <div className="flex-1 flex justify-around">
+                <div className="flex-1 flex justify-around min-w-[10rem] gap-2">
                     <Button
-                        // disabled={!conflictsResolved} TODO: figure out how to react to this binding properly
                         onClick={() => {
                             if (ctr) onAcceptMerge(ctr);
                         }}
@@ -100,8 +115,7 @@ export const Merger: React.FC<MergerProps> = ({
 
                     <Button onClick={onCancelMerge}>Cancel Merge</Button>
                 </div>
-                {/* New File Control */}
-                <div className="flex-1 flex justify-center">
+                <div className="flex-1 flex justify-center min-w-[8rem]">
                     <Button>overwrite with Generated Code</Button>
                 </div>
             </div>

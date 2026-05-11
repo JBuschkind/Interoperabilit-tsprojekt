@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import icon from '../../../assets/icon.svg';
 import Dropzone from './Dropzone';
 import { PathSelector } from './PathSelector';
@@ -94,7 +94,16 @@ export default function CodeGenerator({
     // UI State
     const [mergeQueue, setMergeQueue] = useState<OutputFile[]>([]); // Contains output files that were selected for merging
     const [currentTask, setCurrentTask] = useState<OutputFile | null>(null); // The output file that is being merged currently
+    /** Once true, merge UI stays mounted but toggled with `hidden` (mismerge #25 keep-alive). */
+    const [mergeShellMounted, setMergeShellMounted] = useState(false);
+    const lastMergeTaskRef = useRef<OutputFile | null>(null);
     const [uiState, setUiState] = useState<UIState>(UIState.Idle);
+
+    useEffect(() => {
+        if (currentTask) {
+            lastMergeTaskRef.current = currentTask;
+        }
+    }, [currentTask]);
     const [outputIsDirectory, setOutputIsDirectory] = useState<boolean>(
         direction === 'forward' ? true : false,
     );
@@ -353,6 +362,7 @@ export default function CodeGenerator({
 
         setMergeQueue(queue);
         setCurrentTask(queue[0]);
+        setMergeShellMounted(true);
         setUiState(UIState.Merge);
     };
 
@@ -443,6 +453,12 @@ export default function CodeGenerator({
         setToastType('success');
         setShowToast(true);
     };
+
+    const mergerTask: OutputFile | null = mergeShellMounted
+        ? currentTask ?? lastMergeTaskRef.current
+        : null;
+    const mergeUiVisible =
+        uiState === UIState.Merge && currentTask !== null;
 
     return (
         <>
@@ -613,15 +629,23 @@ export default function CodeGenerator({
                 />
             )}
 
-            {uiState === UIState.Merge && currentTask && (
-                <Merger
-                    key={currentTask.fileName}
-                    fileName={currentTask.fileName}
-                    originalCode={currentTask.originalCode}
-                    modifiedCode={currentTask.generatedCode}
-                    onAcceptMerge={handleAcceptMerge}
-                    onCancelMerge={handleCancelMerge}
-                />
+            {mergerTask && (
+                <div
+                    className={
+                        mergeUiVisible
+                            ? 'flex flex-col flex-1 w-full min-h-0'
+                            : 'hidden'
+                    }
+                    aria-hidden={!mergeUiVisible}
+                >
+                    <Merger
+                        fileName={mergerTask.fileName}
+                        originalCode={mergerTask.originalCode}
+                        modifiedCode={mergerTask.generatedCode}
+                        onAcceptMerge={handleAcceptMerge}
+                        onCancelMerge={handleCancelMerge}
+                    />
+                </div>
             )}
         </>
     );
