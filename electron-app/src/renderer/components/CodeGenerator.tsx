@@ -94,7 +94,8 @@ export default function CodeGenerator({
     // UI State
     const [mergeQueue, setMergeQueue] = useState<OutputFile[]>([]); // Contains output files that were selected for merging
     const [currentTask, setCurrentTask] = useState<OutputFile | null>(null); // The output file that is being merged currently
-    /** Once true, merge UI stays mounted but toggled with `hidden` (mismerge #25 keep-alive). */
+    const [mergeCancelDialogOpen, setMergeCancelDialogOpen] = useState(false);
+    // Once true, merge UI stays mounted but toggled with `hidden` (mismerge #25 keep-alive).
     const [mergeShellMounted, setMergeShellMounted] = useState(false);
     const lastMergeTaskRef = useRef<OutputFile | null>(null);
     const [uiState, setUiState] = useState<UIState>(UIState.Idle);
@@ -399,17 +400,61 @@ export default function CodeGenerator({
         goToNextTask();
     };
 
-    const handleCancelMerge = () => {
-        // TODO:
-        // 1. Open Modal
-        // 2. Rollback ?
-        // Delete temp files
+    const openMergeCancelDialog = () => {
+        setMergeCancelDialogOpen(true);
+    };
 
-        return;
-        // window.electron.ipcRenderer.deleteTempFile(outputPath + '.temp.cs');
-        // setMergeQueue([]);
-        // setCurrentTask(null);
-        // setUiState(UIState.Idle);
+    const closeMergeCancelDialog = () => {
+        setMergeCancelDialogOpen(false);
+    };
+
+    /** Skip merge for the active file only; continue with the rest of the queue. */
+    const cancelCurrentMergeOnly = () => {
+        if (!currentTask?.tempFilePath) {
+            closeMergeCancelDialog();
+            return;
+        }
+        window.electron.ipcRenderer.deleteTempFile(currentTask.tempFilePath);
+        closeMergeCancelDialog();
+
+        setMergeQueue((prevQueue) => {
+            const [, ...rest] = prevQueue;
+
+            if (rest.length === 0) {
+                setCurrentTask(null);
+                setUiState(UIState.Idle);
+                // keep mergeShellMounted true — do not unmount Merger (mismerge #25)
+                setToastMessage('Merge abgebrochen.');
+                setToastType('success');
+                setShowToast(true);
+                return [];
+            }
+
+            setCurrentTask(rest[0]);
+            setToastMessage(
+                `Merge für „${currentTask.fileName}“ abgebrochen. Nächste Datei …`,
+            );
+            setToastType('success');
+            setShowToast(true);
+            return rest;
+        });
+    };
+
+    /** Abort merge for the current file and all remaining queued files. */
+    const cancelEntireMergeQueue = () => {
+        mergeQueue.forEach((task) => {
+            if (task.tempFilePath) {
+                window.electron.ipcRenderer.deleteTempFile(task.tempFilePath);
+            }
+        });
+        setMergeQueue([]);
+        setCurrentTask(null);
+        setUiState(UIState.Idle);
+        // keep mergeShellMounted true — do not unmount Merger (mismerge #25)
+        closeMergeCancelDialog();
+        setToastMessage('Alle ausstehenden Merges wurden abgebrochen.');
+        setToastType('success');
+        setShowToast(true);
     };
 
     const handleSkipMerge = () => {
@@ -629,6 +674,51 @@ export default function CodeGenerator({
                 />
             )}
 
+            {mergeCancelDialogOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center text-textcolor">
+                    <div
+                        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+                        onClick={closeMergeCancelDialog}
+                    />
+                    <div className="relative bg-surface-container-low max-w-lg rounded-xs shadow-lg p-4 md:p-6 mx-4">
+                        <button
+                            type="button"
+                            className="absolute top-3 end-3 flex items-center justify-center hover:cursor-pointer rounded-full p-1 text-center hover:bg-surface-container-highest"
+                            onClick={closeMergeCancelDialog}
+                            aria-label="Schließen"
+                        >
+                            <span className="material-symbols-outlined">
+                                close
+                            </span>
+                        </button>
+                        <div className="flex flex-col gap-4 pt-2 pe-8">
+                            <h3 className="text-lg font-semibold">
+                                Merge abbrechen?
+                            </h3>
+                            <p className="text-textcolor/80 text-sm">
+                                Möchten Sie nur die aktuelle Datei aus der
+                                Warteschlange entfernen oder alle noch
+                                ausstehenden Merges abbrechen?
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-2">
+                                <Button onClick={closeMergeCancelDialog}>
+                                    Zurück
+                                </Button>
+                                <Button onClick={cancelCurrentMergeOnly}>
+                                    Nur diese Datei
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={cancelEntireMergeQueue}
+                                >
+                                    Gesamte Warteschlange
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {mergerTask && (
                 <div
                     className={
@@ -643,7 +733,7 @@ export default function CodeGenerator({
                         originalCode={mergerTask.originalCode}
                         modifiedCode={mergerTask.generatedCode}
                         onAcceptMerge={handleAcceptMerge}
-                        onCancelMerge={handleCancelMerge}
+                        onCancelMerge={openMergeCancelDialog}
                     />
                 </div>
             )}

@@ -10,6 +10,7 @@ type MergerProps = {
     originalCode: string | null;
     modifiedCode: string | null;
     onAcceptMerge: (mergedCode: string) => void;
+    /** Opens the cancel confirmation (current file vs entire queue). */
     onCancelMerge?: () => void;
 };
 
@@ -19,7 +20,7 @@ type MergerProps = {
  * @see https://github.com/BearToCode/mismerge/issues/25
  */
 export const Merger: React.FC<MergerProps> = ({
-    fileName,
+    fileName, // TODO: Instead of showing only the current file it would be better to see the entire queue and where the user currently is. Should maybe be handled outside of component
     originalCode,
     modifiedCode,
     onAcceptMerge,
@@ -113,7 +114,13 @@ export const Merger: React.FC<MergerProps> = ({
                         Accept Merge
                     </Button>
 
-                    <Button onClick={onCancelMerge}>Cancel Merge</Button>
+                    <Button
+                        onClick={() => {
+                            onCancelMerge?.();
+                        }}
+                    >
+                        Cancel Merge
+                    </Button>
                 </div>
                 <div className="flex-1 flex justify-center min-w-[8rem]">
                     <Button>overwrite with Generated Code</Button>
