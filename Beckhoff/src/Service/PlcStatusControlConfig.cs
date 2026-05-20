@@ -24,7 +24,7 @@ internal sealed class PlcStatusControlConfig
     public string Namespace { get; private set; } = "OPT.Framework.A200001_Ilca_SensorCalibration.Hardware";
     public string EnumUsing { get; private set; } = "OPT.Framework.A200001_Ilca_SensorCalibration.Enumerations";
     public string HardwareUsing { get; private set; } = "OPT.Framework.API.HardwareControls";
-    public string ClassName { get; private set; } = "PlcStatusControl";
+    public string ClassName { get; private set; } = "GvlProxy";
     public string InterfaceName { get; private set; } = "IPlcStatusControl";
     public string PlcControlTypeName { get; private set; } = "IPlcControl";
     public string HardwareControlPoolTypeName { get; private set; } = "IHardwareControlPool";

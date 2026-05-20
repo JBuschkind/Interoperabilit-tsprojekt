@@ -18,16 +18,19 @@ public interface IGvlXmlService
     void GenerateExtractedVariablesTextFromGvlXml(string inputXmlPath, string outputTxtPath);
 
     /// <summary>
-    /// Generates the PlcStatusControl class using XML content and optional
-    /// CLI-based or properties-based configuration.
+    /// Generates a full mapping of all PLCopen globalVars and dataTypes into two
+    /// C# files: a POCO file (Gvl.cs) mirroring the PLC structure and a proxy
+    /// file (GvlProxy.cs) with read methods per primitive variable.
     /// </summary>
     /// <param name="inputXmlPath">Path to the input XML file.</param>
-    /// <param name="outputCsPath">Path to the generated C# file.</param>
+    /// <param name="outputGvlCsPath">Path to the generated POCO file.</param>
+    /// <param name="outputProxyCsPath">Path to the generated proxy file.</param>
     /// <param name="propertiesFilePath">Optional path to plcstatus.properties.</param>
     /// <param name="cliOverrides">Optional key-value pairs parsed from CLI arguments.</param>
-    void GeneratePlcStatusControlFromGvlXml(
+    void GenerateFullMappingFromGvlXml(
         string inputXmlPath,
-        string outputCsPath,
+        string outputGvlCsPath,
+        string outputProxyCsPath,
         string? propertiesFilePath = null,
         IReadOnlyDictionary<string, string>? cliOverrides = null);
 }

@@ -109,10 +109,13 @@ ipcMain.handle(
 
 ipcMain.handle(
   'run-beckhoff-parser-cli-forward',
-  async (_event, { inputPath, outputPath, cliArgs }) => {
-    // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
-    if (outputPath.endsWith('.temp.cs')) {
-      tempFilesToCleanUp.push(outputPath);
+  async (_event, { inputPath, gvlOutputPath, proxyOutputPath, cliArgs }) => {
+    // if outputs end with .temp.cs, add them to tempFilesToCleanUp for later cleanup
+    if (gvlOutputPath.endsWith('.temp.cs')) {
+      tempFilesToCleanUp.push(gvlOutputPath);
+    }
+    if (proxyOutputPath.endsWith('.temp.cs')) {
+      tempFilesToCleanUp.push(proxyOutputPath);
     }
 
     const CLI_PATH = app.isPackaged
@@ -124,8 +127,10 @@ ipcMain.handle(
       'forward',
       '--input-xml',
       inputPath,
-      '--output-cs',
-      outputPath,
+      '--output-gvl',
+      gvlOutputPath,
+      '--output-proxy',
+      proxyOutputPath,
       ...cliArgs,
     ];
 
