@@ -58,13 +58,12 @@ namespace TiaPortalParser
 
         private static void AppendNamespaceOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine($"namespace {config.Namespace}");
-            sb.AppendLine("{");
+            sb.AppendLine($"namespace {config.Namespace};");
         }
 
         private static void AppendNamespaceClose(StringBuilder sb)
         {
-            sb.AppendLine("}");
+            // File-scoped namespace used; no closing brace required.
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -75,9 +74,9 @@ namespace TiaPortalParser
             TiaCodeGeneratorConfig config)
         {
 
-            sb.AppendLine("    /// <inheritdoc />");
-            sb.AppendLine($"    public class {config.ClassName}Proxy : {config.ClassName}");
-            sb.AppendLine("    {");
+            sb.AppendLine("/// <inheritdoc />");
+            sb.AppendLine($"public class {config.ClassName}Proxy : {config.ClassName}");
+            sb.AppendLine("{");
 
             AppendFields(sb, dataBlock.Variables, dataBlock.Name, config);
             AppendCtor(sb, config);
@@ -85,18 +84,18 @@ namespace TiaPortalParser
             AppendReadValues(sb, dataBlock.Variables);
             AppendIsUpdateRequired(sb);
 
-            sb.AppendLine("    }");
+            sb.AppendLine("}");
         }
 
         // ─────────────────────────────────────────────────────────────
 
         private static void AppendFields(StringBuilder sb, List<TiaVariable> vars, string dbName, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine("        private readonly IOpcValueReader _opcValueReader;");
-            sb.AppendLine("        private readonly IOpcValueWriter _opcValueWriter;");
-            sb.AppendLine($"        private readonly {config.ClassName} _model;");
-            sb.AppendLine("        private DateTime _lastRead;");
-            sb.AppendLine("        private readonly TimeSpan _updateInterval;");
+            sb.AppendLine("    private readonly IOpcValueReader _opcValueReader;");
+            sb.AppendLine("    private readonly IOpcValueWriter _opcValueWriter;");
+            sb.AppendLine($"    private readonly {config.ClassName} _model;");
+            sb.AppendLine("    private DateTime _lastRead;");
+            sb.AppendLine("    private readonly TimeSpan _updateInterval;");
             sb.AppendLine();
 
             foreach (var v in vars)
@@ -104,8 +103,8 @@ namespace TiaPortalParser
                 string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string fieldName = GetNodeFieldName(propName);
 
-                sb.AppendLine($"        private readonly NodeId {fieldName} =");
-                sb.AppendLine($"            NodeIdFactory.Create(\"{dbName}\", \"{v.StructPath}\", \"{v.Name}\", {config.NamespaceId});");
+                sb.AppendLine($"    private readonly NodeId {fieldName} =");
+                sb.AppendLine($"        NodeIdFactory.Create(\"{dbName}\", \"{v.StructPath}\", \"{v.Name}\", {config.NamespaceId});");
                 sb.AppendLine();
             }
         }
@@ -114,17 +113,17 @@ namespace TiaPortalParser
 
         private static void AppendCtor(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine("        /// <summary>");
-            sb.AppendLine("        /// Ctor");
-            sb.AppendLine("        /// </summary>");
-            sb.AppendLine($"        public {config.ClassName}Proxy(IOpcValueReader opcValueReader, IOpcValueWriter opcValueWriter)");
-            sb.AppendLine("        {");
-            sb.AppendLine("            _opcValueReader = opcValueReader;");
-            sb.AppendLine("            _opcValueWriter = opcValueWriter;");
-            sb.AppendLine($"            _model = new {config.ClassName}();");
-            sb.AppendLine("            _lastRead = DateTime.MinValue;");
-            sb.AppendLine($"            _updateInterval = TimeSpan.FromMilliseconds({config.UpdateIntervalMs});");
-            sb.AppendLine("        }");
+            sb.AppendLine("    /// <summary>");
+            sb.AppendLine("    /// Ctor");
+            sb.AppendLine("    /// </summary>");
+            sb.AppendLine($"    public {config.ClassName}Proxy(IOpcValueReader opcValueReader, IOpcValueWriter opcValueWriter)");
+            sb.AppendLine("    {");
+            sb.AppendLine("        _opcValueReader = opcValueReader;");
+            sb.AppendLine("        _opcValueWriter = opcValueWriter;");
+            sb.AppendLine($"        _model = new {config.ClassName}();");
+            sb.AppendLine("        _lastRead = DateTime.MinValue;");
+            sb.AppendLine($"        _updateInterval = TimeSpan.FromMilliseconds({config.UpdateIntervalMs});");
+            sb.AppendLine("    }");
             sb.AppendLine();
         }
 
@@ -138,27 +137,27 @@ namespace TiaPortalParser
                 string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string fieldName = GetNodeFieldName(propName);
 
-                sb.AppendLine("        /// <inheritdoc />");
-                sb.AppendLine($"        public override {csType} {propName}");
-                sb.AppendLine("        {");
+                sb.AppendLine("    /// <inheritdoc />");
+                sb.AppendLine($"    public override {csType} {propName}");
+                sb.AppendLine("    {");
 
                 if (v.ExternalWritable == false)
                 {
-                    sb.AppendLine("            get");
-                    sb.AppendLine("            {");
-                    sb.AppendLine("                ReadValues();");
-                    sb.AppendLine($"                return _model.{propName};");
-                    sb.AppendLine("            }");
+                    sb.AppendLine("        get");
+                    sb.AppendLine("        {");
+                    sb.AppendLine("            ReadValues();");
+                    sb.AppendLine($"            return _model.{propName};");
+                    sb.AppendLine("        }");
                 }
                 else
                 {
-                    sb.AppendLine("            set");
-                    sb.AppendLine("            {");
-                    sb.AppendLine($"                _opcValueWriter.Write({fieldName}, value);");
-                    sb.AppendLine("            }");
+                    sb.AppendLine("        set");
+                    sb.AppendLine("        {");
+                    sb.AppendLine($"            _opcValueWriter.Write({fieldName}, value);");
+                    sb.AppendLine("        }");
                 }
 
-                sb.AppendLine("        }");
+                sb.AppendLine("    }");
                 sb.AppendLine();
             }
         }
@@ -167,9 +166,9 @@ namespace TiaPortalParser
 
         private static void AppendReadValues(StringBuilder sb, List<TiaVariable> variables)
         {
-            sb.AppendLine("        private void ReadValues()");
-            sb.AppendLine("        {");
-            sb.AppendLine("            if (!IsUpdateRequired()) return;");
+            sb.AppendLine("    private void ReadValues()");
+            sb.AppendLine("    {");
+            sb.AppendLine("        if (!IsUpdateRequired()) return;");
             sb.AppendLine();
 
             foreach (var v in variables)
@@ -180,22 +179,22 @@ namespace TiaPortalParser
                     string propName = TiaCodeHelper.ToPascalCase(v.Name);
                     string fieldName = GetNodeFieldName(propName);
 
-                    sb.AppendLine($"            _model.{propName} = _opcValueReader.ReadValue<{csType}>({fieldName});");
+                    sb.AppendLine($"        _model.{propName} = _opcValueReader.ReadValue<{csType}>({fieldName});");
                 }
             }
 
             sb.AppendLine();
-            sb.AppendLine("            _lastRead = DateTime.Now;");
-            sb.AppendLine("        }");
+            sb.AppendLine("        _lastRead = DateTime.Now;");
+            sb.AppendLine("    }");
             sb.AppendLine();
         }
 
         private static void AppendIsUpdateRequired(StringBuilder sb)
         {
-            sb.AppendLine("        private bool IsUpdateRequired()");
-            sb.AppendLine("        {");
-            sb.AppendLine("            return DateTime.Now - _lastRead > _updateInterval;");
-            sb.AppendLine("        }");
+            sb.AppendLine("    private bool IsUpdateRequired()");
+            sb.AppendLine("    {");
+            sb.AppendLine("        return DateTime.Now - _lastRead > _updateInterval;");
+            sb.AppendLine("    }");
         }
 
         // ─────────────────────────────────────────────────────────────

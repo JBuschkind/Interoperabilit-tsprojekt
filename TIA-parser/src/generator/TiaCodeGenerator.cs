@@ -39,7 +39,6 @@ namespace TiaPortalParser
             AppendConstructor(sb, config);
             AppendProperties(sb, variables, config);
             AppendClassClose(sb);
-            AppendNamespaceClose(sb);
 
             return sb.ToString();
         }
@@ -61,27 +60,26 @@ namespace TiaPortalParser
 
         private static void AppendNamespaceOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine($"namespace {config.Namespace}");
-            sb.AppendLine("{");
+            sb.AppendLine($"namespace {config.Namespace};");
         }
 
         private static void AppendClassOpen(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine("    /// <summary>");
-            sb.AppendLine("    /// Variables definition");
-            sb.AppendLine("    /// </summary>");
-            sb.AppendLine($"    public class {config.ClassName}");
-            sb.AppendLine("    {");
+            sb.AppendLine("/// <summary>");
+            sb.AppendLine("/// Variables definition");
+            sb.AppendLine("/// </summary>");
+            sb.AppendLine($"public class {config.ClassName}");
+            sb.AppendLine("{");
         }
 
         private static void AppendConstructor(StringBuilder sb, TiaCodeGeneratorConfig config)
         {
-            sb.AppendLine("        /// <summary>");
-            sb.AppendLine("        /// Ctor");
-            sb.AppendLine("        /// </summary>");
-            sb.AppendLine($"        public {config.ClassName}()");
-            sb.AppendLine("        {");
-            sb.AppendLine("        }");
+            sb.AppendLine("    /// <summary>");
+            sb.AppendLine("    /// Ctor");
+            sb.AppendLine("    /// </summary>");
+            sb.AppendLine($"    public {config.ClassName}()");
+            sb.AppendLine("    {");
+            sb.AppendLine("    }");
             sb.AppendLine();
         }
 
@@ -98,11 +96,11 @@ namespace TiaPortalParser
                 string propName = TiaCodeHelper.ToPascalCase(v.Name);
                 string modifier = config.UseVirtualProperties ? "virtual " : string.Empty;
 
-                sb.AppendLine("        /// <summary>");
-                sb.AppendLine($"        /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
-                sb.AppendLine("        /// </summary>");
+                sb.AppendLine("    /// <summary>");
+                sb.AppendLine($"    /// {TiaCodeHelper.EscapeXmlComment(v.Comment)}");
+                sb.AppendLine("    /// </summary>");
 
-                sb.AppendLine($"        public {modifier}{csType} {propName} {{ get; set; }}");
+                sb.AppendLine($"    public {modifier}{csType} {propName} {{ get; set; }}");
 
                 // Blank line between properties, not after the last one
                 if (i < vars.Count - 1)
@@ -111,11 +109,6 @@ namespace TiaPortalParser
         }
 
         private static void AppendClassClose(StringBuilder sb)
-        {
-            sb.AppendLine("    }");
-        }
-
-        private static void AppendNamespaceClose(StringBuilder sb)
         {
             sb.AppendLine("}");
         }
