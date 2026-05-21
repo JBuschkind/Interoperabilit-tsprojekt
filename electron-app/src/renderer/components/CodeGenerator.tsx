@@ -275,13 +275,23 @@ export default function CodeGenerator({
         const outputPaths = updatedOutputFiles.map((file) => file.outputPath);
 
         // Call CLI with input file path and all output paths
-        await callCLI([inputFile.filePath, ...outputPaths]);
+        setExportButtonLoading(true);
+        try {
+            await callCLI([inputFile.filePath, ...outputPaths]);
 
-        clearState();
-        setToastMessage('Code generation completed!');
-        setToastType('success');
-        setShowToast(true);
-        setUiState(UIState.Idle);
+            clearState();
+            setToastMessage('Code generation completed!');
+            setToastType('success');
+            setShowToast(true);
+            setUiState(UIState.Idle);
+        } catch (err) {
+            const message = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err);
+            setToastMessage(`Code generation failed: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+        } finally {
+            setExportButtonLoading(false);
+        }
     };
 
     const buildMergeQueue = (files: OutputFile[]): OutputFile[] => {
@@ -292,23 +302,32 @@ export default function CodeGenerator({
         if (!inputFile.filePath) return; // TODO: Handle Cases
 
         //  Read in source code for files that will be merged
-        const updatedOutputFiles = await Promise.all(
-            outputFiles.map(async (file) => {
-                if (file.toBeMerged && file.filePath) {
-                    const originalCode =
-                        await window.electron.ipcRenderer.readFile(
-                            file.filePath,
-                        );
+        let updatedOutputFiles: typeof outputFiles;
+        try {
+            updatedOutputFiles = await Promise.all(
+                outputFiles.map(async (file) => {
+                    if (file.toBeMerged && file.filePath) {
+                        const originalCode =
+                            await window.electron.ipcRenderer.readFile(
+                                file.filePath,
+                            );
 
-                    return {
-                        ...file,
-                        originalCode,
-                    };
-                }
+                        return {
+                            ...file,
+                            originalCode,
+                        };
+                    }
 
-                return file;
-            }),
-        );
+                    return file;
+                }),
+            );
+        } catch (err) {
+            const message = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err);
+            setToastMessage(`Failed to read existing files: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+            return;
+        }
 
         setOutputFiles(updatedOutputFiles);
 
@@ -324,31 +343,51 @@ export default function CodeGenerator({
 
         // Special Case: If we do C# -> .XML, we need the original XML as a second input as well.
         // This input however will be selected as a merging file
-        if (direction === 'reverse' && updatedOutputFiles[0].filePath) {
-            const templateInputPath = updatedOutputFiles[0].filePath;
-            await callCLI([
-                inputFile.filePath,
-                templateInputPath,
-                ...outputPaths,
-            ]);
-        } else {
-            // Call CLI with input file path and all output paths (writes either temp files or final output files, can be mixed)
-            await callCLI([inputFile.filePath, ...outputPaths]);
+        setAcceptButtonLoading(true);
+        try {
+            if (direction === 'reverse' && updatedOutputFiles[0].filePath) {
+                const templateInputPath = updatedOutputFiles[0].filePath;
+                await callCLI([
+                    inputFile.filePath,
+                    templateInputPath,
+                    ...outputPaths,
+                ]);
+            } else {
+                // Call CLI with input file path and all output paths (writes either temp files or final output files, can be mixed)
+                await callCLI([inputFile.filePath, ...outputPaths]);
+            }
+        } catch (err) {
+            const message = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err);
+            setToastMessage(`Code generation failed: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+            return;
+        } finally {
+            setAcceptButtonLoading(false);
         }
 
         // Read generated code from temp files for files that need to be merged
-        const filesWithGeneratedCode = await Promise.all(
-            updatedOutputFiles.map(async (outputFile) => {
-                if (outputFile.toBeMerged && outputFile.tempFilePath) {
-                    const generatedCode =
-                        await window.electron.ipcRenderer.readFile(
-                            outputFile.tempFilePath,
-                        );
-                    return { ...outputFile, generatedCode };
-                }
-                return outputFile;
-            }),
-        );
+        let filesWithGeneratedCode: typeof updatedOutputFiles;
+        try {
+            filesWithGeneratedCode = await Promise.all(
+                updatedOutputFiles.map(async (outputFile) => {
+                    if (outputFile.toBeMerged && outputFile.tempFilePath) {
+                        const generatedCode =
+                            await window.electron.ipcRenderer.readFile(
+                                outputFile.tempFilePath,
+                            );
+                        return { ...outputFile, generatedCode };
+                    }
+                    return outputFile;
+                }),
+            );
+        } catch (err) {
+            const message = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err);
+            setToastMessage(`Failed to read generated files: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+            return;
+        }
 
         setOutputFiles(filesWithGeneratedCode);
 
@@ -358,6 +397,9 @@ export default function CodeGenerator({
         if (queue.length === 0) {
             clearState();
             setUiState(UIState.Idle);
+            setToastMessage('Code generation completed!');
+            setToastType('success');
+            setShowToast(true);
             return;
         }
 
@@ -390,14 +432,34 @@ export default function CodeGenerator({
     const handleAcceptMerge = async (mergedCode: string) => {
         if (!currentTask?.outputPath || !currentTask.tempFilePath) return;
 
-        await window.electron.ipcRenderer.finalizeMerge({
-            outputPath: currentTask.outputPath,
-            mergedCode: mergedCode,
-        });
+        setAcceptButtonLoading(true);
+        try {
+            await window.electron.ipcRenderer.finalizeMerge({
+                outputPath: currentTask.outputPath,
+                mergedCode: mergedCode,
+            });
 
-        window.electron.ipcRenderer.deleteTempFile(currentTask.tempFilePath);
+            try {
+                window.electron.ipcRenderer.deleteTempFile(currentTask.tempFilePath);
+            } catch (deleteErr) {
+                // Non-fatal: log and notify user but continue
+                const delMsg = deleteErr && typeof deleteErr === 'object' && 'message' in deleteErr ? (deleteErr as any).message : String(deleteErr);
+                console.error('Failed to delete temp file:', delMsg);
+            }
 
-        goToNextTask();
+            setToastMessage(`Merge completed for "${currentTask.fileName}".`);
+            setToastType('success');
+            setShowToast(true);
+
+            goToNextTask();
+        } catch (err) {
+            const message = err && typeof err === 'object' && 'message' in err ? (err as any).message : String(err);
+            setToastMessage(`Merge failed: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+        } finally {
+            setAcceptButtonLoading(false);
+        }
     };
 
     const openMergeCancelDialog = () => {
