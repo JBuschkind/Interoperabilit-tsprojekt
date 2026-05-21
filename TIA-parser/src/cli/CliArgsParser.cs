@@ -82,7 +82,7 @@ namespace TiaPortalParser {
         private static List<string> ParseListValue(string value)
         {
             return value
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToList();
         }
 
