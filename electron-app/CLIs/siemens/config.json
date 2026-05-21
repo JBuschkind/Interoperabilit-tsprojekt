@@ -13,13 +13,13 @@
   },
   {
     "id": "using",
-    "label": "Usings",
+    "label": "Usings (Sps.cs)",
     "type": "textarea",
     "defaultValue": ""
   },
   {
     "id": "proxy-using",
-    "label": "Usings (Proxy)",
+    "label": "Usings (SpsProxy.cs)",
     "type": "textarea",
     "defaultValue": ""
   },
