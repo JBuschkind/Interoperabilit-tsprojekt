@@ -20,12 +20,14 @@ export default function Beckhoff() {
 
     const [direction, setDirection] = useState<string>('forward');
 
+    // paths[0] = inputPath, paths[1] = gvlOutputPath, paths[2] = proxyOutputPath
     const callBeckhoffParserCLIForward = async (paths: string[]) => {
         const cliArgs = getCLIArgs();
 
         return await window.electron.ipcRenderer.runBeckhoffParserCLIForward({
             inputPath: paths[0],
-            outputPath: paths[1],
+            gvlOutputPath: paths[1],
+            proxyOutputPath: paths[2],
             cliArgs: cliArgs,
         });
     };
@@ -67,7 +69,7 @@ export default function Beckhoff() {
                 <CodeGenerator
                     key="forward"
                     inputFileType=".xml"
-                    outputFileNames={['PlcStatusControl']}
+                    outputFileNames={['Gvl', 'GvlProxy']}
                     outputFileType=".cs"
                     setDirection={setDirection}
                     setModalOpen={openModal}

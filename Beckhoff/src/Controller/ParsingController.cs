@@ -64,14 +64,30 @@ public sealed class ParsingController : IParsingController
     private int RunForward(string[] args, string projectRoot)
     {
         string inputXmlPath = GetOption(args, "--input-xml", Path.Combine(projectRoot, "Input", "GVL_PLC.xml"));
-        string outputCsPath = GetOption(args, "--output-cs", Path.Combine(projectRoot, "Output", "PlcStatusControl.generated.cs"));
+
+        string defaultGvlPath = Path.Combine(projectRoot, "Output", "Gvl.cs");
+        string defaultProxyPath = Path.Combine(projectRoot, "Output", "GvlProxy.cs");
+
+        string? explicitGvlPath = GetOptionOrNull(args, "--output-gvl");
+        string? explicitProxyPath = GetOptionOrNull(args, "--output-proxy");
+        string? legacyOutputCs = GetOptionOrNull(args, "--output-cs");
+
+        string outputGvlPath = explicitGvlPath
+            ?? legacyOutputCs
+            ?? defaultGvlPath;
+
+        string outputProxyPath = explicitProxyPath
+            ?? DeriveProxyPathFromGvlPath(outputGvlPath, legacyOutputCs != null)
+            ?? defaultProxyPath;
+
         string? propertiesPath = GetOptionOrNull(args, "--properties");
 
         var configOverrides = ParseConfigOverrides(args);
 
         Console.WriteLine("Direction:                       forward");
         Console.WriteLine($"Input XML:                       {inputXmlPath}");
-        Console.WriteLine($"Output PlcStatusControl:         {outputCsPath}");
+        Console.WriteLine($"Output Gvl.cs:                   {outputGvlPath}");
+        Console.WriteLine($"Output GvlProxy.cs:              {outputProxyPath}");
 
         if (propertiesPath != null)
             Console.WriteLine($"Properties file:                 {propertiesPath}");
@@ -91,9 +107,10 @@ public sealed class ParsingController : IParsingController
 
         try
         {
-            _gvlXmlService.GeneratePlcStatusControlFromGvlXml(
+            _gvlXmlService.GenerateFullMappingFromGvlXml(
                 inputXmlPath,
-                outputCsPath,
+                outputGvlPath,
+                outputProxyPath,
                 propertiesFilePath: propertiesPath,
                 cliOverrides: configOverrides);
 
@@ -108,6 +125,22 @@ public sealed class ParsingController : IParsingController
     }
 
     /// <summary>
+    /// Places the proxy file next to the Gvl file when the caller only provided
+    /// a single output path (e.g. via the legacy --output-cs flag).
+    /// </summary>
+    private static string? DeriveProxyPathFromGvlPath(string gvlPath, bool hasLegacyOutputCs)
+    {
+        if (!hasLegacyOutputCs)
+            return null;
+
+        string? directory = Path.GetDirectoryName(gvlPath);
+        if (string.IsNullOrEmpty(directory))
+            return "GvlProxy.cs";
+
+        return Path.Combine(directory, "GvlProxy.cs");
+    }
+
+    /// <summary>
     /// Executes reverse translation from a C# file back into a GVL XML file
     /// based on a previously generated XML holder/template.
     /// </summary>
@@ -116,7 +149,7 @@ public sealed class ParsingController : IParsingController
     /// <returns>0 on success; otherwise 1.</returns>
     private int RunReverse(string[] args, string projectRoot)
     {
-        string inputCsPath = GetOption(args, "--input-cs", Path.Combine(projectRoot, "Output", "PlcStatusControl.generated.cs"));
+        string inputCsPath = GetOption(args, "--input-cs", Path.Combine(projectRoot, "Output", "GvlProxy.cs"));
         string defaultTemplateXmlPath = Path.Combine(projectRoot, "Output", "GVL_PLC.template.xml");
         string templateXmlPath = GetOption(args, "--template-xml", defaultTemplateXmlPath);
         string outputXmlPath = GetOption(args, "--output-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.updated.xml"));
@@ -203,7 +236,9 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine();
         Console.WriteLine("Forward options:");
         Console.WriteLine("  --input-xml          Input XML path");
-        Console.WriteLine("  --output-cs          Output C# path");
+        Console.WriteLine("  --output-gvl         Output path for Gvl.cs (POCO mirror of all globalVars/dataTypes)");
+        Console.WriteLine("  --output-proxy       Output path for GvlProxy.cs (read methods per primitive variable)");
+        Console.WriteLine("  --output-cs          Legacy alias for --output-gvl; proxy is placed next to it");
         Console.WriteLine("  --properties         Properties file path (optional, overrides defaults)");
         Console.WriteLine();
         Console.WriteLine("Forward config overrides (override defaults and properties file):");
