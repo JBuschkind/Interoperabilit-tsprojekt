@@ -50,6 +50,34 @@ ipcMain.handle('store-set', (_event, key: string, value: unknown) => {
   return true;
 });
 
+ipcMain.handle('get-app-info', async () => {
+  const appVersion = app.getVersion();
+
+  const readCliVersion = (configPath: string): string => {
+    try {
+      const raw = readFileSync(configPath, 'utf-8');
+      const entries: { id: string; value?: string }[] = JSON.parse(raw);
+      return entries.find((e) => e.id === 'version')?.value ?? 'n/a';
+    } catch {
+      return 'n/a';
+    }
+  };
+
+  const siemensConfig = app.isPackaged
+    ? path.join(process.resourcesPath, 'CLIs/siemens/config.json')
+    : path.join(__dirname, '../../CLIs/siemens/config.json');
+
+  const beckhoffConfig = app.isPackaged
+    ? path.join(process.resourcesPath, 'CLIs/beckhoff/config.json')
+    : path.join(__dirname, '../../CLIs/beckhoff/config.json');
+
+  return {
+    appVersion,
+    siemensVersion: readCliVersion(siemensConfig),
+    beckhoffVersion: readCliVersion(beckhoffConfig),
+  };
+});
+
 ipcMain.handle('select-file-path', async (_event, filetypes: string[]) => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],
@@ -82,6 +110,32 @@ ipcMain.handle('read-file', async (_event, filePath: string) => {
 
 const execFileAsync = promisify(execFile);
 
+/** CLIs often log failures on stdout; Node only puts the command in err.message. */
+function formatCliExecError(err: {
+  message?: string;
+  stderr?: string;
+  stdout?: string;
+}): string {
+  const stderr = err.stderr?.trim();
+  if (stderr) return stderr;
+
+  const stdout = err.stdout?.trim();
+  if (stdout) {
+    const errorLine = stdout
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => /^Error:/i.test(line));
+    if (errorLine) {
+      return errorLine.replace(/^Error:\s*/i, '').trim() || errorLine;
+    }
+    const lines = stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const last = lines[lines.length - 1];
+    if (last) return last;
+  }
+
+  return err.message ?? 'CLI execution failed';
+}
+
 ipcMain.handle(
   'run-siemens-parser-cli',
   async (_event, { inputPath, spsOutputPath, spsProxyOutputPath, cliArgs }) => {
@@ -97,13 +151,17 @@ ipcMain.handle(
       ? path.join(process.resourcesPath, 'CLIs/siemens/win/TIA-parser.exe')
       : path.join(__dirname, '../../CLIs/siemens/win/TIA-parser.exe');
 
-    const { stdout } = await execFileAsync(CLI_PATH, [
-      inputPath,
-      spsOutputPath,
-      spsProxyOutputPath,
-      ...cliArgs,
-    ]);
-    return stdout;
+    try {
+      const { stdout } = await execFileAsync(CLI_PATH, [
+        inputPath,
+        spsOutputPath,
+        spsProxyOutputPath,
+        ...cliArgs,
+      ]);
+      return stdout;
+    } catch (err: any) {
+      throw new Error(formatCliExecError(err));
+    }
   },
 );
 
@@ -134,8 +192,12 @@ ipcMain.handle(
       ...cliArgs,
     ];
 
-    const { stdout } = await execFileAsync(CLI_PATH, args);
-    return stdout;
+    try {
+      const { stdout } = await execFileAsync(CLI_PATH, args);
+      return stdout;
+    } catch (err: any) {
+      throw new Error(formatCliExecError(err));
+    }
   },
 );
 
@@ -162,8 +224,12 @@ ipcMain.handle(
       originalXMLPath,
     ];
 
-    const { stdout } = await execFileAsync(CLI_PATH, args);
-    return stdout;
+    try {
+      const { stdout } = await execFileAsync(CLI_PATH, args);
+      return stdout;
+    } catch (err: any) {
+      throw new Error(formatCliExecError(err));
+    }
   },
 );
 
@@ -257,8 +323,8 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1600,
+    height: 1000,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged

@@ -1,7 +1,20 @@
+import { useEffect, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import logo from '../../assets/icons/test-logo.png';
 
+type AppInfo = {
+    appVersion: string;
+    siemensVersion: string;
+    beckhoffVersion: string;
+};
+
 export default function Layout() {
+    const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
+
+    useEffect(() => {
+        window.electron.ipcRenderer.getAppInfo().then(setAppInfo).catch(() => {});
+    }, []);
+
     return (
         <div className="h-screen flex flex-col bg-surface text-surface font-body ">
             {/* Header */}
@@ -51,7 +64,17 @@ export default function Layout() {
                         </ul>
                     </div>
 
-                    <div className="w-32 text-textcolor text-center">2</div>
+                    <div className="w-60 shrink-0 text-right text-xs text-textcolor/50 leading-tight pt-2">
+                        {appInfo && (
+                            <>
+                                <div>App v{appInfo.appVersion}</div>
+                                <div>
+                                    TIA CLI: {appInfo.siemensVersion} | Beckhoff
+                                    CLI: {appInfo.beckhoffVersion}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </header>
 

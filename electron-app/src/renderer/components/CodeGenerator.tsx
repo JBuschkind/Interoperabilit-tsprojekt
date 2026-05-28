@@ -4,6 +4,7 @@ import Dropzone from './Dropzone';
 import { PathSelector } from './PathSelector';
 import Modal from './Modal';
 import { Merger } from './Merger';
+import { OverwritePreview } from './OverwritePreview';
 import MiniDropzone from './MiniDropzone';
 import { OutputCard } from './OutputCard';
 import { Button } from './Button';
@@ -50,6 +51,7 @@ export default function CodeGenerator({
         Idle, // file inputs
         DecideMerge, // modal open
         Merge,
+        PreviewOverwrite, // approve/cancel for XML overwrite (Beckhoff reverse)
     }
 
     // Button loading states
@@ -108,6 +110,9 @@ export default function CodeGenerator({
     const [outputIsDirectory, setOutputIsDirectory] = useState<boolean>(
         direction === 'forward' ? true : false,
     );
+
+    // Preview state for XML overwrite (Beckhoff reverse)
+    const [previewFile, setPreviewFile] = useState<OutputFile | null>(null);
 
     /*
      * Functions
@@ -265,7 +270,51 @@ export default function CodeGenerator({
 
         setOutputFiles(updatedOutputFiles);
 
-        // If any already exiting output files are selected, open the modal to start merging/overwriting
+        // Reverse direction (C# → XML): skip merge, show approve/cancel preview
+        if (!outputIsDirectory && direction === 'reverse') {
+            setExportButtonLoading(true);
+            try {
+                const templateInputPath = updatedOutputFiles[0].filePath;
+                if (!templateInputPath || !inputFile.filePath) return;
+
+                const outputPaths = updatedOutputFiles
+                    .map((f) => f.tempFilePath ?? f.outputPath)
+                    .filter((p): p is string => typeof p === 'string');
+
+                await callCLI([inputFile.filePath, templateInputPath, ...outputPaths]);
+
+                const tempPath = updatedOutputFiles[0].tempFilePath;
+                if (!tempPath) return;
+
+                const generatedCode =
+                    await window.electron.ipcRenderer.readFile(tempPath);
+
+                const fileWithGenerated = {
+                    ...updatedOutputFiles[0],
+                    generatedCode,
+                };
+                setOutputFiles(
+                    updatedOutputFiles.map((f, i) =>
+                        i === 0 ? fileWithGenerated : f,
+                    ),
+                );
+                setPreviewFile(fileWithGenerated);
+                setUiState(UIState.PreviewOverwrite);
+            } catch (err) {
+                const message =
+                    err && typeof err === 'object' && 'message' in err
+                        ? (err as any).message
+                        : String(err);
+                setToastMessage(`Code generation failed: ${message}`);
+                setToastType('error');
+                setShowToast(true);
+            } finally {
+                setExportButtonLoading(false);
+            }
+            return;
+        }
+
+        // If any already existing output files are selected, open the modal to start merging/overwriting
         if (!outputIsDirectory) {
             setUiState(UIState.DecideMerge);
             return;
@@ -429,6 +478,37 @@ export default function CodeGenerator({
         });
     };
 
+    const handleKeepOriginal = async () => {
+        if (!currentTask?.tempFilePath) return;
+
+        setAcceptButtonLoading(true);
+        try {
+            try {
+                window.electron.ipcRenderer.deleteTempFile(
+                    currentTask.tempFilePath,
+                );
+            } catch (deleteErr) {
+                const delMsg =
+                    deleteErr &&
+                    typeof deleteErr === 'object' &&
+                    'message' in deleteErr
+                        ? (deleteErr as { message: string }).message
+                        : String(deleteErr);
+                console.error('Failed to delete temp file:', delMsg);
+            }
+
+            setToastMessage(
+                `Original kept for "${currentTask.fileName}".`,
+            );
+            setToastType('success');
+            setShowToast(true);
+
+            goToNextTask();
+        } finally {
+            setAcceptButtonLoading(false);
+        }
+    };
+
     const handleAcceptMerge = async (mergedCode: string) => {
         if (!currentTask?.outputPath || !currentTask.tempFilePath) return;
 
@@ -519,6 +599,54 @@ export default function CodeGenerator({
         setShowToast(true);
     };
 
+    const handleApproveOverwrite = async () => {
+        if (!previewFile?.outputPath || !previewFile.generatedCode) return;
+        setAcceptButtonLoading(true);
+        try {
+            await window.electron.ipcRenderer.finalizeMerge({
+                outputPath: previewFile.outputPath,
+                mergedCode: previewFile.generatedCode,
+            });
+
+            if (previewFile.tempFilePath) {
+                try {
+                    window.electron.ipcRenderer.deleteTempFile(
+                        previewFile.tempFilePath,
+                    );
+                } catch {
+                    // non-fatal
+                }
+            }
+
+            setPreviewFile(null);
+            clearState();
+            setUiState(UIState.Idle);
+            setToastMessage('File written successfully!');
+            setToastType('success');
+            setShowToast(true);
+        } catch (err) {
+            const message =
+                err && typeof err === 'object' && 'message' in err
+                    ? (err as any).message
+                    : String(err);
+            setToastMessage(`Failed to write file: ${message}`);
+            setToastType('error');
+            setShowToast(true);
+        } finally {
+            setAcceptButtonLoading(false);
+        }
+    };
+
+    const handleCancelOverwrite = () => {
+        if (previewFile?.tempFilePath) {
+            window.electron.ipcRenderer.deleteTempFile(
+                previewFile.tempFilePath,
+            );
+        }
+        setPreviewFile(null);
+        setUiState(UIState.Idle);
+    };
+
     const handleSkipMerge = () => {
         // TODO: Maybe its nice to have a skip button that just keeps the original code (even though this could be accomblished used merging)
         // -> Use Case: You started merging but realized in the middle that you want to keep the orginal file
@@ -589,6 +717,7 @@ export default function CodeGenerator({
                         {setDirection ? (
                             <div className="h-11 bg-surface-container-low p-1 rounded-sm flex items-center gap-1 border border-outline/10 shadow-lg text-textcolor/60">
                                 <button
+                                    type="button"
                                     onClick={() => setDirection('forward')}
                                     className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
                                 ${
@@ -601,6 +730,7 @@ export default function CodeGenerator({
                                 </button>
 
                                 <button
+                                    type="button"
                                     onClick={() => setDirection('reverse')}
                                     className={`px-6 py-2 text-xs font-black uppercase tracking-widest transition-all cursor-pointer
                                 ${
@@ -781,6 +911,16 @@ export default function CodeGenerator({
                 </div>
             )}
 
+            {uiState === UIState.PreviewOverwrite && previewFile && (
+                <OverwritePreview
+                    fileName={`${previewFile.fileName}${outputFileType}`}
+                    generatedCode={previewFile.generatedCode ?? ''}
+                    onApprove={handleApproveOverwrite}
+                    onCancel={handleCancelOverwrite}
+                    loading={acceptButtonLoading}
+                />
+            )}
+
             {mergerTask && (
                 <div
                     className={
@@ -795,7 +935,9 @@ export default function CodeGenerator({
                         originalCode={mergerTask.originalCode}
                         modifiedCode={mergerTask.generatedCode}
                         onAcceptMerge={handleAcceptMerge}
+                        onKeepOriginal={handleKeepOriginal}
                         onCancelMerge={openMergeCancelDialog}
+                        loading={acceptButtonLoading}
                     />
                 </div>
             )}

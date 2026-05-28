@@ -10,8 +10,11 @@ type MergerProps = {
     originalCode: string | null;
     modifiedCode: string | null;
     onAcceptMerge: (mergedCode: string) => void;
+    /** Keep the existing file unchanged and advance the merge queue. */
+    onKeepOriginal?: () => void;
     /** Opens the cancel confirmation (current file vs entire queue). */
     onCancelMerge?: () => void;
+    loading?: boolean;
 };
 
 /**
@@ -24,7 +27,9 @@ export const Merger: React.FC<MergerProps> = ({
     originalCode,
     modifiedCode,
     onAcceptMerge,
+    onKeepOriginal,
     onCancelMerge,
+    loading = false,
 }) => {
     const [ctr, setCtr] = useState(() => originalCode ?? '');
 
@@ -103,10 +108,16 @@ export const Merger: React.FC<MergerProps> = ({
 
             <div className="w-full flex-shrink-0 flex flex-wrap items-center justify-center gap-4 py-4 border-t border-outline/20">
                 <div className="flex-1 flex justify-center min-w-[8rem]">
-                    <Button>Keep orginal</Button>
+                    <Button
+                        disabled={loading}
+                        onClick={() => onKeepOriginal?.()}
+                    >
+                        Keep Original
+                    </Button>
                 </div>
                 <div className="flex-1 flex justify-around min-w-[10rem] gap-2">
                     <Button
+                        disabled={loading || !ctr}
                         onClick={() => {
                             if (ctr) onAcceptMerge(ctr);
                         }}
@@ -115,6 +126,7 @@ export const Merger: React.FC<MergerProps> = ({
                     </Button>
 
                     <Button
+                        disabled={loading}
                         onClick={() => {
                             onCancelMerge?.();
                         }}
@@ -123,7 +135,14 @@ export const Merger: React.FC<MergerProps> = ({
                     </Button>
                 </div>
                 <div className="flex-1 flex justify-center min-w-[8rem]">
-                    <Button>overwrite with Generated Code</Button>
+                    <Button
+                        disabled={loading || !modifiedCode}
+                        onClick={() => {
+                            if (modifiedCode) onAcceptMerge(modifiedCode);
+                        }}
+                    >
+                        Override with Generated Code
+                    </Button>
                 </div>
             </div>
         </div>

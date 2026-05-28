@@ -84,6 +84,13 @@ const electronHandler = {
       ipcRenderer.invoke('parse-file-path', filePath),
 
     readConfig: (type: string) => ipcRenderer.invoke('read-config', type),
+
+    getAppInfo: () =>
+      ipcRenderer.invoke('get-app-info') as Promise<{
+        appVersion: string;
+        siemensVersion: string;
+        beckhoffVersion: string;
+      }>,
   },
   store: {
     get: <T = any>(key: string): Promise<T> =>
