@@ -65,9 +65,9 @@ const electronHandler = {
     }) => ipcRenderer.invoke('run-beckhoff-parser-cli-forward', payload),
 
     runBeckhoffParserCLIReverse: (payload: {
-      inputPath: string;
+      gvlInputPath: string;
+      proxyInputPath: string;
       outputPath: string;
-      originalXMLPath: string;
       cliArgs: string[];
     }) => ipcRenderer.invoke('run-beckhoff-parser-cli-reverse', payload),
 

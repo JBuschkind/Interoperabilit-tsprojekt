@@ -32,12 +32,13 @@ export default function Beckhoff() {
         });
     };
 
+    // paths[0] = Gvl.cs, paths[1] = GvlProxy.cs, paths[2] = output XML
     const callBeckhoffParserCLIReverse = async (paths: string[]) => {
         const cliArgs = getCLIArgs();
 
         return await window.electron.ipcRenderer.runBeckhoffParserCLIReverse({
-            inputPath: paths[0],
-            originalXMLPath: paths[1],
+            gvlInputPath: paths[0],
+            proxyInputPath: paths[1],
             outputPath: paths[2],
             cliArgs: cliArgs,
         });
@@ -79,7 +80,8 @@ export default function Beckhoff() {
                 <CodeGenerator
                     key="reverse"
                     inputFileType=".cs"
-                    outputFileNames={['GVL_PLC.updated']}
+                    inputFileNames={['Gvl', 'GvlProxy']}
+                    outputFileNames={['GVL_PLC.generated']}
                     outputFileType=".xml"
                     direction="reverse"
                     setDirection={setDirection}

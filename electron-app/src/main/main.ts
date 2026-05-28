@@ -203,9 +203,9 @@ ipcMain.handle(
 
 ipcMain.handle(
   'run-beckhoff-parser-cli-reverse',
-  async (_event, { inputPath, originalXMLPath, outputPath, cliArgs }) => {
-    // if output ends with .temp.cs, add it to tempFilesToCleanUp for later cleanup
-    if (outputPath.endsWith('.temp.cs')) {
+  async (_event, { gvlInputPath, proxyInputPath, outputPath, cliArgs }) => {
+    // if output ends with .temp.xml, add it to tempFilesToCleanUp for later cleanup
+    if (outputPath.endsWith('.temp.xml')) {
       tempFilesToCleanUp.push(outputPath);
     }
 
@@ -215,13 +215,13 @@ ipcMain.handle(
 
     const args = [
       '--direction',
-      'reverse',
-      '--input-cs',
-      inputPath,
+      'generate',
+      '--input-gvl',
+      gvlInputPath,
+      '--input-proxy',
+      proxyInputPath,
       '--output-xml',
       outputPath,
-      '--template-xml',
-      originalXMLPath,
     ];
 
     try {

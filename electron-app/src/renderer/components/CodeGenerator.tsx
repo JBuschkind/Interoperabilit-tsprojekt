@@ -12,6 +12,7 @@ import { Toast } from './Toast';
 
 type CodeGeneratorProps = {
     inputFileType?: string;
+    inputFileNames?: string[]; // when set, renders one dropzone per name (multi-input mode)
     outputFileNames?: string[];
     outputFileType?: string;
     direction?: string;
@@ -22,6 +23,7 @@ type CodeGeneratorProps = {
 
 export default function CodeGenerator({
     inputFileType = '.db',
+    inputFileNames,
     outputFileNames = ['SPS', 'SPSProxy'],
     outputFileType = '.cs',
     direction = 'forward', // e.g. C# -> .xml
@@ -68,12 +70,24 @@ export default function CodeGenerator({
     const [outputDirError, setOutputDirError] = useState<boolean>(false);
     const [outputFilesError, setOutputFilesError] = useState<boolean>(false);
 
-    // Input File (e.g. .db or .xml)
+    // Multi-input mode: render one dropzone per slot (e.g. Gvl.cs + GvlProxy.cs)
+    const multiInput = Array.isArray(inputFileNames) && inputFileNames.length > 1;
+
+    // Input File (e.g. .db or .xml) — used in single-input mode
     const [inputFile, setInputFile] = useState<InputFile>({
         fileName: null,
         file: null,
         filePath: null,
     });
+
+    // Input Files — used in multi-input mode (e.g. Beckhoff reverse: Gvl.cs + GvlProxy.cs)
+    const [inputFiles, setInputFiles] = useState<InputFile[]>(
+        (inputFileNames ?? []).map((name) => ({
+            fileName: name,
+            file: null,
+            filePath: null,
+        })),
+    );
 
     // Output Files (can be reinsterted in the UI for merging/overwriting):
     const [outputFiles, setOutputFiles] = useState<OutputFile[]>(
@@ -143,6 +157,24 @@ export default function CodeGenerator({
             setInputFileError(false);
         }
     };
+
+    const handleInputFilesChange =
+        (slotName: string) => async (file: File | null) => {
+            let filePath: string | null = null;
+            if (file) {
+                filePath = await window.electronApi.getFilePath(file);
+            }
+            setInputFiles((prev) =>
+                prev.map((slot) =>
+                    slot.fileName === slotName
+                        ? { ...slot, file, filePath }
+                        : slot,
+                ),
+            );
+            if (file) {
+                setInputFileError(false);
+            }
+        };
 
     // Sets file in an output file
     const handleOutputFileChange =
@@ -232,7 +264,13 @@ export default function CodeGenerator({
 
         let hasErrors = false;
 
-        if (!inputFile.filePath) {
+        if (multiInput) {
+            if (inputFiles.some((slot) => !slot.filePath)) {
+                setInputFileError(true);
+                setToastMessage('Please select all input files.');
+                hasErrors = true;
+            }
+        } else if (!inputFile.filePath) {
             setInputFileError(true);
             setToastMessage('Please select an input file.');
             hasErrors = true;
@@ -270,36 +308,51 @@ export default function CodeGenerator({
 
         setOutputFiles(updatedOutputFiles);
 
-        // Reverse direction (C# → XML): skip merge, show approve/cancel preview
-        if (!outputIsDirectory && direction === 'reverse') {
+        // Reverse direction (C# → XML, generate from two C# files):
+        // - "Link to Existing": overwrite an existing XML with approve/cancel preview
+        // - "Output Directory": write a new XML, no preview
+        if (direction === 'reverse' && multiInput) {
+            const gvlPath = inputFiles[0]?.filePath;
+            const proxyPath = inputFiles[1]?.filePath;
+            if (!gvlPath || !proxyPath) return;
+
             setExportButtonLoading(true);
             try {
-                const templateInputPath = updatedOutputFiles[0].filePath;
-                if (!templateInputPath || !inputFile.filePath) return;
+                if (!outputIsDirectory) {
+                    const outputPaths = updatedOutputFiles
+                        .map((f) => f.tempFilePath ?? f.outputPath)
+                        .filter((p): p is string => typeof p === 'string');
 
-                const outputPaths = updatedOutputFiles
-                    .map((f) => f.tempFilePath ?? f.outputPath)
-                    .filter((p): p is string => typeof p === 'string');
+                    await callCLI([gvlPath, proxyPath, ...outputPaths]);
 
-                await callCLI([inputFile.filePath, templateInputPath, ...outputPaths]);
+                    const tempPath = updatedOutputFiles[0].tempFilePath;
+                    if (!tempPath) return;
 
-                const tempPath = updatedOutputFiles[0].tempFilePath;
-                if (!tempPath) return;
+                    const generatedCode =
+                        await window.electron.ipcRenderer.readFile(tempPath);
 
-                const generatedCode =
-                    await window.electron.ipcRenderer.readFile(tempPath);
-
-                const fileWithGenerated = {
-                    ...updatedOutputFiles[0],
-                    generatedCode,
-                };
-                setOutputFiles(
-                    updatedOutputFiles.map((f, i) =>
-                        i === 0 ? fileWithGenerated : f,
-                    ),
-                );
-                setPreviewFile(fileWithGenerated);
-                setUiState(UIState.PreviewOverwrite);
+                    const fileWithGenerated = {
+                        ...updatedOutputFiles[0],
+                        generatedCode,
+                    };
+                    setOutputFiles(
+                        updatedOutputFiles.map((f, i) =>
+                            i === 0 ? fileWithGenerated : f,
+                        ),
+                    );
+                    setPreviewFile(fileWithGenerated);
+                    setUiState(UIState.PreviewOverwrite);
+                } else {
+                    const outputPaths = updatedOutputFiles
+                        .map((f) => f.outputPath)
+                        .filter((p): p is string => typeof p === 'string');
+                    await callCLI([gvlPath, proxyPath, ...outputPaths]);
+                    clearState();
+                    setToastMessage('XML generation completed!');
+                    setToastType('success');
+                    setShowToast(true);
+                    setUiState(UIState.Idle);
+                }
             } catch (err) {
                 const message =
                     err && typeof err === 'object' && 'message' in err
@@ -665,6 +718,13 @@ export default function CodeGenerator({
             file: null,
             filePath: null,
         });
+        setInputFiles(
+            (inputFileNames ?? []).map((name) => ({
+                fileName: name,
+                file: null,
+                filePath: null,
+            })),
+        );
         setOutputDirPath(null);
         setOutputFiles(
             outputFileNames.map((name) => ({
@@ -768,14 +828,37 @@ export default function CodeGenerator({
                                 Source Input
                             </h2>
                         </div>
-                        <div className="bg-surface-container-low p-6 rounded-xs">
-                            <Dropzone
-                                id="input-dropzone"
-                                accept={inputFileType}
-                                value={inputFile.file}
-                                onChange={handleInputFileChange}
-                                error={inputFileError}
-                            />
+                        <div className="bg-surface-container-low p-6 rounded-xs flex flex-col gap-4">
+                            {multiInput ? (
+                                inputFiles.map((slot) => (
+                                    <div
+                                        key={slot.fileName ?? 'slot'}
+                                        className="flex flex-col gap-2"
+                                    >
+                                        <span className="text-xs font-bold uppercase tracking-widest text-textcolor/70">
+                                            {slot.fileName}
+                                            {inputFileType}
+                                        </span>
+                                        <Dropzone
+                                            id={`input-dropzone-${slot.fileName}`}
+                                            accept={inputFileType}
+                                            value={slot.file}
+                                            onChange={handleInputFilesChange(
+                                                slot.fileName ?? '',
+                                            )}
+                                            error={inputFileError}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <Dropzone
+                                    id="input-dropzone"
+                                    accept={inputFileType}
+                                    value={inputFile.file}
+                                    onChange={handleInputFileChange}
+                                    error={inputFileError}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -791,7 +874,7 @@ export default function CodeGenerator({
                             {/* Output Directory Selection */}
                             <OutputCard
                                 selected={outputIsDirectory}
-                                disabled={direction === 'reverse'}
+                                disabled={false}
                                 onSelect={() => setOutputIsDirectory(true)}
                                 icon="folder_zip"
                                 title="Output Directory"
