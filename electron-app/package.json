@@ -132,6 +132,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
     "shiki": "^4.0.2",
+    "start": "^5.1.0",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
