@@ -1,0 +1,2080 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Beckhoff Automation GmbH" productName="TwinCAT PLC Control" productVersion="3.5.13.21" creationDateTime="2026-05-28T16:52:01.2730334" />
+  <contentHeader name="GVL_PLC.generated" modificationDateTime="2026-05-28T16:52:01.2730334">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes />
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/application" handleUnknown="implementation">
+      <resource name="GVL_PLC.generated">
+        <task name="PlcTask" interval="PT0S" priority="20">
+          <pouInstance name="MAIN" typeName="">
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml" />
+            </documentation>
+          </pouInstance>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/tasksettings" handleUnknown="implementation">
+              <TaskSettings KindOfTask="Cyclic" Interval="10000" IntervalUnit="us">
+                <Watchdog Enabled="false" TimeUnit="ms" />
+              </TaskSettings>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>e748a22a-3be6-4c4f-848d-03c8b2f7c3d0</ObjectId>
+            </data>
+          </addData>
+        </task>
+        <task name="PlcTask1ms" interval="PT0S" priority="4">
+          <pouInstance name="Background" typeName="">
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml" />
+            </documentation>
+          </pouInstance>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/tasksettings" handleUnknown="implementation">
+              <TaskSettings KindOfTask="Cyclic" Interval="1000" IntervalUnit="us">
+                <Watchdog Enabled="false" TimeUnit="ms" />
+              </TaskSettings>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>f224ced9-cdb3-41a1-8eff-c73e8ba8cc45</ObjectId>
+            </data>
+          </addData>
+        </task>
+        <globalVars name="GVL_PLC">
+          <variable name="SystemStatus">
+            <type>
+              <UINT />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">0x0001 = Link error
+0x0002 = I/O locked after link error (I/O reset required)
+0x0004 = Link error (redundancy adapter)
+0x0008 = Missing one frame (redundancy mode)
+0x0010 = Out of send resources (I/O reset required)
+0x0020 = Watchdog triggered
+0x0040 = Ethernet driver (miniport) not found
+0x0080 = I/O reset active
+0x0100 = At least one device in 'INIT' state
+0x0200 = At least one device in 'PRE-OP' state
+0x0400 = At least one device in 'SAFE-OP' state
+0x0800 = At least one device indicates an error state
+0x1000 = DC not in sync</xhtml>
+            </documentation>
+          </variable>
+          <variable name="AllPartitiantsPresent">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="CANOpenState">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">CANOpenState. True if ok</xhtml>
+            </documentation>
+          </variable>
+          <variable name="IOLinkState">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">IOLinkState. True if ok</xhtml>
+            </documentation>
+          </variable>
+          <variable name="AppTimestamp">
+            <type>
+              <DT />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Compiler timestamp</xhtml>
+            </documentation>
+          </variable>
+          <variable name="AppVersion">
+            <type>
+              <string />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version</xhtml>
+            </documentation>
+          </variable>
+          <variable name="iExpectedNumberOfPartitiants">
+            <type>
+              <UINT />
+            </type>
+            <initialValue>
+              <simpleValue value="14" />
+            </initialValue>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">set Number of Expected Ethercat Partitians</xhtml>
+            </documentation>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	SystemStatus : UINT;
+	{attribute 'OPC.UA.DA' := '1'}
+	AllPartitiantsPresent : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	CANOpenState : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IOLinkState : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	AppTimestamp : DT;
+	{attribute 'OPC.UA.DA' := '1'}
+	AppVersion : STRING;
+END_VAR
+VAR_GLOBAL CONSTANT
+	iExpectedNumberOfPartitiants : UINT := 14;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>1a417b69-f945-4ab7-a294-c96d17f4bc37</ObjectId>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+              <MixedAttrsVarList>
+                <globalVars name="GVL_PLC">
+                  <variable name="SystemStatus">
+                    <type>
+                      <UINT />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">0x0001 = Link error
+0x0002 = I/O locked after link error (I/O reset required)
+0x0004 = Link error (redundancy adapter)
+0x0008 = Missing one frame (redundancy mode)
+0x0010 = Out of send resources (I/O reset required)
+0x0020 = Watchdog triggered
+0x0040 = Ethernet driver (miniport) not found
+0x0080 = I/O reset active
+0x0100 = At least one device in 'INIT' state
+0x0200 = At least one device in 'PRE-OP' state
+0x0400 = At least one device in 'SAFE-OP' state
+0x0800 = At least one device indicates an error state
+0x1000 = DC not in sync</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="AllPartitiantsPresent">
+                    <type>
+                      <BOOL />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="CANOpenState">
+                    <type>
+                      <BOOL />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">CANOpenState. True if ok</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="IOLinkState">
+                    <type>
+                      <BOOL />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">IOLinkState. True if ok</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="AppTimestamp">
+                    <type>
+                      <DT />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Compiler timestamp</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="AppVersion">
+                    <type>
+                      <string />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Current plc version</xhtml>
+                    </documentation>
+                  </variable>
+                </globalVars>
+                <globalVars name="GVL_PLC" constant="true">
+                  <variable name="iExpectedNumberOfPartitiants">
+                    <type>
+                      <UINT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="14" />
+                    </initialValue>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">set Number of Expected Ethercat Partitians</xhtml>
+                    </documentation>
+                  </variable>
+                </globalVars>
+              </MixedAttrsVarList>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Power">
+          <variable name="SupplyVoltage24V_1">
+            <type>
+              <LREAL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SupplyVoltage24V_2">
+            <type>
+              <LREAL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SupplyVoltage24V_3">
+            <type>
+              <LREAL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SupplyVoltage24V_4">
+            <type>
+              <LREAL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SwitchSupplyPower_UUT">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	SupplyVoltage24V_1 : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SupplyVoltage24V_2 : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SupplyVoltage24V_3 : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SupplyVoltage24V_4 : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SwitchSupplyPower_UUT : BOOL;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>630c4c5a-d379-44e4-9bfd-57edc64641d9</ObjectId>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Pressure">
+          <variable name="SystemPressureAtValveCluster">
+            <type>
+              <derived name="stMeasure" />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SystemPressurePressureRegulator">
+            <type>
+              <derived name="stMeasure" />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="RelativePressure">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <derived name="stMeasureWithZero" />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="PressureRegulator">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <derived name="stControl" />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="NumberOfWika">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="1" />
+            </initialValue>
+          </variable>
+          <variable name="NumberOfRegulator">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="1" />
+            </initialValue>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	SystemPressureAtValveCluster : stMeasure;
+	{attribute 'OPC.UA.DA' := '1'}
+	SystemPressurePressureRegulator : stMeasure;
+	{attribute 'OPC.UA.DA' := '1'}
+	RelativePressure : ARRAY[1..1] OF stMeasureWithZero;
+	{attribute 'OPC.UA.DA' := '1'}
+	PressureRegulator : ARRAY[1..1] OF stControl;
+END_VAR
+VAR_GLOBAL CONSTANT
+	NumberOfWika : INT := 1;
+	NumberOfRegulator : INT := 1;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>ef56c9ae-7b84-4e79-b632-cb7fb8e996e6</ObjectId>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+              <MixedAttrsVarList>
+                <globalVars name="GVL_Pressure">
+                  <variable name="SystemPressureAtValveCluster">
+                    <type>
+                      <derived name="stMeasure" />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="SystemPressurePressureRegulator">
+                    <type>
+                      <derived name="stMeasure" />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="RelativePressure">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <derived name="stMeasureWithZero" />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="PressureRegulator">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <derived name="stControl" />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                </globalVars>
+                <globalVars name="GVL_Pressure" constant="true">
+                  <variable name="NumberOfWika">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="1" />
+                    </initialValue>
+                  </variable>
+                  <variable name="NumberOfRegulator">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="1" />
+                    </initialValue>
+                  </variable>
+                </globalVars>
+              </MixedAttrsVarList>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Resistance">
+          <variable name="FunctionalEarthUUT">
+            <type>
+              <LREAL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="FunctionalEarthUUTOverrange">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="FunctionalEarthUUTUnderrange">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	FunctionalEarthUUT : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	FunctionalEarthUUTOverrange : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	FunctionalEarthUUTUnderrange : BOOL;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>f355e402-c835-4008-be17-025872479251</ObjectId>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Serial">
+          <variable name="SerialControl">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <derived name="stSerialInternal" />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SerialConnections">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <derived name="stSerialConnection" />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="iNumberOfSerial">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="1" />
+            </initialValue>
+          </variable>
+          <variable name="aSerialConnectionSide">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <INT />
+                </baseType>
+              </array>
+            </type>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">define side of EL6002 Clamp (0=first, 1=second), this information is needed for configuration of the serial</xhtml>
+            </documentation>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialControl : ARRAY[1..1] OF stSerialInternal;
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialConnections : ARRAY[1..1] OF stSerialConnection;
+END_VAR
+VAR_GLOBAL CONSTANT
+	iNumberOfSerial : INT := 1;
+	aSerialConnectionSide : ARRAY[1..1] OF INT;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>f7258c4e-4aef-4c8f-bb69-268defe9314b</ObjectId>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+              <MixedAttrsVarList>
+                <globalVars name="GVL_Serial">
+                  <variable name="SerialControl">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <derived name="stSerialInternal" />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="SerialConnections">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <derived name="stSerialConnection" />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                </globalVars>
+                <globalVars name="GVL_Serial" constant="true">
+                  <variable name="iNumberOfSerial">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="1" />
+                    </initialValue>
+                  </variable>
+                  <variable name="aSerialConnectionSide">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <INT />
+                        </baseType>
+                      </array>
+                    </type>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">define side of EL6002 Clamp (0=first, 1=second), this information is needed for configuration of the serial</xhtml>
+                    </documentation>
+                  </variable>
+                </globalVars>
+              </MixedAttrsVarList>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Status">
+          <variable name="Green">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="Yellow">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="Red">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="Blue">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="White">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="IsDutAdapted">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="SwitchDockSignal_UUT">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	Green : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Yellow : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Red : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Blue : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	White : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	IsDutAdapted : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	SwitchDockSignal_UUT : BOOL;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>2dc1f20f-7693-4971-9605-019fec4ddf27</ObjectId>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Temperature">
+          <variable name="TemperatureSensor">
+            <type>
+              <array>
+                <dimension lower="1" upper="1" />
+                <baseType>
+                  <derived name="stTemperatureSource" />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="maxTemperatureSensorCount">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="1" />
+            </initialValue>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Maximal Count for Sensors in the System</xhtml>
+            </documentation>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	TemperatureSensor : ARRAY[1..1] OF stTemperatureSource;
+END_VAR
+VAR_GLOBAL CONSTANT
+	maxTemperatureSensorCount : INT := 1;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>3824b54a-6ab1-4198-9dcf-2d1f012f1be2</ObjectId>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+              <MixedAttrsVarList>
+                <globalVars name="GVL_Temperature">
+                  <variable name="TemperatureSensor">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="1" />
+                        <baseType>
+                          <derived name="stTemperatureSource" />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                </globalVars>
+                <globalVars name="GVL_Temperature" constant="true">
+                  <variable name="maxTemperatureSensorCount">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="1" />
+                    </initialValue>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Maximal Count for Sensors in the System</xhtml>
+                    </documentation>
+                  </variable>
+                </globalVars>
+              </MixedAttrsVarList>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="GVL_Valves">
+          <variable name="P1">
+            <type>
+              <array>
+                <dimension lower="1" upper="16" />
+                <baseType>
+                  <BOOL />
+                </baseType>
+              </array>
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Define the valve states as an array of BOOL</xhtml>
+            </documentation>
+          </variable>
+          <variable name="V12">
+            <type>
+              <BOOL />
+            </type>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+          </variable>
+          <variable name="V12_cyclic">
+            <type>
+              <BOOL />
+            </type>
+            <initialValue>
+              <simpleValue value="FALSE" />
+            </initialValue>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Cycle V12 states with times below, starting with low state</xhtml>
+            </documentation>
+          </variable>
+          <variable name="V12_onTime">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="5000" />
+            </initialValue>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Time V12 is switched on in ms</xhtml>
+            </documentation>
+          </variable>
+          <variable name="V12_offTime">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="5000" />
+            </initialValue>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                <Attributes>
+                  <Attribute Name="OPC.UA.DA" Value="1" />
+                </Attributes>
+              </data>
+            </addData>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Time V12 is switched off in ms</xhtml>
+            </documentation>
+          </variable>
+          <variable name="minValveCount">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="1" />
+            </initialValue>
+            <documentation>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">Minimum and maximum valve index</xhtml>
+            </documentation>
+          </variable>
+          <variable name="maxValveCount">
+            <type>
+              <INT />
+            </type>
+            <initialValue>
+              <simpleValue value="16" />
+            </initialValue>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	{attribute 'OPC.UA.DA' := '1'}
+	P1 : ARRAY[1..16] OF BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	V12 : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	V12_cyclic : BOOL := FALSE;
+	{attribute 'OPC.UA.DA' := '1'}
+	V12_onTime : INT := 5000;
+	{attribute 'OPC.UA.DA' := '1'}
+	V12_offTime : INT := 5000;
+END_VAR
+VAR_GLOBAL CONSTANT
+	minValveCount : INT := 1;
+	maxValveCount : INT := 16;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>f46b5c7b-76a7-45b0-8cc2-12535c5b0f38</ObjectId>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/mixedattrsvarlist" handleUnknown="implementation">
+              <MixedAttrsVarList>
+                <globalVars name="GVL_Valves">
+                  <variable name="P1">
+                    <type>
+                      <array>
+                        <dimension lower="1" upper="16" />
+                        <baseType>
+                          <BOOL />
+                        </baseType>
+                      </array>
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Define the valve states as an array of BOOL</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="V12">
+                    <type>
+                      <BOOL />
+                    </type>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                  </variable>
+                  <variable name="V12_cyclic">
+                    <type>
+                      <BOOL />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="FALSE" />
+                    </initialValue>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Cycle V12 states with times below, starting with low state</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="V12_onTime">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="5000" />
+                    </initialValue>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Time V12 is switched on in ms</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="V12_offTime">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="5000" />
+                    </initialValue>
+                    <addData>
+                      <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                        <Attributes>
+                          <Attribute Name="OPC.UA.DA" Value="1" />
+                        </Attributes>
+                      </data>
+                    </addData>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Time V12 is switched off in ms</xhtml>
+                    </documentation>
+                  </variable>
+                </globalVars>
+                <globalVars name="GVL_Valves" constant="true">
+                  <variable name="minValveCount">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="1" />
+                    </initialValue>
+                    <documentation>
+                      <xhtml xmlns="http://www.w3.org/1999/xhtml">Minimum and maximum valve index</xhtml>
+                    </documentation>
+                  </variable>
+                  <variable name="maxValveCount">
+                    <type>
+                      <INT />
+                    </type>
+                    <initialValue>
+                      <simpleValue value="16" />
+                    </initialValue>
+                  </variable>
+                </globalVars>
+              </MixedAttrsVarList>
+            </data>
+          </addData>
+        </globalVars>
+        <globalVars name="Global_Version" constant="true">
+          <variable name="stLibVersion_A220053_Vapor_5000_Function_Test">
+            <type>
+              <derived name="ST_LibVersion" />
+            </type>
+          </variable>
+          <addData>
+            <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+              <Attributes>
+                <Attribute Name="qualified_only" Value="" />
+              </Attributes>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+              <BuildProperties>
+                <LinkAlways>true</LinkAlways>
+              </BuildProperties>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+              <InterfaceAsPlainText>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	stLibVersion_A220053_Vapor_5000_Function_Test : ST_LibVersion;
+END_VAR
+</xhtml>
+              </InterfaceAsPlainText>
+            </data>
+            <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+              <ObjectId>ad5333c2-14e7-436b-8911-388da9929db5</ObjectId>
+            </data>
+          </addData>
+        </globalVars>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stControl">
+            <baseType>
+              <struct>
+                <variable name="TargetValue">
+                  <type>
+                    <LREAL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">set value</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="Unit">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="SerialNumber">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stControl :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	TargetValue : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Unit : STRING;
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialNumber : STRING;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>cb9b97a2-5dec-47f6-91cd-e6cb0e7cc9ca</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stMeasure">
+            <baseType>
+              <struct>
+                <variable name="ActualValue">
+                  <type>
+                    <LREAL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">read value</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="Unit">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="SerialNumber">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stMeasure :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	ActualValue : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Unit : STRING;
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialNumber : STRING;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>9b7fdd1c-be25-4b3d-891a-0a9c676f3f7b</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stRingBuffer">
+            <baseType>
+              <struct>
+                <variable name="Buffer">
+                  <type>
+                    <array>
+                      <dimension lower="1" upper="4096" />
+                      <baseType>
+                        <BYTE />
+                      </baseType>
+                    </array>
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="RdIdx">
+                  <type>
+                    <UINT />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="WrIdx">
+                  <type>
+                    <UINT />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="BufferSize">
+                  <type>
+                    <UINT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="4096" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stRingBuffer :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	Buffer : ARRAY[1..4096] OF BYTE;
+	{attribute 'OPC.UA.DA' := '1'}
+	RdIdx : UINT;
+	{attribute 'OPC.UA.DA' := '1'}
+	WrIdx : UINT;
+	{attribute 'OPC.UA.DA' := '1'}
+	BufferSize : UINT := 4096;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>9d2fb487-03b9-45c3-8ec2-66b785467958</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stSerialConfiguration">
+            <baseType>
+              <struct>
+                <variable name="BaudRate">
+                  <type>
+                    <UDINT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="57600" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="Parity">
+                  <type>
+                    <INT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="0" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="DataBits">
+                  <type>
+                    <INT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="8" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="StopBits">
+                  <type>
+                    <INT />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="1" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="DTR">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="FALSE" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="RTS">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="FALSE" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stSerialConfiguration :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	BaudRate : UDINT := 57600;
+	{attribute 'OPC.UA.DA' := '1'}
+	Parity : INT := 0;
+	{attribute 'OPC.UA.DA' := '1'}
+	DataBits : INT := 8;
+	{attribute 'OPC.UA.DA' := '1'}
+	StopBits : INT := 1;
+	{attribute 'OPC.UA.DA' := '1'}
+	DTR : BOOL := FALSE;
+	{attribute 'OPC.UA.DA' := '1'}
+	RTS : BOOL := FALSE;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>27a3f2cc-2ce7-4e63-a032-4b23ac601b7f</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stSerialConnection">
+            <baseType>
+              <struct>
+                <variable name="TxBuffer">
+                  <type>
+                    <derived name="stRingBuffer" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="RxBuffer">
+                  <type>
+                    <derived name="stRingBuffer" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="Reset">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <initialValue>
+                    <simpleValue value="TRUE" />
+                  </initialValue>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="ResetAck">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="Configuration">
+                  <type>
+                    <derived name="stSerialConfiguration" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="TxError">
+                  <type>
+                    <derived name="ComError_t" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="RxError">
+                  <type>
+                    <derived name="ComError_t" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stSerialConnection :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	TxBuffer : stRingBuffer;
+	{attribute 'OPC.UA.DA' := '1'}
+	RxBuffer : stRingBuffer;
+	{attribute 'OPC.UA.DA' := '1'}
+	Reset : BOOL := TRUE;
+	{attribute 'OPC.UA.DA' := '1'}
+	ResetAck : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Configuration : stSerialConfiguration;
+	{attribute 'OPC.UA.DA' := '1'}
+	TxError : ComError_t;
+	{attribute 'OPC.UA.DA' := '1'}
+	RxError : ComError_t;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>a92272b1-8e10-4347-87c3-e321c691a4bf</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stSerialInternal">
+            <baseType>
+              <struct>
+                <variable name="RxBuffer">
+                  <type>
+                    <derived name="ComBuffer" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="TxBuffer">
+                  <type>
+                    <derived name="ComBuffer" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="CtrlError">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+                <variable name="CtrlErrorID">
+                  <type>
+                    <derived name="ComError_t" />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stSerialInternal :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	RxBuffer : ComBuffer;
+	{attribute 'OPC.UA.DA' := '1'}
+	TxBuffer : ComBuffer;
+	{attribute 'OPC.UA.DA' := '1'}
+	CtrlError : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	CtrlErrorID : ComError_t;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>c79d0ee8-dd38-4845-bac6-bb7645e54c83</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stPressureSource">
+            <baseType>
+              <struct>
+                <variable name="ActualValue">
+                  <type>
+                    <LREAL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC: read value</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="Unit">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC: Unit of ActualValues (Framework &gt;= 4.0.0.0 allowed: mbar, bar)</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="SerialNumber">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC</xhtml>
+                  </documentation>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stPressureSource :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	ActualValue : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Unit : STRING;
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialNumber : STRING;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>429f0b89-22e1-46c2-999a-4742ac98352a</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stTemperatureSource">
+            <baseType>
+              <struct>
+                <variable name="ActualValue">
+                  <type>
+                    <LREAL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC: read value</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="Unit">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC: Unit of ActualValues</xhtml>
+                  </documentation>
+                </variable>
+                <variable name="SerialNumber">
+                  <type>
+                    <string />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                  <documentation>
+                    <xhtml xmlns="http://www.w3.org/1999/xhtml">PLC</xhtml>
+                  </documentation>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stTemperatureSource :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	ActualValue : LREAL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Unit : STRING;
+	{attribute 'OPC.UA.DA' := '1'}
+	SerialNumber : STRING;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>d737e59c-ac6c-4a6b-be7f-a26a3aec253b</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+        <data name="http://www.3s-software.com/plcopenxml/datatype" handleUnknown="implementation">
+          <dataType name="stMeasureWithZero">
+            <baseType>
+              <struct>
+                <variable name="Zero">
+                  <type>
+                    <BOOL />
+                  </type>
+                  <addData>
+                    <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+                      <Attributes>
+                        <Attribute Name="OPC.UA.DA" Value="1" />
+                      </Attributes>
+                    </data>
+                  </addData>
+                </variable>
+              </struct>
+            </baseType>
+            <addData>
+              <data name="http://www.3s-software.com/plcopenxml/datatypeinheritance" handleUnknown="implementation">
+                <Inheritance>
+                  <Extends>stMeasure</Extends>
+                </Inheritance>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+                <InterfaceAsPlainText>
+                  <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE stMeasureWithZero EXTENDS stMeasure :
+STRUCT
+	{attribute 'OPC.UA.DA' := '1'}
+	Zero : BOOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+                </InterfaceAsPlainText>
+              </data>
+              <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+                <ObjectId>5156ec7b-77f7-4dc8-a8ca-5c6d71d9e2cb</ObjectId>
+              </data>
+            </addData>
+          </dataType>
+        </data>
+      </resource>
+    </data>
+  </addData>
+</project>

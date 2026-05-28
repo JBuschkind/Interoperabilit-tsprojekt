@@ -16,18 +16,22 @@ public sealed class ParsingController : IParsingController
 {
     private readonly IGvlXmlService _gvlXmlService;
     private readonly ICSharpToGvlXmlService _cSharpToGvlXmlService;
+    private readonly IGvlCsToXmlService _gvlCsToXmlService;
 
     /// <summary>
-    /// Initializes the controller with forward and reverse translation services.
+    /// Initializes the controller with forward, reverse and generate translation services.
     /// </summary>
     /// <param name="gvlXmlService">Service used for XML-based code generation.</param>
     /// <param name="cSharpToGvlXmlService">Service used for C# to XML reverse translation.</param>
+    /// <param name="gvlCsToXmlService">Service that builds a fresh XML from Gvl.cs/GvlProxy.cs.</param>
     public ParsingController(
         IGvlXmlService gvlXmlService,
-        ICSharpToGvlXmlService cSharpToGvlXmlService)
+        ICSharpToGvlXmlService cSharpToGvlXmlService,
+        IGvlCsToXmlService gvlCsToXmlService)
     {
         _gvlXmlService = gvlXmlService;
         _cSharpToGvlXmlService = cSharpToGvlXmlService;
+        _gvlCsToXmlService = gvlCsToXmlService;
     }
 
     /// <summary>
@@ -50,6 +54,7 @@ public sealed class ParsingController : IParsingController
         {
             "forward" => RunForward(args, projectRoot),
             "reverse" => RunReverse(args, projectRoot),
+            "generate" or "from-csharp" => RunGenerate(args, projectRoot),
             _ => FailWithUnknownDirection(direction)
         };
     }
@@ -212,6 +217,62 @@ public sealed class ParsingController : IParsingController
     }
 
     /// <summary>
+    /// Executes from-scratch XML generation from a Gvl.cs (and optionally GvlProxy.cs).
+    /// No XML template is required; defaults are used for headers, tasks and ObjectIds.
+    /// </summary>
+    /// <param name="args">CLI arguments that may override default generate paths.</param>
+    /// <param name="projectRoot">Resolved project root directory.</param>
+    /// <returns>0 on success; otherwise 1.</returns>
+    private int RunGenerate(string[] args, string projectRoot)
+    {
+        string inputGvlPath = GetOption(args, "--input-gvl", Path.Combine(projectRoot, "Output", "Gvl.cs"));
+        string? inputProxyPath = GetOptionOrNull(args, "--input-proxy")
+            ?? DefaultIfExists(Path.Combine(projectRoot, "Output", "GvlProxy.cs"));
+        string outputXmlPath = GetOption(args, "--output-xml", Path.Combine(projectRoot, "Output", "GVL_PLC.generated.xml"));
+
+        Console.WriteLine("Direction:                       generate");
+        Console.WriteLine($"Input Gvl.cs:                    {inputGvlPath}");
+        Console.WriteLine($"Input GvlProxy.cs:               {inputProxyPath ?? "(none)"}");
+        Console.WriteLine($"Output XML:                      {outputXmlPath}");
+
+        if (!inputGvlPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Error: --input-gvl must point to a C# file.");
+            return 1;
+        }
+
+        if (inputProxyPath != null && !inputProxyPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Error: --input-proxy must point to a C# file.");
+            return 1;
+        }
+
+        if (!outputXmlPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Error: --output-xml must point to an XML file.");
+            return 1;
+        }
+
+        try
+        {
+            _gvlCsToXmlService.GenerateXmlFromCSharp(inputGvlPath, inputProxyPath, outputXmlPath);
+            Console.WriteLine("Success: XML generation from C# completed.");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return 1;
+        }
+    }
+
+    /// <summary>
+    /// Returns the provided path when the file exists; otherwise null.
+    /// </summary>
+    private static string? DefaultIfExists(string path)
+        => File.Exists(path) ? path : null;
+
+    /// <summary>
     /// Prints a user-friendly error for unsupported direction names.
     /// </summary>
     /// <param name="direction">Direction string provided by the caller.</param>
@@ -231,8 +292,8 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine("  dotnet run --project .\\xmlParser.csproj -- [options]");
         Console.WriteLine();
         Console.WriteLine("Direction:");
-        Console.WriteLine("  --direction, -d      forward | reverse");
-        Console.WriteLine("  --mode               forward | reverse (legacy alias)");
+        Console.WriteLine("  --direction, -d      forward | reverse | generate");
+        Console.WriteLine("  --mode               forward | reverse | generate (legacy alias)");
         Console.WriteLine();
         Console.WriteLine("Forward options:");
         Console.WriteLine("  --input-xml          Input XML path");
@@ -261,6 +322,11 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine("Reverse options:");
         Console.WriteLine("  --input-cs           Input C# path");
         Console.WriteLine("  --template-xml       XML template path");
+        Console.WriteLine("  --output-xml         Output XML path");
+        Console.WriteLine();
+        Console.WriteLine("Generate options (from-scratch XML, no template):");
+        Console.WriteLine("  --input-gvl          Input Gvl.cs path");
+        Console.WriteLine("  --input-proxy        Optional GvlProxy.cs path (helps classify GVLs)");
         Console.WriteLine("  --output-xml         Output XML path");
         Console.WriteLine();
         Console.WriteLine("General:");

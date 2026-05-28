@@ -64,6 +64,9 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
 
         foreach (var globalVars in doc.Descendants(plcOpenNs + "globalVars"))
         {
+            if (IsInsideMixedAttrsVarList(globalVars))
+                continue;
+
             if (ParseBool((string?)globalVars.Attribute("constant")))
                 continue;
 
@@ -176,6 +179,9 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
 
         foreach (var globalVars in doc.Descendants(plcOpenNs + "globalVars"))
         {
+            if (IsInsideMixedAttrsVarList(globalVars))
+                continue;
+
             if (ParseBool((string?)globalVars.Attribute("constant")))
                 continue;
 
@@ -196,8 +202,44 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
                 globalVars.Add(variable);
         }
 
+        SyncRenamesIntoMixedAttrsVarList(doc, renameMap, plcOpenNs);
         ApplyPlainTextRenames(doc, renameMap);
         ApplyPlainTextInsertions(doc, insertedSpecs);
+    }
+
+    /// <summary>
+    /// Applies a name-only rename to variables nested inside any MixedAttrsVarList block.
+    /// MixedAttrsVarList holds duplicated views of globalVars and must mirror name updates
+    /// from the top-level rebuild without receiving structural additions.
+    /// </summary>
+    private static void SyncRenamesIntoMixedAttrsVarList(
+        XDocument doc,
+        IReadOnlyDictionary<string, string> renameMap,
+        XNamespace plcOpenNs)
+    {
+        if (renameMap.Count == 0)
+            return;
+
+        var mixedLists = doc
+            .Descendants()
+            .Where(node => string.Equals(node.Name.LocalName, "MixedAttrsVarList", StringComparison.Ordinal))
+            .ToList();
+
+        foreach (var mixedList in mixedLists)
+        {
+            foreach (var variable in mixedList.Descendants(plcOpenNs + "variable"))
+            {
+                string? currentName = (string?)variable.Attribute("name");
+                if (string.IsNullOrWhiteSpace(currentName))
+                    continue;
+
+                if (renameMap.TryGetValue(currentName, out var newName)
+                    && !string.Equals(currentName, newName, StringComparison.Ordinal))
+                {
+                    variable.SetAttributeValue("name", newName);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -578,6 +620,14 @@ public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
     /// <returns>True when the value is truthy; otherwise false.</returns>
     private static bool ParseBool(string? value)
         => value != null && (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value.Equals("1"));
+
+    /// <summary>
+    /// Checks whether the element is nested inside a MixedAttrsVarList ancestor.
+    /// MixedAttrsVarList holds duplicated globalVars blocks and must not be rewritten.
+    /// </summary>
+    private static bool IsInsideMixedAttrsVarList(XElement element)
+        => element.Ancestors().Any(a =>
+            string.Equals(a.Name.LocalName, "MixedAttrsVarList", StringComparison.Ordinal));
 
     private readonly record struct GvlVariableSpec(string GvlName, string VariableName, string? CSharpType);
 

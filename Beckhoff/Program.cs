@@ -3,6 +3,7 @@ using AmlParser.Modular.Service;
 
 IParsingController controller = new ParsingController(
     new GvlXmlService(),
-    new CSharpToGvlXmlService());
+    new CSharpToGvlXmlService(),
+    new GvlCsToXmlService());
 
 return controller.Run(args);
