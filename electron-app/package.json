@@ -1,5 +1,5 @@
 {
-  "name": "draeger-app",
+  "name": "plc-bridge",
   "version": "0.0.4",
   "description": "A foundation for scalable desktop apps",
   "keywords": [
@@ -203,8 +203,8 @@
     "webpack-merge": "^6.0.1"
   },
   "build": {
-    "productName": "DraegerApp",
-    "appId": "org.erb.DraegerApp",
+    "productName": "PlcBridge",
+    "appId": "org.erb.PlcBridge",
     "asar": true,
     "afterSign": ".erb/scripts/notarize.js",
     "asarUnpack": "**\\*.{node,dll}",
