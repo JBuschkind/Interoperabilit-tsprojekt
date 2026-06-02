@@ -1,4 +1,4 @@
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 public interface IGvlXmlService
 {
@@ -21,16 +21,20 @@ public interface IGvlXmlService
     /// Generates a full mapping of all PLCopen globalVars and dataTypes into two
     /// C# files: a POCO file (Gvl.cs) mirroring the PLC structure and a proxy
     /// file (GvlProxy.cs) with read methods per primitive variable.
+    /// Namespace and the two using-lists are configurable; the remaining
+    /// generator settings are fixed in <see cref="PlcStatusControlConfig"/>.
     /// </summary>
     /// <param name="inputXmlPath">Path to the input XML file.</param>
     /// <param name="outputGvlCsPath">Path to the generated POCO file.</param>
     /// <param name="outputProxyCsPath">Path to the generated proxy file.</param>
-    /// <param name="propertiesFilePath">Optional path to plcstatus.properties.</param>
-    /// <param name="cliOverrides">Optional key-value pairs parsed from CLI arguments.</param>
+    /// <param name="namespaceName">Optional namespace override for the generated files.</param>
+    /// <param name="gvlUsings">Optional extra using-directives for Gvl.cs.</param>
+    /// <param name="proxyUsings">Optional extra using-directives for GvlProxy.cs.</param>
     void GenerateFullMappingFromGvlXml(
         string inputXmlPath,
         string outputGvlCsPath,
         string outputProxyCsPath,
-        string? propertiesFilePath = null,
-        IReadOnlyDictionary<string, string>? cliOverrides = null);
+        string? namespaceName = null,
+        IReadOnlyList<string>? gvlUsings = null,
+        IReadOnlyList<string>? proxyUsings = null);
 }

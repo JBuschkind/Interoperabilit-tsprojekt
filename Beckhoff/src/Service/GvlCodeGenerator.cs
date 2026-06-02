@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 internal sealed class GvlCodeGenerator
 {
@@ -9,6 +9,7 @@ internal sealed class GvlCodeGenerator
     private readonly PlcStatusControlConfig _config;
     private readonly IReadOnlyDictionary<string, int> _constantLookup;
     private readonly HashSet<string> _definedDataTypeNames;
+    private readonly HashSet<string> _enumTypeNames;
 
     public GvlCodeGenerator(ParsedModel model, PlcStatusControlConfig config)
     {
@@ -18,6 +19,7 @@ internal sealed class GvlCodeGenerator
         _definedDataTypeNames = new HashSet<string>(
             model.DataTypes.Select(d => d.Name),
             StringComparer.Ordinal);
+        _enumTypeNames = new HashSet<string>(model.EnumTypeNames, StringComparer.Ordinal);
     }
 
     public string EmitGvlFile()
@@ -26,6 +28,7 @@ internal sealed class GvlCodeGenerator
         sb.AppendLine("#nullable enable");
         sb.AppendLine();
         sb.AppendLine("using System;");
+        EmitAdditionalUsings(sb, _config.AdditionalUsings);
         sb.AppendLine();
 
         bool hasNamespace = !string.IsNullOrWhiteSpace(_config.Namespace);
@@ -55,6 +58,7 @@ internal sealed class GvlCodeGenerator
         sb.AppendLine("using System;");
         if (!string.IsNullOrWhiteSpace(_config.HardwareUsing))
             sb.AppendLine($"using {_config.HardwareUsing};");
+        EmitAdditionalUsings(sb, _config.AdditionalProxyUsings);
         sb.AppendLine();
 
         bool hasNamespace = !string.IsNullOrWhiteSpace(_config.Namespace);
@@ -65,36 +69,43 @@ internal sealed class GvlCodeGenerator
         }
 
         string indent = hasNamespace ? "    " : string.Empty;
-        string proxyClassName = SanitizeIdentifier(string.IsNullOrWhiteSpace(_config.ClassName)
-            ? "GvlProxy"
-            : _config.ClassName);
 
-        sb.AppendLine($"{indent}public class {proxyClassName}");
-        sb.AppendLine($"{indent}{{");
-        sb.AppendLine($"{indent}    private readonly {_config.PlcControlTypeName} _plcControl;");
-        sb.AppendLine();
-        sb.AppendLine($"{indent}    public {proxyClassName}({_config.HardwareControlPoolTypeName} hardwareControl)");
-        sb.AppendLine($"{indent}    {{");
-        sb.AppendLine($"{indent}        _plcControl = hardwareControl.PlcControl;");
-        sb.AppendLine($"{indent}    }}");
-
+        // Emit one proxy class per GVL. Each proxy inherits its GVL and overrides
+        // the variables so reads fetch live PLC values into a cached model.
+        bool firstEmitted = false;
         foreach (var gvl in _model.Gvls)
         {
-            foreach (var variable in gvl.Variables)
-            {
-                if (variable.IsConstant)
-                    continue;
+            var proxyVars = gvl.Variables.Where(v => !v.IsConstant).ToList();
+            if (proxyVars.Count == 0)
+                continue;
 
-                EmitProxyMethod(sb, indent, gvl.Name, variable);
-            }
+            if (firstEmitted)
+                sb.AppendLine();
+            firstEmitted = true;
+
+            EmitProxyClass(sb, indent, gvl.Name, proxyVars);
         }
-
-        sb.AppendLine($"{indent}}}");
 
         if (hasNamespace)
             sb.AppendLine("}");
 
         return sb.ToString();
+    }
+
+    // Emits one "using X;" line per configured entry, tolerating values that
+    // already include the 'using' keyword or a trailing semicolon.
+    private static void EmitAdditionalUsings(StringBuilder sb, IReadOnlyList<string> usings)
+    {
+        foreach (var raw in usings)
+        {
+            string ns = raw.Trim();
+            if (ns.StartsWith("using ", StringComparison.Ordinal))
+                ns = ns["using ".Length..].Trim();
+            ns = ns.TrimEnd(';').Trim();
+            if (ns.Length == 0)
+                continue;
+            sb.AppendLine($"using {ns};");
+        }
     }
 
     private void EmitStubsForUndefinedDerivedTypes(StringBuilder sb, string indent)
@@ -111,6 +122,7 @@ internal sealed class GvlCodeGenerator
 
         var undefined = referenced
             .Where(name => !_definedDataTypeNames.Contains(name))
+            .Where(name => !_enumTypeNames.Contains(name)) // enums are external typed references, no stub
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToList();
 
@@ -189,7 +201,7 @@ internal sealed class GvlCodeGenerator
                 if (variable.IsConstant)
                     EmitConstant(sb, indent + "    ", variable);
                 else
-                    EmitProperty(sb, indent + "    ", variable);
+                    EmitProperty(sb, indent + "    ", variable, isVirtual: true);
             }
 
             sb.AppendLine($"{indent}}}");
@@ -197,7 +209,7 @@ internal sealed class GvlCodeGenerator
         }
     }
 
-    private void EmitProperty(StringBuilder sb, string memberIndent, ParsedVariable variable)
+    private void EmitProperty(StringBuilder sb, string memberIndent, ParsedVariable variable, bool isVirtual = false)
     {
         if (!string.IsNullOrWhiteSpace(variable.Documentation))
         {
@@ -209,8 +221,9 @@ internal sealed class GvlCodeGenerator
 
         string csType = RenderType(variable.Type);
         string name = SanitizeIdentifier(variable.Name);
+        string modifier = isVirtual ? "virtual " : string.Empty;
         string initializer = BuildPropertyInitializer(variable);
-        sb.AppendLine($"{memberIndent}public {csType} {name} {{ get; set; }}{initializer}");
+        sb.AppendLine($"{memberIndent}public {modifier}{csType} {name} {{ get; set; }}{initializer}");
     }
 
     private void EmitConstant(StringBuilder sb, string memberIndent, ParsedVariable variable)
@@ -238,46 +251,113 @@ internal sealed class GvlCodeGenerator
         }
     }
 
-    private void EmitProxyMethod(StringBuilder sb, string indent, string gvlName, ParsedVariable variable)
+    private void EmitProxyClass(StringBuilder sb, string indent, string gvlName, IReadOnlyList<ParsedVariable> proxyVars)
     {
-        string methodName = "Get" + SanitizeIdentifier(gvlName) + "_" + SanitizeIdentifier(variable.Name);
-        string nodePath = $"{gvlName}.{variable.Name}";
+        string gvlClassName = SanitizeIdentifier(gvlName);
+        string proxyClassName = gvlClassName + "Proxy";
+        string memberIndent = indent + "    ";
 
-        switch (variable.Type)
+        sb.AppendLine($"{indent}/// <inheritdoc />");
+        sb.AppendLine($"{indent}public class {proxyClassName} : {gvlClassName}");
+        sb.AppendLine($"{indent}{{");
+
+        sb.AppendLine($"{memberIndent}private readonly {_config.PlcControlTypeName} _plcControl;");
+        sb.AppendLine($"{memberIndent}private readonly {gvlClassName} _model;");
+        sb.AppendLine($"{memberIndent}private DateTime _lastRead;");
+        sb.AppendLine($"{memberIndent}private readonly TimeSpan _updateInterval;");
+        sb.AppendLine();
+
+        sb.AppendLine($"{memberIndent}public {proxyClassName}({_config.HardwareControlPoolTypeName} hardwareControl)");
+        sb.AppendLine($"{memberIndent}{{");
+        sb.AppendLine($"{memberIndent}    _plcControl = hardwareControl.PlcControl;");
+        sb.AppendLine($"{memberIndent}    _model = new {gvlClassName}();");
+        sb.AppendLine($"{memberIndent}    _lastRead = DateTime.MinValue;");
+        sb.AppendLine($"{memberIndent}    _updateInterval = TimeSpan.FromMilliseconds(500);");
+        sb.AppendLine($"{memberIndent}}}");
+
+        foreach (var variable in proxyVars)
+            EmitProxyProperty(sb, memberIndent, gvlName, variable);
+
+        EmitProxyReadValues(sb, memberIndent, gvlName, proxyVars);
+
+        sb.AppendLine();
+        sb.AppendLine($"{memberIndent}private bool IsUpdateRequired()");
+        sb.AppendLine($"{memberIndent}{{");
+        sb.AppendLine($"{memberIndent}    return DateTime.Now - _lastRead > _updateInterval;");
+        sb.AppendLine($"{memberIndent}}}");
+
+        sb.AppendLine($"{indent}}}");
+    }
+
+    private void EmitProxyProperty(StringBuilder sb, string memberIndent, string gvlName, ParsedVariable variable)
+    {
+        string name = SanitizeIdentifier(variable.Name);
+        string csType = RenderType(variable.Type);
+
+        // Non-scalar variables (structs, arrays, pointers) can't be read with a
+        // single generic call, so leave them to the inherited virtual default.
+        if (!IsProxyReadable(variable.Type))
         {
-            case PrimitiveType prim:
-                {
-                    sb.AppendLine();
-                    sb.AppendLine($"{indent}    public {prim.CsName} {methodName}()");
-                    sb.AppendLine($"{indent}    {{");
-                    sb.AppendLine($"{indent}        var result = _plcControl.{_config.PlcReadMethodName}<{prim.CsName}>(\"{EscapeString(nodePath)}\");");
-                    sb.AppendLine($"{indent}        return result.IsSuccess ? result.Value : default;");
-                    sb.AppendLine($"{indent}    }}");
-                    break;
-                }
-            case StringType:
-                {
-                    sb.AppendLine();
-                    sb.AppendLine($"{indent}    public string {methodName}()");
-                    sb.AppendLine($"{indent}    {{");
-                    sb.AppendLine($"{indent}        var result = _plcControl.{_config.PlcReadMethodName}<string>(\"{EscapeString(nodePath)}\");");
-                    sb.AppendLine($"{indent}        return result.IsSuccess ? (result.Value ?? string.Empty) : string.Empty;");
-                    sb.AppendLine($"{indent}    }}");
-                    break;
-                }
-            case DerivedType:
-            case ArrayType:
-            case PointerType:
-            case UnknownType:
-            default:
-                {
-                    sb.AppendLine();
-                    sb.AppendLine($"{indent}    // {methodName}: type '{RenderType(variable.Type)}' is not a primitive scalar.");
-                    sb.AppendLine($"{indent}    //   Node: {nodePath}");
-                    sb.AppendLine($"{indent}    //   Implement manually (struct / array reads need framework-specific calls).");
-                    break;
-                }
+            sb.AppendLine();
+            sb.AppendLine($"{memberIndent}// {name}: type '{csType}' is not a primitive scalar.");
+            sb.AppendLine($"{memberIndent}//   Node: {gvlName}.{variable.Name}");
+            sb.AppendLine($"{memberIndent}//   Override manually (struct / array reads need framework-specific calls).");
+            return;
         }
+
+        sb.AppendLine();
+        sb.AppendLine($"{memberIndent}/// <inheritdoc />");
+        sb.AppendLine($"{memberIndent}public override {csType} {name}");
+        sb.AppendLine($"{memberIndent}{{");
+        sb.AppendLine($"{memberIndent}    get");
+        sb.AppendLine($"{memberIndent}    {{");
+        sb.AppendLine($"{memberIndent}        ReadValues();");
+        sb.AppendLine($"{memberIndent}        return _model.{name};");
+        sb.AppendLine($"{memberIndent}    }}");
+        sb.AppendLine($"{memberIndent}}}");
+    }
+
+    private void EmitProxyReadValues(StringBuilder sb, string memberIndent, string gvlName, IReadOnlyList<ParsedVariable> proxyVars)
+    {
+        sb.AppendLine();
+        sb.AppendLine($"{memberIndent}private void ReadValues()");
+        sb.AppendLine($"{memberIndent}{{");
+        sb.AppendLine($"{memberIndent}    if (!IsUpdateRequired()) return;");
+        sb.AppendLine();
+
+        foreach (var variable in proxyVars)
+        {
+            if (!IsProxyReadable(variable.Type))
+                continue;
+
+            string name = SanitizeIdentifier(variable.Name);
+            string nodePath = $"{gvlName}.{variable.Name}";
+            string readType = RenderType(variable.Type);
+            string resultVar = ToCamelCase(name) + "Result";
+
+            sb.AppendLine($"{memberIndent}    var {resultVar} = _plcControl.{_config.PlcReadMethodName}<{readType}>(\"{EscapeString(nodePath)}\");");
+            if (variable.Type is StringType)
+                sb.AppendLine($"{memberIndent}    _model.{name} = {resultVar}.IsSuccess ? ({resultVar}.Value ?? string.Empty) : _model.{name};");
+            else
+                sb.AppendLine($"{memberIndent}    _model.{name} = {resultVar}.IsSuccess ? {resultVar}.Value : _model.{name};");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine($"{memberIndent}    _lastRead = DateTime.Now;");
+        sb.AppendLine($"{memberIndent}}}");
+    }
+
+    private bool IsProxyReadable(ParsedType type)
+        => type is PrimitiveType or StringType
+           || (type is DerivedType d && _enumTypeNames.Contains(d.Name));
+
+    private static string ToCamelCase(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return "value";
+        if (name.Length == 1)
+            return name.ToLowerInvariant();
+        return char.ToLowerInvariant(name[0]) + name[1..];
     }
 
     private static IReadOnlyDictionary<string, int> BuildConstantLookup(ParsedModel model)
@@ -341,7 +421,10 @@ internal sealed class GvlCodeGenerator
                     return $" = System.Array.Empty<{elementType}>();";
                 }
             case DerivedType d:
-                return $" = new {SanitizeIdentifier(d.Name)}();";
+                // Enums are value types coming from an external namespace: no initializer.
+                return _enumTypeNames.Contains(d.Name)
+                    ? string.Empty
+                    : $" = new {SanitizeIdentifier(d.Name)}();";
         }
 
         if (variable.InitialValueLiteral != null && IsScalarType(variable.Type))
@@ -367,7 +450,9 @@ internal sealed class GvlCodeGenerator
                     return $" = System.Array.Empty<{elementType}>()";
                 }
             case DerivedType d:
-                return $" = new {SanitizeIdentifier(d.Name)}()";
+                return _enumTypeNames.Contains(d.Name)
+                    ? string.Empty
+                    : $" = new {SanitizeIdentifier(d.Name)}()";
         }
 
         if (variable.InitialValueLiteral != null && IsScalarType(variable.Type))

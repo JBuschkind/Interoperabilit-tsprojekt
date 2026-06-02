@@ -18,7 +18,7 @@ type CodeGeneratorProps = {
     direction?: string;
     callCLI: (args: string[]) => Promise<string>;
     setDirection?: (direction: string) => void;
-    setModalOpen: (isOpen: boolean) => void;
+    setModalOpen?: (isOpen: boolean) => void; // when omitted, no settings button is shown
 };
 
 export default function CodeGenerator({
@@ -806,19 +806,23 @@ export default function CodeGenerator({
                             <div className="h-11 w-28">{/* Spacer */}</div>
                         )}
 
-                        {/* Settings Button */}
-                        <button
-                            type="button"
-                            onClick={() => setModalOpen(true)}
-                            disabled={direction === 'reverse'}
-                            className="h-11 w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-surface-container-low"
-                            title="Settings"
-                        >
-                            <span className="material-symbols-outlined text-textcolor/60 text-lg">
-                                tune
-                            </span>
-                            <span className="text-textcolor/60">Settings</span>
-                        </button>
+                        {/* Settings Button — only when a settings modal is wired up */}
+                        {setModalOpen ? (
+                            <button
+                                type="button"
+                                onClick={() => setModalOpen(true)}
+                                disabled={direction === 'reverse'}
+                                className="h-11 w-28 flex justify-center items-center gap-2 text-sm px-3 py-1.5 rounded bg-surface-container-low hover:cursor-pointer hover:bg-surface-container-high text-heading border border-outline/10 shadow-lg transition-colors disabled:opacity-40 disabled:grayscale disabled:cursor-not-allowed disabled:hover:bg-surface-container-low"
+                                title="Settings"
+                            >
+                                <span className="material-symbols-outlined text-textcolor/60 text-lg">
+                                    tune
+                                </span>
+                                <span className="text-textcolor/60">Settings</span>
+                            </button>
+                        ) : (
+                            <div className="h-11 w-28">{/* Spacer */}</div>
+                        )}
                     </div>
                     {/* Input section */}
                     <div className="flex flex-col gap-3">

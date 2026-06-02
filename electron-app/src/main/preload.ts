@@ -68,7 +68,6 @@ const electronHandler = {
       gvlInputPath: string;
       proxyInputPath: string;
       outputPath: string;
-      cliArgs: string[];
     }) => ipcRenderer.invoke('run-beckhoff-parser-cli-reverse', payload),
 
     finalizeMerge: (payload: { outputPath: string; mergedCode: string }) =>

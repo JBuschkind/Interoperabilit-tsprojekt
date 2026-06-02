@@ -1,5 +1,5 @@
-using AmlParser.Modular.Controller;
-using AmlParser.Modular.Service;
+using XmlParser.Modular.Controller;
+using XmlParser.Modular.Service;
 
 IParsingController controller = new ParsingController(
     new GvlXmlService(),

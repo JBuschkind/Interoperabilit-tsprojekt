@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 internal abstract record ParsedType;
 
@@ -34,7 +34,8 @@ internal sealed record ParsedDataType(
 
 internal sealed record ParsedModel(
     IReadOnlyList<ParsedGvl> Gvls,
-    IReadOnlyList<ParsedDataType> DataTypes);
+    IReadOnlyList<ParsedDataType> DataTypes,
+    IReadOnlyList<string> EnumTypeNames);
 
 internal static class PlcOpenParser
 {
@@ -47,8 +48,8 @@ internal static class PlcOpenParser
     public static ParsedModel Parse(XDocument doc)
     {
         var gvls = ParseGlobalVariableBlocks(doc);
-        var dataTypes = ParseDataTypes(doc);
-        return new ParsedModel(gvls, dataTypes);
+        var dataTypes = ParseDataTypes(doc, out var enumTypeNames);
+        return new ParsedModel(gvls, dataTypes, enumTypeNames);
     }
 
     private static List<ParsedGvl> ParseGlobalVariableBlocks(XDocument doc)
@@ -128,9 +129,10 @@ internal static class PlcOpenParser
         return constants;
     }
 
-    private static List<ParsedDataType> ParseDataTypes(XDocument doc)
+    private static List<ParsedDataType> ParseDataTypes(XDocument doc, out List<string> enumTypeNames)
     {
         var result = new List<ParsedDataType>();
+        enumTypeNames = new List<string>();
 
         foreach (var dataNode in doc.Descendants(PlcOpenNs + "data"))
         {
@@ -146,6 +148,14 @@ internal static class PlcOpenParser
             if (string.IsNullOrWhiteSpace(name))
                 continue;
 
+            // Enum data types are treated as external typed references (like an
+            // enum from the project), not generated as classes/structs.
+            if (IsEnumDataType(dataType))
+            {
+                enumTypeNames.Add(name);
+                continue;
+            }
+
             var members = ParseDataTypeMembers(dataType);
             string? extendsName = ExtractDataTypeExtendsName(dataType);
 
@@ -154,6 +164,9 @@ internal static class PlcOpenParser
 
         return result;
     }
+
+    private static bool IsEnumDataType(XElement dataType)
+        => dataType.Element(PlcOpenNs + "baseType")?.Element(PlcOpenNs + "enum") != null;
 
     private static List<ParsedVariable> ParseDataTypeMembers(XElement dataType)
     {

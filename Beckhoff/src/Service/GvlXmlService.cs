@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 public sealed class GvlXmlService : IGvlXmlService
 {
@@ -13,15 +13,23 @@ public sealed class GvlXmlService : IGvlXmlService
         string inputXmlPath,
         string outputGvlCsPath,
         string outputProxyCsPath,
-        string? propertiesFilePath = null,
-        IReadOnlyDictionary<string, string>? cliOverrides = null)
+        string? namespaceName = null,
+        IReadOnlyList<string>? gvlUsings = null,
+        IReadOnlyList<string>? proxyUsings = null)
     {
         if (!File.Exists(inputXmlPath))
             throw new FileNotFoundException("Input XML not found", inputXmlPath);
 
         var doc = XDocument.Load(inputXmlPath, LoadOptions.PreserveWhitespace);
         var model = PlcOpenParser.Parse(doc);
-        var settings = PlcStatusControlConfig.Load(propertiesFilePath, cliOverrides);
+
+        var settings = new PlcStatusControlConfig();
+        if (!string.IsNullOrWhiteSpace(namespaceName))
+            settings.Namespace = namespaceName;
+        if (gvlUsings is { Count: > 0 })
+            settings.AdditionalUsings = gvlUsings;
+        if (proxyUsings is { Count: > 0 })
+            settings.AdditionalProxyUsings = proxyUsings;
 
         var generator = new GvlCodeGenerator(model, settings);
 

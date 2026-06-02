@@ -10,87 +10,15 @@
     "defaultValue": "OPT.Framework.A200001_Ilca_SensorCalibration.Hardware"
   },
   {
-    "id": "enum-using",
-    "label": "Enum Using",
-    "type": "text",
-    "defaultValue": "OPT.Framework.A200001_Ilca_SensorCalibration.Enumerations"
+    "id": "using",
+    "label": "Usings (Gvl.cs)",
+    "type": "textarea",
+    "defaultValue": ""
   },
   {
-    "id": "hardware-using",
-    "label": "Hardware Using",
-    "type": "text",
-    "defaultValue": "OPT.Framework.API.HardwareControls"
-  },
-  {
-    "id": "class-name",
-    "label": "Class Name",
-    "type": "text",
-    "defaultValue": "PlcStatusControl"
-  },
-  {
-    "id": "interface-name",
-    "label": "Namespace ID (OPC)",
-    "type": "text",
-    "defaultValue": "IPlcStatusControl"
-  },
-  {
-    "id": "plc-control-type-name",
-    "label": "PLC Control Type Name",
-    "type": "text",
-    "defaultValue": "IPlcControl"
-  },
-  {
-    "id": "hardware-control-pool-type-name",
-    "label": "Hardware Control Pool Type Name",
-    "type": "text",
-    "defaultValue": "IHardwareControlPool"
-  },
-  {
-    "id": "plc-read-method-name",
-    "label": "PLC Read Method Name",
-    "type": "text",
-    "defaultValue": "ReadValueFromPlcNode"
-  },
-  {
-    "id": "enum-type-name",
-    "label": "Enum Type Name",
-    "type": "text",
-    "defaultValue": "EPlcState"
-  },
-  {
-    "id": "plc-system-state-source-type",
-    "label": "PLC System State Source Type",
-    "type": "text",
-    "defaultValue": "ushort"
-  },
-  {
-    "id": "plc-system-state-node",
-    "label": "PLC System State Node",
-    "type": "text",
-    "defaultValue": "GVL_PLC.SystemStatus"
-  },
-  {
-    "id": "all-plc-nodes-present-node",
-    "label": "All PLC Nodes Present Node",
-    "type": "text",
-    "defaultValue": "GVL_PLC.AllPartitiantsPresent"
-  },
-  {
-    "id": "can-open-state-node",
-    "label": "Can Open State Node",
-    "type": "text",
-    "defaultValue": "GVL_PLC.CANOpenState"
-  },
-  {
-    "id": "app-timestamp-node",
-    "label": "App Timestamp Node",
-    "type": "text",
-    "defaultValue": "GVL_PLC.AppTimestamp"
-  },
-  {
-    "id": "app-version-node",
-    "label": "App Version Node",
-    "type": "text",
-    "defaultValue": "GVL_PLC.AppVersion"
+    "id": "proxy-using",
+    "label": "Usings (GvlProxy.cs)",
+    "type": "textarea",
+    "defaultValue": ""
   }
 ]

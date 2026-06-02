@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import '../App.css';
 import CodeGenerator from '../components/CodeGenerator';
 import ConfigModal from '../components/ConfigModal';
@@ -21,6 +21,7 @@ export default function Beckhoff() {
     const [direction, setDirection] = useState<string>('forward');
 
     // paths[0] = inputPath, paths[1] = gvlOutputPath, paths[2] = proxyOutputPath
+    // Forward (XML -> C#) is the only direction that uses settings (namespace, usings).
     const callBeckhoffParserCLIForward = async (paths: string[]) => {
         const cliArgs = getCLIArgs();
 
@@ -34,37 +35,34 @@ export default function Beckhoff() {
 
     // paths[0] = Gvl.cs, paths[1] = GvlProxy.cs, paths[2] = output XML
     const callBeckhoffParserCLIReverse = async (paths: string[]) => {
-        const cliArgs = getCLIArgs();
-
         return await window.electron.ipcRenderer.runBeckhoffParserCLIReverse({
             gvlInputPath: paths[0],
             proxyInputPath: paths[1],
             outputPath: paths[2],
-            cliArgs: cliArgs,
         });
     };
 
     return (
         <>
-            {/* Settings Modal */}
+            {/* Settings Modal (forward only) */}
             {isModalOpen && (
                 <ConfigModal
                     title="Settings"
                     hasUnsavedChanges={hasUnsavedChanges}
-                    config={draftConfig} //  use draft
-                    onChange={updateValue} // updates draft
+                    config={draftConfig}
+                    onChange={updateValue}
                     onClose={() => {
-                        closeModal(); // discard draft
+                        closeModal();
                     }}
                     onResetSaved={resetToSaved}
                     onResetDefaults={resetToDefaults}
                     onSubmit={async () => {
-                        await save(); // commit draft → store
-                        // closeModal();
+                        await save();
                     }}
                     closeModal={closeModal}
                 />
             )}
+
             {/* Main Content */}
             {direction === 'forward' ? (
                 <CodeGenerator
@@ -88,7 +86,7 @@ export default function Beckhoff() {
                     setModalOpen={openModal}
                     callCLI={callBeckhoffParserCLIReverse}
                 />
-            )}{' '}
+            )}
         </>
     );
 }

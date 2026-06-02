@@ -1,4 +1,4 @@
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 public interface IGvlCsToXmlService
 {

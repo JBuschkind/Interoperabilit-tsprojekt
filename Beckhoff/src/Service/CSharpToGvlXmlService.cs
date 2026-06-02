@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Text;
 
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 public sealed class CSharpToGvlXmlService : ICSharpToGvlXmlService
 {

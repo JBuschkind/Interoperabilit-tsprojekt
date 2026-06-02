@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace AmlParser.Modular.Service;
+namespace XmlParser.Modular.Service;
 
 public sealed class GvlCsToXmlService : IGvlCsToXmlService
 {
@@ -15,7 +15,7 @@ public sealed class GvlCsToXmlService : IGvlCsToXmlService
         RegexOptions.Compiled | RegexOptions.Singleline);
 
     private static readonly Regex PropertyRegex = new(
-        @"(?<doc>(?:\s*///[^\n]*\n)*)?\s*public\s+(?<type>[A-Za-z_][A-Za-z0-9_\.\[\]]*)\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*\{\s*get\s*;\s*set\s*;\s*\}(?:\s*=\s*(?<init>[^;]+)\s*;)?",
+        @"(?<doc>(?:\s*///[^\n]*\n)*)?\s*public\s+(?:(?:virtual|override|sealed|new)\s+)*(?<type>[A-Za-z_][A-Za-z0-9_\.\[\]]*)\s+(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*\{\s*get\s*;\s*set\s*;\s*\}(?:\s*=\s*(?<init>[^;]+)\s*;)?",
         RegexOptions.Compiled);
 
     private static readonly Regex ConstRegex = new(

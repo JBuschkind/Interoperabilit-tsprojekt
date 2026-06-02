@@ -4,7 +4,7 @@ Dieses Projekt ist ein reines CLI-Tool.
 
 Es unterstuetzt drei Uebersetzungsrichtungen:
 
-1. **Forward**: XML -> Gvl.cs (POCO) + GvlProxy.cs (Read-Methoden) + optional XML-Template
+1. **Forward**: XML -> Gvl.cs (POCO mit virtuellen Properties) + GvlProxy.cs (Proxy je GVL, der die GVL erbt und ueberschreibt) + optional XML-Template
 2. **Reverse**: C# (GvlProxy.cs) + Template-XML -> aktualisierte XML (Renames werden eingespielt)
 3. **Generate**: Gvl.cs (+ optional GvlProxy.cs) -> frische XML (kein Template noetig)
 
@@ -12,7 +12,7 @@ Es unterstuetzt drei Uebersetzungsrichtungen:
 
 | Richtung   | Pflicht-Inputs                                  | Optional-Inputs           | Outputs                       |
 | ---------- | ----------------------------------------------- | ------------------------- | ----------------------------- |
-| Forward    | `--input-xml` (PLCopen-XML)                     | `--properties`            | `--output-gvl`, `--output-proxy` |
+| Forward    | `--input-xml` (PLCopen-XML)                     | `--namespace`, `--using`, `--proxy-using` | `--output-gvl`, `--output-proxy` |
 | Reverse    | `--input-cs` (C# mit `ReadValueFromPlcNode<T>("GVL.X")` Aufrufen), `--template-xml` (vorhandene PLCopen-XML als Vorlage) | —                         | `--output-xml`                |
 | Generate   | `--input-gvl` (Gvl.cs)                          | `--input-proxy` (GvlProxy.cs) | `--output-xml`                |
 
@@ -73,11 +73,12 @@ dotnet run --project .\xmlParser.csproj -- `
   --direction forward `
   --input-xml .\Input\GVL_PLC.xml `
   --output-gvl .\Output\Gvl.cs `
-  --output-proxy .\Output\GvlProxy.cs `
-  --properties .\Input\plcstatus.properties
+  --output-proxy .\Output\GvlProxy.cs
 ```
 
-Forward extrahiert pro `<globalVars>`-Block eine POCO-Klasse und pro `<dataType>`-Block eine struct-aehnliche Klasse. Variablen mit nicht primitivem Typ landen nur im POCO; im Proxy werden dazu auskommentierte Hinweise erzeugt.
+Konfigurierbar sind nur **Namespace** (`--namespace`) sowie zusaetzliche Usings fuer Gvl.cs (`--using`) und GvlProxy.cs (`--proxy-using`); Usings koennen komma- oder zeilengetrennt angegeben werden. Die uebrigen Generator-Einstellungen (Hardware-Typen, Read-Methode) sind in `src/Service/PlcStatusControlConfig.cs` fest hinterlegt.
+
+Forward extrahiert pro `<globalVars>`-Block eine POCO-Klasse (Properties sind `virtual`) und pro `<dataType>`-Block eine struct-aehnliche Klasse. Pro GVL entsteht im Proxy eine Klasse `<GVL>Proxy : <GVL>`, die jede primitive Variable per `override`-Getter mit dem Live-PLC-Wert versorgt (gecacht ueber `_model` und `_updateInterval`). Variablen mit nicht primitivem Typ landen nur im POCO; im Proxy werden dazu auskommentierte Hinweise erzeugt.
 
 ### Reverse mit expliziten Pfaden
 
@@ -173,15 +174,17 @@ Der Parser kann dann mit dem Befehl `twincatparser` verwendet werden.
 | `--output-gvl` | Forward | Ausgabepfad fuer Gvl.cs |
 | `--output-proxy` | Forward | Ausgabepfad fuer GvlProxy.cs |
 | `--output-cs` | Forward | Legacy-Alias fuer `--output-gvl` |
-| `--properties` | Forward | Properties-Datei mit Config-Defaults |
 | `--input-cs` | Reverse | C#-Eingabedatei (z. B. GvlProxy.cs) |
 | `--template-xml` | Reverse | XML-Template (Pflicht; Fallback auf `Input/GVL_PLC.xml`) |
 | `--output-xml` | Reverse / Generate | XML-Ausgabe |
 | `--input-gvl` | Generate | Gvl.cs als Eingabe |
 | `--input-proxy` | Generate | (Optional) GvlProxy.cs als Eingabe |
+| `--namespace` | Forward | Namespace der generierten Gvl.cs / GvlProxy.cs |
+| `--using` | Forward | Zusaetzliche Usings fuer Gvl.cs (komma-/zeilengetrennt) |
+| `--proxy-using` | Forward | Zusaetzliche Usings fuer GvlProxy.cs (komma-/zeilengetrennt) |
 | `--help`, `-h` | alle | Hilfe anzeigen |
 
-Forward unterstuetzt zusaetzlich Config-Override-Flags (siehe `--help`).
+Diese drei Forward-Settings lassen sich auch in der Electron-App ueber den Settings-Dialog einstellen.
 
 ## Projektstruktur
 
@@ -192,38 +195,24 @@ Forward unterstuetzt zusaetzlich Config-Override-Flags (siehe `--help`).
 5. `src/Service/GvlCsToXmlService.cs`: Generate-Logik (XML aus C# ohne Template)
 6. `src/Service/PlcOpenParser.cs`: PLCopen-XML-Parser (Forward)
 7. `src/Service/GvlCodeGenerator.cs`: C#-Generator (Forward)
-8. `src/Service/PlcStatusControlConfig.cs`: Laden von plcstatus.properties
+8. `src/Service/PlcStatusControlConfig.cs`: Forward-Settings (Namespace/Usings konfigurierbar, Rest fix)
 
 ## Ausgabedateien (Standardpfade)
 
 | Datei | Erzeugt von |
 | --- | --- |
 | `Output/Gvl.cs` | Forward (POCO-Mirror aller globalVars/dataTypes) |
-| `Output/GvlProxy.cs` | Forward (Read-Methoden pro primitiver Variable) |
+| `Output/GvlProxy.cs` | Forward (ein `<GVL>Proxy : <GVL>` je GVL mit override-Gettern) |
 | `Output/GVL_PLC.template.xml` | Forward (optional, fuer Reverse) |
 | `Output/GVL_PLC.updated.xml` | Reverse |
 | `Output/GVL_PLC.generated.xml` | Generate |
 
-## Properties-Datei (Forward)
+## Settings (Forward)
 
-Wichtige Keys:
+Konfigurierbar (CLI-Flag bzw. Settings-Dialog der Electron-App):
 
-- `namespace`
-- `enumUsing`
-- `hardwareUsing`
-- `className`
-- `interfaceName`
-- `plcControlTypeName`
-- `hardwareControlPoolTypeName`
-- `plcReadMethodName`
-- `enumTypeName`
-- `plcSystemStateSourceType`
-- `plcSystemStateNode`
-- `allPlcNodesPresentNode`
-- `canOpenStateNode`
-- `appTimestampNode`
-- `appVersionNode`
+- `--namespace` — Namespace der generierten Klassen
+- `--using` — zusaetzliche Usings fuer Gvl.cs (komma- oder zeilengetrennt)
+- `--proxy-using` — zusaetzliche Usings fuer GvlProxy.cs (komma- oder zeilengetrennt)
 
-Prioritaet: defaults < Properties-Datei < CLI-Optionen < Env-Variablen (`PLCSTATUS_*`).
-
-Environment-Variablen mit Prefix `PLCSTATUS_` ueberschreiben Werte aus der Properties-Datei.
+Fest hinterlegt in `src/Service/PlcStatusControlConfig.cs` (nicht ueber CLI/UI aenderbar): die Hardware-Using-Direktive, der PLC-Control-Typ, der Hardware-Control-Pool-Typ und der Name der PLC-Read-Methode.

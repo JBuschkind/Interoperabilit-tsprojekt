@@ -1,6 +1,6 @@
-using AmlParser.Modular.Service;
+using XmlParser.Modular.Service;
 
-namespace AmlParser.Modular.Controller;
+namespace XmlParser.Modular.Controller;
 
 public interface IParsingController
 {
@@ -85,24 +85,21 @@ public sealed class ParsingController : IParsingController
             ?? DeriveProxyPathFromGvlPath(outputGvlPath, legacyOutputCs != null)
             ?? defaultProxyPath;
 
-        string? propertiesPath = GetOptionOrNull(args, "--properties");
-
-        var configOverrides = ParseConfigOverrides(args);
+        string? namespaceName = GetOptionOrNull(args, "--namespace");
+        var gvlUsings = ParseListOption(args, "--using");
+        var proxyUsings = ParseListOption(args, "--proxy-using");
 
         Console.WriteLine("Direction:                       forward");
         Console.WriteLine($"Input XML:                       {inputXmlPath}");
         Console.WriteLine($"Output Gvl.cs:                   {outputGvlPath}");
         Console.WriteLine($"Output GvlProxy.cs:              {outputProxyPath}");
 
-        if (propertiesPath != null)
-            Console.WriteLine($"Properties file:                 {propertiesPath}");
-
-        if (configOverrides.Count > 0)
-        {
-            Console.WriteLine($"CLI config overrides:            {configOverrides.Count}");
-            foreach (var entry in configOverrides)
-                Console.WriteLine($"  {entry.Key} = {entry.Value}");
-        }
+        if (namespaceName != null)
+            Console.WriteLine($"Namespace:                       {namespaceName}");
+        if (gvlUsings.Count > 0)
+            Console.WriteLine($"Usings (Gvl.cs):                 {string.Join(", ", gvlUsings)}");
+        if (proxyUsings.Count > 0)
+            Console.WriteLine($"Usings (GvlProxy.cs):            {string.Join(", ", proxyUsings)}");
 
         if (!inputXmlPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
         {
@@ -116,8 +113,9 @@ public sealed class ParsingController : IParsingController
                 inputXmlPath,
                 outputGvlPath,
                 outputProxyPath,
-                propertiesFilePath: propertiesPath,
-                cliOverrides: configOverrides);
+                namespaceName,
+                gvlUsings,
+                proxyUsings);
 
             Console.WriteLine("Success: Forward translation completed.");
             return 0;
@@ -298,26 +296,12 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine("Forward options:");
         Console.WriteLine("  --input-xml          Input XML path");
         Console.WriteLine("  --output-gvl         Output path for Gvl.cs (POCO mirror of all globalVars/dataTypes)");
-        Console.WriteLine("  --output-proxy       Output path for GvlProxy.cs (read methods per primitive variable)");
+        Console.WriteLine("  --output-proxy       Output path for GvlProxy.cs (one proxy per GVL)");
         Console.WriteLine("  --output-cs          Legacy alias for --output-gvl; proxy is placed next to it");
-        Console.WriteLine("  --properties         Properties file path (optional, overrides defaults)");
-        Console.WriteLine();
-        Console.WriteLine("Forward config overrides (override defaults and properties file):");
-        Console.WriteLine("  --namespace                          Generated class namespace");
-        Console.WriteLine("  --enum-using                         Using for enum types");
-        Console.WriteLine("  --hardware-using                     Using for hardware controls");
-        Console.WriteLine("  --class-name                         Generated class name");
-        Console.WriteLine("  --interface-name                     Generated interface name");
-        Console.WriteLine("  --plc-control-type-name              PLC control type name");
-        Console.WriteLine("  --hardware-control-pool-type-name    Hardware control pool type name");
-        Console.WriteLine("  --plc-read-method-name               PLC read method name");
-        Console.WriteLine("  --enum-type-name                     Enum type name");
-        Console.WriteLine("  --plc-system-state-source-type       PLC system state source type");
-        Console.WriteLine("  --plc-system-state-node              Explicit PLC system state node path");
-        Console.WriteLine("  --all-plc-nodes-present-node         Explicit all-nodes-present node path");
-        Console.WriteLine("  --can-open-state-node                Explicit CANOpen state node path");
-        Console.WriteLine("  --app-timestamp-node                 Explicit app timestamp node path");
-        Console.WriteLine("  --app-version-node                   Explicit app version node path");
+        Console.WriteLine("  --namespace          Namespace of the generated Gvl.cs / GvlProxy.cs");
+        Console.WriteLine("  --using              Extra usings for Gvl.cs (comma/newline separated)");
+        Console.WriteLine("  --proxy-using        Extra usings for GvlProxy.cs (comma/newline separated)");
+        Console.WriteLine("  (Hardware types and read method are fixed in PlcStatusControlConfig.)");
         Console.WriteLine();
         Console.WriteLine("Reverse options:");
         Console.WriteLine("  --input-cs           Input C# path");
@@ -331,8 +315,6 @@ public sealed class ParsingController : IParsingController
         Console.WriteLine();
         Console.WriteLine("General:");
         Console.WriteLine("  --help, -h           Show this help");
-        Console.WriteLine();
-        Console.WriteLine("Priority: defaults < properties file < CLI options < env vars (PLCSTATUS_*)");
     }
 
     /// <summary>
@@ -397,42 +379,22 @@ public sealed class ParsingController : IParsingController
     }
 
     /// <summary>
-    /// Maps CLI config options to their corresponding configuration keys
-    /// and returns only those that were explicitly provided.
+    /// Reads a CLI option whose value is a list of entries separated by commas
+    /// or newlines (e.g. the UI textarea for additional usings). Returns an
+    /// empty list when the option is absent.
     /// </summary>
     /// <param name="args">Raw CLI argument array.</param>
-    /// <returns>Dictionary of configuration overrides from CLI arguments.</returns>
-    private static Dictionary<string, string> ParseConfigOverrides(string[] args)
+    /// <param name="optionName">Option name to read.</param>
+    /// <returns>Trimmed, non-empty entries from the option value.</returns>
+    private static List<string> ParseListOption(string[] args, string optionName)
     {
-        var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        string? raw = GetOptionOrNull(args, optionName);
+        if (string.IsNullOrWhiteSpace(raw))
+            return new List<string>();
 
-        var optionMappings = new (string CliOption, string ConfigKey)[]
-        {
-            ("--namespace", "namespace"),
-            ("--enum-using", "enumUsing"),
-            ("--hardware-using", "hardwareUsing"),
-            ("--class-name", "className"),
-            ("--interface-name", "interfaceName"),
-            ("--plc-control-type-name", "plcControlTypeName"),
-            ("--hardware-control-pool-type-name", "hardwareControlPoolTypeName"),
-            ("--plc-read-method-name", "plcReadMethodName"),
-            ("--enum-type-name", "enumTypeName"),
-            ("--plc-system-state-source-type", "plcSystemStateSourceType"),
-            ("--plc-system-state-node", "plcSystemStateNode"),
-            ("--all-plc-nodes-present-node", "allPlcNodesPresentNode"),
-            ("--can-open-state-node", "canOpenStateNode"),
-            ("--app-timestamp-node", "appTimestampNode"),
-            ("--app-version-node", "appVersionNode"),
-        };
-
-        foreach (var (cliOption, configKey) in optionMappings)
-        {
-            string? value = GetOptionOrNull(args, cliOption);
-            if (value != null)
-                overrides[configKey] = value;
-        }
-
-        return overrides;
+        return raw
+            .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
     }
 
     /// <summary>
